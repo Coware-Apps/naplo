@@ -1,4 +1,4 @@
-![Napló+](https://github.com/Coware-Apps/naplo/blob/master/docs/naplo_logo.png?raw=true)
+![Napló+](docs/naplo_logo.png)
 
 Ez egy **nem hivatalos _tanári_** napló alkalmazás, ami kompatibilis a magyarországi KRÉTA-rendszerrel. 
 
