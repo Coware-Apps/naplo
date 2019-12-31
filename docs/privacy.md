@@ -9,7 +9,7 @@ Mindennemű személyes adatot csak a felhasználó készülélén tárolunk és 
 
 Ezen alkalmazás a KRÉTA rendszer Elektronikus Napló modulját (továbbiakban KRÉTA) használja, ezért a KRÉTA Adatvédelmi Tájékoztatóját tanácsoljuk figyelembe venni, hiszen az mi Adatkezelési tájékoztatónk nélkülözhetetlen eleme. Ez eleréhető a https://tudasbazis.ekreta.hu/ weboldalon.
 
-Megjegyzés: ezen dokumentum önmagában nem mérvadó, hiszen az adatokat és azok harmadik féllel való megosztását az eKRÉTA Informatikai Zrt. kezeli. Ezentúl szeretnénk itt kijelenteni, hogy ez nem egy hivatalos kliens a KRÉTA szolgáltatásaihoz, amelynek esetleges szerződései megsértése esetén minden következmény a felhasználót illeti, amennyiben ezen szerződések ellenkezőképpen nem nyilatkoznak. E projekt nyílt forráskódú és a GPLv3 licensz alatt van terjesztve.
+Megjegyzés: ezen dokumentum önmagában nem mérvadó, hiszen az adatok és azok harmadik féllel való megosztása felett az eKRÉTA Informatikai Zrt. rendelkezik. E projekt nyílt forráskódú és a GPLv3 licensz alatt terjesztjük.
 
 Az alkalmazás felhasználási feltétele ezen dokumentum elolvasása és elfogadása. Amennyiben ez nem történik meg, vagy esetlegesen e dokumentummal való egyetértés megszűnik, az alkalmazás nem használható tovább. Ez esetben az alkalmazás eltávolítása a felhasználó feladata.
 
@@ -34,12 +34,12 @@ A személyes adatok kezelése kizárólag akkor és annyiban jogszerű, amennyib
 ### Diagnosztikai adatok
 Adatkezelés jogalapja: (EU) 2016/679 rendelet 6. cikk (1) bekezdés f): az adatkezelő jogos érdekeinek érvényesítése
 
-Az alkalmazás, üzemelése során a fejlesztés és a hibakeresés folyamatát segítő, személyes beazonosításra nem alkalmas diagnosztikai adatokat gyűjthet. Ezeket az adatokat az alkalmazás a Google Analytics nevű szolgáltatása felé továbbíthatja.
+Az alkalmazás, üzemelése során a fejlesztés és a hibakeresés folyamatát segítő, személyes beazonosításra nem alkalmas diagnosztikai adatokat gyűjthet. Ezeket az adatokat az alkalmazás a Google Analytics nevű szolgáltatása felé továbbíthatja. Az alkalmazásba való bejelentkezéssel kifejezetten hozzájárulsz ezen adatok gyűjtéséhez. A hibajelentések és teljesítménymutatók a fejlesztő számára nélkülözhetetlen adat, a használati statisztikák gyűjtése azonban kikapcsolható az alkalmazás beállításaiban.
 
 ### Működéshez szükséges technikai adatok
 Adatkezelés jogalapja: (EU) 2016/679 rendelet 6. cikk (1) bekezdés b) és f)
 
-Az alkalmazás használatához KRÉTA regisztráció szükséges, így a működés biztosítása érdekében a bejelentkezés során véletlenszerűen generált egyedi azonosítók (tokenek) kerülnek létrehozásra és tárolásra. Ezeket az alkalmazás alapvető működéséhez használjuk. Ezek az azonosítók konkrét személyekhez csak a KRÉTA által köthetők, jellegükből adódóan az alkalmazás törlésével automatikusan elveszítik funkcionalitásukat.
+Az alkalmazás használatához KRÉTA regisztráció szükséges, így a működés biztosítása érdekében a bejelentkezés során véletlenszerűen generált egyedi azonosítók (tokenek) kerülnek létrehozásra és tárolásra a felhasználó készülékén. Ezeket az alkalmazás alapvető működéséhez használjuk. Ezek az azonosítók konkrét személyekhez csak a KRÉTA által köthetők, jellegükből adódóan az alkalmazás törlésével automatikusan elveszítik funkcionalitásukat.
 
 ### Ügyfélszolgálattal történő kapcsolatfelvétel során közölt adatok
 Adatkezelés jogalapja: (EU) 2016/679 rendelet 6. cikk (1) bekezdés b) és f)
@@ -69,7 +69,7 @@ Mivel cégünk harmadik fél által nyújtott szolgáltatásokat is igénybe ves
 Az alkalmazás működésének alapja, hogy a KRÉTA rendszernek eljuttatja a felhasználó által megadott adatokat, hogy az elektronikus napló ténylegesen működőképes legyen. Ezt csakis közvetlen módon, titkosított csatornán keresztül teszi.
 
 ### Google Analytics
-Az alkalmazás továbbfejlesztéséhez és a hibakereséshez nélkülözhetetlen információt jelent a Google rendszere segítségével gyűjtött diagnosztikai információ. A Google adatkezelési tájékoztatóját [ezen a webhelyen](https://support.google.com/analytics/answer/4597324) találod.
+Az alkalmazás továbbfejlesztéséhez és a hibakereséshez nélkülözhetetlen információt jelent a Google rendszere segítségével gyűjtött diagnosztikai információ. Ezeket a személyes beazonosításra nem alkalmas információkat a Google két hónapig tárolja. A Google adatkezelési tájékoztatóját [ezen a webhelyen](https://support.google.com/analytics/answer/4597324) találod. A használati adatok gyűjtése az alkalmazás beállításaiban kikapcsolható.
 
 ## Tájékoztató a jogaidról
 Ezúton szeretnénk tudomásodra hozni, hogy olyan esetekben, ahol az adatkezelés jogalapja az (EU) 2016/679 rendelet 6. cikk (1) bekezdés a), tehát az érintett önkéntes hozzájárulása, a hatályos nemzeti jogszabályok, valamint az Európai Unió jogi aktusai szerint érintettként az alábbi jogok illetnek meg:
@@ -80,7 +80,7 @@ Ezúton szeretnénk tudomásodra hozni, hogy olyan esetekben, ahol az adatkezel�
 ### Hozzáféréshez való jog
 Érintettként jogosult vagy az adatkezelés során kezelt személyes adatokhoz, illetve az adatok kapcsán felmerülő egyéb információhoz hozzáférni: az adatkezelés céljai; az érintett személyes adatok kategóriái; azon címzettek vagy címzettek kategóriái, akikkel, illetve amelyekkel a személyes adatokat közölték vagy közölni fogják, ideértve különösen a harmadik országbeli címzetteket, illetve a nemzetközi szervezeteket; a személyes adatok tárolásának tervezett időtartama; a helyesbítés, törlés vagy adatkezelés korlátozásának és a tiltakozás joga; a felügyeleti hatósághoz címzett panasz benyújtásának joga; az adatforrásokra vonatkozó információ; az automatizált döntéshozatal ténye, ideértve a profilalkotást is, valamint az alkalmazott logikára és arra vonatkozó érthető információk, hogy az ilyen adatkezelés milyen jelentőséggel bír, és az érintettre nézve milyen várható következményekkel jár.
 
-Mivel mi nem tárolunk semmilyen ilyen információt, a KRÉTA Adatvédelmi tájékoztatójában leírtak az irányadók.
+Mivel mi nem tárolunk semmilyen szemlyes adatot, a KRÉTA Adatvédelmi tájékoztatójában leírtak az irányadók.
 
 ### Helyesbítés joga
 Érintettként jogosult vagy az adatkezelés során a pontatlan adatok helyesbítését, a hiányos adatok kiegészítését kérni.
@@ -114,4 +114,4 @@ Jelen adatkezelési tájékoztató alapja az eSzivacs hasonló tájékoztatója 
 
 Mivel a személyes adatokat az eKréta Informatikai ZRt. kezeli, ismételten felhívjuk a figyelmet az ő adatkezelési tájékoztatójukra, amely [ezen a linken](https://tudasbazis.ekreta.hu/pages/viewpage.action?pageId=4064926) érhető el.
 
-Utolsó módosítás: 2019. 12. 24.
+Utolsó módosítás: 2019. 12. 31.
