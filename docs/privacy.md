@@ -7,7 +7,7 @@ Elkötelezettek vagyunk ügyfeleink és partnereink személyes adatainak védelm
 
 Mindennemű személyes adatot csak a felhasználó készülélén tárolunk és megteszünk minden olyan biztonsági, technikai és szervezési intézkedést, amely az adatok megfelelő védelmét garantálja.
 
-Ezen alkalmazás a KRÉTA rendszer Elektronikus Napló modulját (továbbiakban KRÉTA) használja, ezért a KRÉTA Adatvédelmi Tájékoztatóját tanácsoljuk figyelembe venni, hiszen az mi Adatkezelési tájékoztatónk nélkülözhetetlen eleme. Ez eleréhető a https://tudasbazis.ekreta.hu/ weboldalon.
+Ezen alkalmazás a KRÉTA rendszer Elektronikus Napló modulját (továbbiakban KRÉTA) használja, ezért a KRÉTA Adatvédelmi Tájékoztatóját tanácsoljuk figyelembe venni, hiszen az mi Adatkezelési tájékoztatónk nélkülözhetetlen eleme. Ez elérhető a https://tudasbazis.ekreta.hu/ weboldalon.
 
 Megjegyzés: ezen dokumentum önmagában nem mérvadó, hiszen az adatok és azok harmadik féllel való megosztása felett az eKRÉTA Informatikai Zrt. rendelkezik. E projekt nyílt forráskódú és a GPLv3 licensz alatt terjesztjük.
 
