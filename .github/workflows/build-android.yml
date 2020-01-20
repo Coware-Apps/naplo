@@ -23,7 +23,7 @@ jobs:
     - name: Get package version
       run: |
         v=`node -p "const p = require('./package.json'); p.version;"`
-        echo ::set-env name=PACKAGE_VERSION::$v"
+        echo ::set-env name=PACKAGE_VERSION::$v
       
     - name: Ionic build
       run: ionic cordova build android --prod --release
