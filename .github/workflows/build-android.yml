@@ -16,6 +16,9 @@ jobs:
       
     - name: Use coturiv/setup-ionic
       uses: coturiv/setup-ionic@v1
+      with:
+        cordova-version: 9
+        ionic-version: ~5.4.15
       
     - name: Get package version
       run: |
