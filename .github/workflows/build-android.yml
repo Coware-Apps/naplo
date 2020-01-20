@@ -34,8 +34,8 @@ jobs:
     - name: Upload APK artifact
       uses: actions/upload-artifact@v1.0.0
       with:
-        name: naplo-${{ PACKAGE_VERSION }}-release-signed.apk
-        path: ${{ SIGNED_RELEASE_FILE }}
+        name: naplo-${{ env.PACKAGE_VERSION }}-release-signed.apk
+        path: ${{ env.SIGNED_RELEASE_FILE }}
         
     - name: Build AAB
       uses: eskatos/gradle-command-action@v1
@@ -54,5 +54,5 @@ jobs:
     - name: Upload AAB artifact
       uses: actions/upload-artifact@v1.0.0
       with:
-        name: naplo-${{ PACKAGE_VERSION }}-release-signed.aab
-        path: ${{ SIGNED_RELEASE_FILE }}
+        name: naplo-${{ env.PACKAGE_VERSION }}-release-signed.aab
+        path: ${{ env.SIGNED_RELEASE_FILE }}
