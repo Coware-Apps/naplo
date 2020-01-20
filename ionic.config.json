@@ -1,0 +1,7 @@
+{
+  "name": "Naplo",
+  "integrations": {
+    "cordova": {}
+  },
+  "type": "angular"
+}

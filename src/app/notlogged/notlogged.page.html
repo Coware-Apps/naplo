@@ -1,0 +1,72 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+
+    <ion-title>Nem naplózott órák</ion-title>
+  </ion-toolbar>
+
+  <app-offline-warning-bar></app-offline-warning-bar>
+</ion-header>
+
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="loadHianyzoOrak(true, $event)" pullFactor="0.8" pullMin="60" pullMax="120">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <ng-container *ngIf="orak.length > 0 && !loading">
+    <ion-list>
+      <ng-container *ngFor="let o of orak">
+        <app-orarendi-ora [lesson]="o" showDate="true" (click)="onLessonClick(o)"></app-orarendi-ora>
+      </ng-container>
+    </ion-list>
+        
+    <ion-item lines="none" class="note">
+      <ion-icon name="information-circle-outline" slot="start"></ion-icon>
+      <ion-note>Ez a lista technikai okokból csak az elmúlt {{napToCheck}} nap nem naplózott óráit tartalmazza.</ion-note>
+    </ion-item>
+  </ng-container>
+
+  <div *ngIf="orak.length == 0 && !loading" class="ion-padding-horizontal ion-text-center list-empty-placeholder">
+    <ion-icon slot="icon-only" name="information-circle-outline" style="font-size: 128px;"></ion-icon>
+    <p><strong>A lista üres</strong></p>
+    <p>Technikai okokból csak az elmúlt {{napToCheck}} nap óráit tudjuk ellenőrizni.</p>
+  </div>
+
+
+  <div *ngIf="loading">
+    <ion-progress-bar type="indeterminate" color="warning"></ion-progress-bar>
+    
+    <ion-list>
+      <ion-item>
+        <ion-label>
+          <h2><ion-skeleton-text width="60%" animated></ion-skeleton-text></h2>
+          <p><ion-skeleton-text width="30%" animated></ion-skeleton-text></p>
+        </ion-label>
+      </ion-item>
+      
+      <ion-item>
+        <ion-label>
+          <h2><ion-skeleton-text width="20%" animated></ion-skeleton-text></h2>
+          <p><ion-skeleton-text width="30%" animated></ion-skeleton-text></p>
+        </ion-label>
+      </ion-item>
+      
+      <ion-item>
+        <ion-label>
+          <h2><ion-skeleton-text width="40%" animated></ion-skeleton-text></h2>
+          <p><ion-skeleton-text width="50%" animated></ion-skeleton-text></p>
+        </ion-label>
+      </ion-item>
+      
+      <ion-item>
+        <ion-label>
+          <h2><ion-skeleton-text width="35%" animated></ion-skeleton-text></h2>
+          <p><ion-skeleton-text width="30%" animated></ion-skeleton-text></p>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+  </div>
+
+</ion-content>

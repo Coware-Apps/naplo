@@ -1,4 +1,4 @@
-![Napló+](naplo_logo.png)
+<p align="center"><img class="center" src="naplo_logo.png" width="200"/></p>
 
 Ez egy **nem hivatalos _tanári_** napló alkalmazás, ami kompatibilis a magyarországi KRÉTA-rendszerrel. 
 
@@ -11,7 +11,7 @@ Az elsődleges cél, hogy gyorsabb, megbízhatóbb, használhatóbb legyen. Jele
 Minden ötletet szívesen fogadunk a cowareapps@gmail.com címen. Sajnos az alkalmazás továbbfejlesztésének korlátokat szab, hogy hivatalos dokumentáció híján csak azokkal az adatokkal tudunk dolgozni, amivel a hivatalos alkalmazás is dolgozik.
 Például a hivatalos alkalmazásban jelenleg nem lehet elmaradtra állítani egy órát, ezért ezt mi sem tudjuk megvalósítani, mert nem tudjuk milyen formában kellene ezt az információt elküldeni a szervernek.
 
-#### Nem lopja el az alkalmazás az adataimat?
+#### Biztonságban vannak az adataim?
 Az alkalmazás közvetlenül az e-napló szervereivel kommunikál titkosított kapcsolaton keresztül, semmilyen más szerverre küld semmilyen személyes adatot. Ennek ellenére kizárólag saját felelősségre használható, hiszen a személyes adatok kezelője az iskola, illetve a tanár.
 
 ### Felhasználási feltételek

@@ -1,0 +1,40 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button (click)="dismiss()" fill="clear">
+        <ion-icon slot="icon-only" name="arrow-round-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+
+    <ion-title>Értékelés</ion-title>
+    
+    <ion-buttons slot="end">
+      <ion-button (click)="save()" [disabled]="currentlyOffline"> 
+        <ion-label>Mentés</ion-label>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <app-offline-warning-bar warningMessage="Nincs internet, az adatok nem menthetők"></app-offline-warning-bar>
+
+  <ion-toolbar color="secondary" class="ion-text-center">
+    {{tanitottCsoport.OsztalyCsoportNev}}<br>
+    {{tanitottCsoport.TantargyNev}}
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <app-ertekeles [lesson]="tanitottCsoport" [osztalyTanuloi]="osztalyTanuloi" #ertekeles></app-ertekeles>
+
+  <div *ngIf="!osztalyTanuloi">
+    <ion-progress-bar type="indeterminate" color="warning"></ion-progress-bar>
+    <ion-list *ngFor="let i of [].constructor(5)" class="ion-no-padding ion-no-margin" lines="full">
+      <ion-item>
+        <ion-label>
+          <ion-skeleton-text style="width: 50%; height: 14px"></ion-skeleton-text>
+          <ion-skeleton-text style="width: 100%; height: 27px"></ion-skeleton-text>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+  </div>
+</ion-content>

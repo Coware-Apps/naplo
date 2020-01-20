@@ -1,0 +1,28 @@
+.nev {
+    font-weight: bold;
+    font-size: 12pt;
+}
+
+.ertekeles-row {
+    display: flex;
+
+    ion-button {
+        width: 100%;
+    }
+
+    &.szazalek {
+        justify-content: center;
+
+        ion-input {
+            text-align: center;
+        }
+        ion-button {
+            width: 45px;
+        }
+        ion-button.trash {
+            width: 55px;
+            --padding-start: 0px;
+            --padding-end: 0;
+        }
+    }
+}

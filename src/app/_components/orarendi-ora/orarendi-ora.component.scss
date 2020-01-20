@@ -1,0 +1,38 @@
+ion-thumbnail {
+    border-left: 6px solid transparent;
+    text-align: center;
+    position: relative;
+
+    .oraszam {
+        font-weight: bold;
+        font-size: 18pt;
+        margin-top: 14px;
+        margin-left: 10px;
+    }
+
+    .datum {
+        font-weight: bold;
+        margin-left: 10px;
+        font-size: 1.26rem;
+        position: absolute;
+        top: 50%;
+        -ms-transform: translateY(-50%);
+        transform: translateY(-50%);
+    }
+}
+
+.naplozott ion-thumbnail {
+    border-color: green;
+}
+.nemnaplozott ion-thumbnail {
+    border-color: red;
+}
+.jovobeni ion-thumbnail {
+    border-color: grey;
+}
+.elmaradt, .helyettesitett {
+    ion-thumbnail { border-color: grey; }
+    .targynev { text-decoration: line-through; }
+}
+
+ion-icon { vertical-align: text-top; }

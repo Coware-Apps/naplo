@@ -1,0 +1,7 @@
+package hu.coware.naplo.uitests;
+
+public final class KretaLoginConfig {
+    public final static String KRETA_USERNAME = "";
+    public final static String KRETA_PASSWORD = "";
+    public final static String KRETA_INSTITUTE_SEARCH = "";
+}

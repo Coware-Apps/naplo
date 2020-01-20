@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="hu.coware.naplo.uitests">
+
+    <!-- Specify runner and target application package -->
+    <instrumentation
+        android:name="androidx.test.runner.AndroidJUnitRunner"
+        android:functionalTest="false"
+        android:handleProfiling="false"
+        android:label="Tests for hu.coware.naplo"
+        android:targetPackage="hu.coware.naplo"/>
+
+</manifest>

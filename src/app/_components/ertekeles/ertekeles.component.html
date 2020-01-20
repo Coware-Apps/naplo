@@ -1,0 +1,39 @@
+<ion-item>
+  <ion-label position="floating">Az értékelés dátuma</ion-label>
+  <ion-datetime displayFormat="YYYY. MM. DD." [min]="this.dateHelper.getMonthFromToday(-3)"
+    [max]="this.dateHelper.getTodayString()" [(ngModel)]="ertekelesDatum" cancelText="Mégse" doneText="Kész">
+  </ion-datetime>
+</ion-item>
+
+<ion-item>
+  <ion-label position="floating">Az értékelés témája</ion-label>
+  <ion-input type="text" [(ngModel)]="ertekelesTema"></ion-input>
+</ion-item>
+
+<ion-item>
+  <ion-label position="floating">Az értékelés módja</ion-label>
+  <ion-input type="text" [value]="ertekelesMod?.Nev" (click)="presentErtekelesModPicker()" readonly></ion-input>
+</ion-item>
+
+<ion-segment id="ertekelesTipusSegment" [(ngModel)]="ertekelesTipus" (ionChange)="updateAtlag($event)">
+  <ion-segment-button [value]="ertekelesTipusok.Osztalyzat">
+    <ion-label>Osztályzat</ion-label>
+  </ion-segment-button>
+  <ion-segment-button [value]="ertekelesTipusok.Szoveg">
+    <ion-label>Szöveges</ion-label>
+  </ion-segment-button>
+  <ion-segment-button [value]="ertekelesTipusok.Szazalek">
+    <ion-label>Százalék</ion-label>
+  </ion-segment-button>
+</ion-segment>
+
+<ion-list *ngIf="osztalyTanuloi" class="ion-no-padding ion-no-margin" lines="full">
+  <ion-item *ngFor="let t of osztalyTanuloi?.TanuloLista">
+    <app-tanulo-ertekeles [tanulo]="t" (click)="updateAtlag()" [tipus]="ertekelesTipus"></app-tanulo-ertekeles>
+  </ion-item>
+</ion-list>
+
+<ion-item *ngIf="ertekelesTipus != ertekelesTipusok.Szoveg">
+  <ion-label>A beírt értékelések átlaga:</ion-label>
+  <ion-note slot="end">{{ atlag ? (atlag | localNumber) : '--' }}</ion-note>
+</ion-item>

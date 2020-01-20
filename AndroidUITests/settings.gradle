@@ -1,0 +1,2 @@
+include ':test'
+rootProject.name='Naplo UI Tests'

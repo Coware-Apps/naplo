@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "902258037972",
+    "firebase_url": "https://coware-naplo.firebaseio.com",
+    "project_id": "coware-naplo",
+    "storage_bucket": "coware-naplo.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:902258037972:android:059c6c4c99ec3669b2d741",
+        "android_client_info": {
+          "package_name": "hu.coware.naplo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "902258037972-u9nhdij2j78jrkhh5u90mfrsrnmg17qn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "hu.coware.naplo",
+            "certificate_hash": "fa3da1ce1161560afc964017652c07f9e99d1ab3"
+          }
+        },
+        {
+          "client_id": "902258037972-ta6c1lcikn16i79coprripcj9b9a4l9k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCWhBIgluaktN_cLOkaFKRDb1cxfBG9N84"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "902258037972-ta6c1lcikn16i79coprripcj9b9a4l9k.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

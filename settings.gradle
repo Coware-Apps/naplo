@@ -1,0 +1,5 @@
+include ":"
+include ":CordovaLib"
+include ":app"
+include ':module-androidTest'
+project(':module-androidTest').projectDir = new File("../../AndroidUITests/test")
