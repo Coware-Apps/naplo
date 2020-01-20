@@ -1,0 +1,58 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-node@v1.1.0
+    - name: Use coturiv/setup-ionic
+      uses: coturiv/setup-ionic@v1
+      
+    - name: Get package version
+      run: |
+        v=`node -p "const p = require('./package.json'); p.version;"`
+        echo ::set-env name=PACKAGE_VERSION::$v"
+        
+    - name: NPM install
+      run: npm install
+      
+    - name: Ionic build
+      run: ionic cordova build android --prod --release
+    
+    - uses: r0adkll/sign-android-release@v1
+      with:
+        releaseDirectory: /platforms/android/app/build/outputs/apk/release
+        signingKeyBase64: ${{ secrets.SIGNING_KEY }}
+        alias: ${{ secrets.SIGNING_ALIAS }}
+        keyStorePassword: ${{ secrets.SINGING_KEYSTORE_PASSWORD }}
+    
+    - name: Upload APK artifact
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        name: naplo-${{ PACKAGE_VERSION }}-release-signed.apk
+        path: ${{ SIGNED_RELEASE_FILE }}
+        
+    - name: Build AAB
+      uses: eskatos/gradle-command-action@v1
+      with:
+        wrapper-directory: platforms/android
+        gradle-executable: platforms/android/gradlew
+        arguments: bundle
+
+    - uses: r0adkll/sign-android-release@v1
+      with:
+        releaseDirectory: /platforms/android/app/build/outputs/bundle/release
+        signingKeyBase64: ${{ secrets.SIGNING_KEY }}
+        alias: ${{ secrets.SIGNING_ALIAS }}
+        keyStorePassword: ${{ secrets.SINGING_KEYSTORE_PASSWORD }}    
+        
+    - name: Upload AAB artifact
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        name: naplo-${{ PACKAGE_VERSION }}-release-signed.aab
+        path: ${{ SIGNED_RELEASE_FILE }}
