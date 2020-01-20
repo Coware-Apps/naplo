@@ -34,6 +34,7 @@ jobs:
         signingKeyBase64: ${{ secrets.SIGNING_KEY }}
         alias: ${{ secrets.SIGNING_ALIAS }}
         keyStorePassword: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
+        keyPassword: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
     
     - name: Upload APK artifact
       uses: actions/upload-artifact@v1.0.0
@@ -53,7 +54,8 @@ jobs:
         releaseDirectory: platforms/android/app/build/outputs/bundle/release
         signingKeyBase64: ${{ secrets.SIGNING_KEY }}
         alias: ${{ secrets.SIGNING_ALIAS }}
-        keyStorePassword: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}    
+        keyStorePassword: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
+        keyPassword: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
         
     - name: Upload AAB artifact
       uses: actions/upload-artifact@v1.0.0
