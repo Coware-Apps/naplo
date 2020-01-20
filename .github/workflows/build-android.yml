@@ -47,6 +47,7 @@ jobs:
       with:
         wrapper-directory: platforms/android
         gradle-executable: platforms/android/gradlew
+        build-root-directory: platforms/android
         arguments: bundle
 
     - uses: r0adkll/sign-android-release@v1
