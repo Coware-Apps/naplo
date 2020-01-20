@@ -10,6 +10,10 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - uses: actions/setup-node@v1.1.0
+        
+    - name: NPM install
+      run: npm install
+      
     - name: Use coturiv/setup-ionic
       uses: coturiv/setup-ionic@v1
       
@@ -17,9 +21,6 @@ jobs:
       run: |
         v=`node -p "const p = require('./package.json'); p.version;"`
         echo ::set-env name=PACKAGE_VERSION::$v"
-        
-    - name: NPM install
-      run: npm install
       
     - name: Ionic build
       run: ionic cordova build android --prod --release
