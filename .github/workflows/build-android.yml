@@ -1,6 +1,13 @@
-name: CI
+name: Build and sign Android
 
-on: [push]
+on: 
+  push:
+    branches:
+      - master
+  pull_request:
+  release:
+    types:
+      - created
 
 jobs:
   build:
