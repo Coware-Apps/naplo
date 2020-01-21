@@ -1,11 +1,14 @@
-<p align="center"><img class="center" src="docs/naplo_logo.png" width="200"/></p>
+<p align="center">
+    <img class="center" src="docs/naplo_logo.png" width="200"/>
+    <a href='https://play.google.com/store/apps/details?id=hu.coware.naplo&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Szerezd meg: Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/hu_badge_web_generic.png' width="200" /></a>
+</p>
 
 Ez egy **nem hivatalos _tanári_** napló alkalmazás, ami kompatibilis a magyarországi KRÉTA-rendszerrel. 
 
 _Az alkalmazást nem az eKréta Informatikai Zrt. fejlesztette, ezért az esetleges problémákkal, kérdésekkel kapcsolatban ne az ő ügyfélszolgálatukat keresd!_
 
 #### Miben különbözik ez az alkalmazás a hivatalostól?
-Az elsődleges cél, hogy gyorsabb, megbízhatóbb, használhatóbb legyen. Jelenleg nem minden funkció támogatott (pl. nincs tanmenet, szöveges értékelés).
+Az elsődleges cél, hogy gyorsabb, megbízhatóbb, használhatóbb legyen.
 
 #### Ötletem van, hova küldhetem?
 Minden ötletet szívesen fogadunk a cowareapps@gmail.com címen. Sajnos az alkalmazás továbbfejlesztésének korlátokat szab, hogy hivatalos dokumentáció híján csak azokkal az adatokkal tudunk dolgozni, amivel a hivatalos alkalmazás is dolgozik.
