@@ -1,5 +1,5 @@
 <p align="center">
-    <img class="center" src="docs/naplo_logo.png" width="200"/>
+    <img class="center" src="https://coware-apps.github.io/naplo/naplo_logo.png" width="200"/>
     <a href='https://play.google.com/store/apps/details?id=hu.coware.naplo&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Szerezd meg: Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/hu_badge_web_generic.png' width="200" /></a>
 </p>
 
