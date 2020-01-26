@@ -9,6 +9,7 @@ import { componentDestroyed } from '@w11k/ngx-componentdestroyed';
 import { ModalController } from '@ionic/angular';
 import { OsComponentsPage } from './os-components/os-components.page';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
+import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 
 @Component({
   selector: 'app-settings',
@@ -28,6 +29,7 @@ export class SettingsPage implements OnInit, OnDestroy {
     private safariViewController: SafariViewController,
     public modalController: ModalController,
     private firebase: FirebaseX,
+    private iab: InAppBrowser,
   ) { }
 
   ngOnInit(): void {
@@ -93,7 +95,17 @@ export class SettingsPage implements OnInit, OnDestroy {
 
         } else {
           console.log("browser tab not supported");
-          this.firebase.logError("safariViewController is not available");
+
+          this.iab.create('https://coware-apps.github.io/naplo/privacy', '_blank', {
+            location: "yes",
+            closebuttoncaption: "Vissza",
+            closebuttoncolor: "#ffffff",
+            toolbarcolor: "#3880ff",
+            zoom: "no",
+            hideurlbar: "yes",
+            hidenavigationbuttons: "yes",
+            footer: "no",
+          });
         }
       }
       );
