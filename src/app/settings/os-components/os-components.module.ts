@@ -8,6 +8,7 @@ import { OsComponentsPageRoutingModule } from './os-components-routing.module';
 
 import { OsComponentsPage } from './os-components.page';
 import { SafariViewController } from '@ionic-native/safari-view-controller/ngx';
+import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 
 @NgModule({
   imports: [
@@ -16,7 +17,7 @@ import { SafariViewController } from '@ionic-native/safari-view-controller/ngx';
     IonicModule,
     OsComponentsPageRoutingModule
   ],
-  providers: [SafariViewController],
+  providers: [SafariViewController, InAppBrowser],
   declarations: [OsComponentsPage]
 })
 export class OsComponentsPageModule { }

@@ -9,6 +9,7 @@ import { SettingsPageRoutingModule } from './settings-routing.module';
 import { SettingsPage } from './settings.page';
 import { SafariViewController } from '@ionic-native/safari-view-controller/ngx';
 import { OsComponentsPageModule } from './os-components/os-components.module';
+import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 
 @NgModule({
   imports: [
@@ -18,7 +19,7 @@ import { OsComponentsPageModule } from './os-components/os-components.module';
     SettingsPageRoutingModule,
     OsComponentsPageModule,
   ],
-  providers: [SafariViewController],
+  providers: [SafariViewController, InAppBrowser],
   declarations: [SettingsPage]
 })
 export class SettingsPageModule { }
