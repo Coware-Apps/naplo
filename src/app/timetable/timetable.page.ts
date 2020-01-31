@@ -134,8 +134,10 @@ export class TimetablePage implements OnInit, OnDestroy {
         this.loadTimetable();
       },
       err => {
-        console.log('Error occurred while getting date: ', err);
-        this.firebase.logError("timetable datepicker error: " + err);
+        if (err != 'cancel') {
+          console.log('Error occurred while getting date: ', err);
+          this.firebase.logError("timetable datepicker error: " + JSON.stringify(err));
+        }
       }
     );
   }

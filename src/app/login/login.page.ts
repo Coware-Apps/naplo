@@ -10,6 +10,7 @@ import { takeUntil } from 'rxjs/operators';
 import { componentDestroyed } from '@w11k/ngx-componentdestroyed';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
+import { KretaMissingRoleException, KretaInvalidPasswordException } from '../_models/kreta-exceptions';
 
 @Component({
   selector: 'app-login',
@@ -86,12 +87,17 @@ export class LoginPage implements OnInit, OnDestroy {
         await this.router.navigate([this.returnUrl]);
       }
     } catch (e) {
-      console.log("Hiba a felhasználóneves bejelentkezés során: ", e);
+      console.log("Hiba a felhasználóneves bejelentkezés során: ", e.message);
 
-      if (e.status == 400) {
+      if (e instanceof KretaInvalidPasswordException) {
         this.firebase.logEvent("login_bad_credentials", {});
         return await this.error.presentAlert("A felhasználónév vagy jelszó hibás.");
-      } else if (e.error) {
+      } else if (e instanceof KretaMissingRoleException) {
+        this.firebase.logEvent("login_missing_role", {});
+        await this.error.presentAlert("A bejelentkezéshez 'Tanár' szerepkör szükséges.");
+      }
+
+      else if (e.error) {
         this.firebase.logError("login error with msg: " + e.error);
         const data = JSON.parse(e.error);
         await this.error.presentAlert(data.error_description, data.error);

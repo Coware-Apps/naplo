@@ -6,6 +6,7 @@ import { HTTPResponse } from '@ionic-native/http/ngx';
 import { TanarProfil, Lesson, OsztalyTanuloi, Mulasztas, Feljegyzes, JavasoltJelenletTemplate, KretaEnum, Institute, Jwt, Tanmenet } from '../_models';
 import { ErrorHelper, JwtDecodeHelper } from '../_helpers';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
+import { KretaMissingRoleException, KretaInvalidPasswordException } from '../_models/kreta-exceptions';
 
 @Injectable({
   providedIn: 'root'
@@ -72,7 +73,7 @@ export class KretaService {
       }
 
     } catch (error) {
-      this.firebase.logError("getValidAccessToken(): " + error);
+      this.firebase.logError("getValidAccessToken(): " + JSON.stringify(error));
       console.error("[LOGIN] " + error);
       await this.error.presentAlert(error, "getValidAccessToken()", undefined, () => {
         this.logout();
@@ -92,9 +93,9 @@ export class KretaService {
         'grant_type': 'password',
         'client_id': 'kreta-naplo-mobile',
       }, {
-          'Accept': 'application/json',
-          'Content-Type': 'application/x-www-form-urlencoded',
-        });
+        'Accept': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
+      });
 
       if (response.status == 200) {
         const data = JSON.parse(response.data);
@@ -105,6 +106,11 @@ export class KretaService {
             this.data.saveItem("refresh_token", data.refresh_token, null, Number.MAX_VALUE),
           ]);
 
+          this.currentUser = this.jwtHelper.decodeToken(data.access_token);
+
+          if (this.currentUser.role.indexOf("Tanar") === -1)
+            throw new KretaMissingRoleException();
+
           Promise.all([
             this.getNaploEnum("MulasztasTipusEnum"),
             this.getNaploEnum("EsemenyTipusEnum"),
@@ -113,22 +119,19 @@ export class KretaService {
             this.getNaploEnum("OsztalyzatTipusEnum"),
           ]);
 
-          this.currentUser = this.jwtHelper.decodeToken(data.access_token);
           this.initializeFirebase();
         }
         else throw Error("Error response during username login: " + response.data);
       }
-      else throw Error("Non-200 response during username login: " + response.data);
+      else if (response.status == 400)
+        throw new KretaInvalidPasswordException();
+      else
+        throw Error("Non-200 response during username login: " + response.data);
 
       return response;
     } catch (error) {
-      if (error.status == 400) throw error;
-
-      this.firebase.logError("loginWithUsername(): " + error);
-      console.error("[LOGIN] ", error);
-      await this.error.presentAlert(error, "loginWithUsername()", undefined, () => {
-        this.logout();
-      });
+      if (error.status == 400) throw new KretaInvalidPasswordException();
+      else throw error;
     }
   }
 
@@ -144,9 +147,9 @@ export class KretaService {
         'grant_type': 'refresh_token',
         'client_id': 'kreta-naplo-mobile',
       }, {
-          'Accept': 'application/json',
-          'Content-Type': 'application/x-www-form-urlencoded',
-        });
+        'Accept': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
+      });
 
       if (response.status == 200) {
         const data = JSON.parse(response.data);
@@ -161,6 +164,7 @@ export class KretaService {
           console.log("[LOGIN] AT sikeresen megújítva RT-el");
           this.currentUser = this.jwtHelper.decodeToken(data.access_token);
           this.firebase.stopTrace("token_refresh_time");
+
           return data.access_token;
         }
         else throw Error("Error response during token login: " + response.data);
@@ -168,7 +172,7 @@ export class KretaService {
       else throw Error("Non-200 response during token login: " + response.data);
 
     } catch (error) {
-      this.firebase.logError("loginWithUsername(): " + error);
+      this.firebase.logError("loginWithUsername(): " + JSON.stringify(error));
       console.error("[LOGIN] " + error);
       await this.error.presentAlert(error, "loginWithUsername()", undefined, () => {
         this.logout();
@@ -281,8 +285,8 @@ export class KretaService {
     const access_token = await this.getValidAccessToken();
     return (await this.data.getUrlWithCache(this.institute.Url + "/Naplo/v2/Tanmenet?key[0].OsztalycsoportId="
       + lesson.OsztalyCsoportId + "&key[0].Tantargyid=" + lesson.TantargyId + "&key[0].FeltoltoTanarId=" + this.currentUser["kreta:institute_user_id"], null, {
-        'Authorization': 'Bearer ' + access_token,
-      },
+      'Authorization': 'Bearer ' + access_token,
+    },
       60 * 60 * 24))
       .pipe(
         map(x => JSON.parse(x.data)),

@@ -31,7 +31,7 @@ export class DataService {
 
     const response = this.http.get(url, parameters, headers)
       .catch(async err => {
-        this.firebase.logError("getUrl(" + url + ") HTTP error: " + err);
+        this.firebase.logError("getUrl(" + url + ") HTTP error: " + JSON.stringify(err));
         await this.errorHelper.presentToast("Kommunikációs hiba.", 10000);
         throw new Error("[HTTP] response: " + err.error);
       });
@@ -75,7 +75,7 @@ export class DataService {
     await this.firebase.startTrace("http_post_call_time");
     const response = this.http.post(url, body, headers)
       .catch(async err => {
-        this.firebase.logError("postUrl(" + url + ") HTTP error: " + err);
+        this.firebase.logError("postUrl(" + url + ") HTTP error: " + JSON.stringify(err));
         await this.errorHelper.presentToast("Kommunikációs hiba.", 10000);
         throw err;
       });
