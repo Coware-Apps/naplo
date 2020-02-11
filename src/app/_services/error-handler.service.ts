@@ -2,6 +2,7 @@ import { Injectable, ErrorHandler } from '@angular/core';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { ErrorHelper } from '../_helpers';
 import { ConfigService } from './config.service';
+import { stringify } from 'flatted/esm';
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +18,7 @@ export class ErrorHandlerService extends ErrorHandler {
   }
 
   async handleError(error: any): Promise<void> {
-    this.firebase.logError("[GLOBAL ERROR HANDLER] " + JSON.stringify(error));
+    this.firebase.logError("[GLOBAL ERROR HANDLER] " + stringify(error));
     console.log("GLOBAL error handler ran: ", error);
 
     if (this.config.debugging)
@@ -25,5 +26,4 @@ export class ErrorHandlerService extends ErrorHandler {
 
     super.handleError(error);
   }
-
 }

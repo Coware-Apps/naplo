@@ -6,6 +6,7 @@ import { ErrorHelper } from '../_helpers/error-helper';
 import { environment } from 'src/environments/environment';
 import { AppVersion } from '@ionic-native/app-version/ngx';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
+import { stringify } from 'flatted/esm';
 
 @Injectable({
   providedIn: 'root'
@@ -31,7 +32,7 @@ export class DataService {
 
     const response = this.http.get(url, parameters, headers)
       .catch(async err => {
-        this.firebase.logError("getUrl(" + url + ") HTTP error: " + JSON.stringify(err));
+        this.firebase.logError("getUrl(" + url + ") HTTP error: " + stringify(err));
         await this.errorHelper.presentToast("Kommunikációs hiba.", 10000);
         throw new Error("[HTTP] response: " + err.error);
       });
@@ -75,7 +76,7 @@ export class DataService {
     await this.firebase.startTrace("http_post_call_time");
     const response = this.http.post(url, body, headers)
       .catch(async err => {
-        this.firebase.logError("postUrl(" + url + ") HTTP error: " + JSON.stringify(err));
+        this.firebase.logError("postUrl(" + url + ") HTTP error: " + stringify(err));
         await this.errorHelper.presentToast("Kommunikációs hiba.", 10000);
         throw err;
       });

@@ -9,6 +9,7 @@ import { LoggingModalPage } from '../logging-modal/logging-modal.page';
 import { takeUntil } from 'rxjs/operators';
 import { componentDestroyed } from '@w11k/ngx-componentdestroyed';
 import { FirebaseX } from "@ionic-native/firebase-x/ngx";
+import { stringify } from 'flatted/esm';
 
 @Component({
   selector: 'app-timetable',
@@ -136,7 +137,7 @@ export class TimetablePage implements OnInit, OnDestroy {
       err => {
         if (err != 'cancel') {
           console.log('Error occurred while getting date: ', err);
-          this.firebase.logError("timetable datepicker error: " + JSON.stringify(err));
+          this.firebase.logError("timetable datepicker error: " + stringify(err));
         }
       }
     );
