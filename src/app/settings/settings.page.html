@@ -16,8 +16,8 @@
 
     <ion-item lines="inset">
       <ion-label>Színséma</ion-label>
-      <ion-select interface="popover" (ionChange)="changeTheme($event)">
-        <ion-select-option *ngFor="let t of themes" [value]="t.id" [selected]="config.theme == t.id">{{t.name}}</ion-select-option>
+      <ion-select interface="popover" (ionChange)="changeTheme($event)" [value]="config.theme">
+        <ion-select-option *ngFor="let t of themes" [value]="t.id">{{t.name}}</ion-select-option>
       </ion-select>
     </ion-item>
     <!-- <ion-item lines="inset">
@@ -42,10 +42,10 @@
 
     <ion-item lines="inset">
       <ion-label>Alapértelmezett értékelés típus</ion-label>
-      <ion-select interface="popover" (ionChange)="changeErtekelesTipus($event)">
-        <ion-select-option value="0" [selected]="config.defaultErtekelesTipus == 0">Osztályzat</ion-select-option>
-        <ion-select-option value="1" [selected]="config.defaultErtekelesTipus == 1">Százalék</ion-select-option>
-        <ion-select-option value="2" [selected]="config.defaultErtekelesTipus == 2">Szöveges</ion-select-option>
+      <ion-select interface="popover" (ionChange)="changeErtekelesTipus($event)" [value]="config.defaultErtekelesTipus">
+        <ion-select-option value="0">Osztályzat</ion-select-option>
+        <ion-select-option value="1">Százalék</ion-select-option>
+        <ion-select-option value="2">Szöveges</ion-select-option>
       </ion-select>
     </ion-item>
     <ion-item>

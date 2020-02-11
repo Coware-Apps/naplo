@@ -11,12 +11,12 @@
   <app-offline-warning-bar></app-offline-warning-bar>
 
   <ion-toolbar color="secondary" class="ion-padding-start ion-padding-end">
-    <ion-icon slot="start" name="arrow-round-back" style="font-size: 32px;" (click)="changeDate('back')"></ion-icon>
-    <div class="ion-text-center" (click)="showDatePicker()">
-      <ion-icon slot="start" name="calendar"></ion-icon> 
+    <ion-icon slot="start" name="arrow-back-circle-outline" style="font-size: 32px;" (click)="changeDate('back')"></ion-icon>
+    <div class="ion-text-center date-titleline" (click)="showDatePicker()">
+      <ion-icon slot="start" name="calendar-outline"></ion-icon> 
       {{ datum.toLocaleDateString(config.locale, {month: 'short', day: 'numeric', weekday: 'long'}) }}
     </div>
-    <ion-icon slot="end" name="arrow-round-forward" style="font-size: 32px;" (click)="changeDate('forward')"></ion-icon>
+    <ion-icon slot="end" name="arrow-forward-circle-outline" style="font-size: 32px;" (click)="changeDate('forward')"></ion-icon>
   </ion-toolbar>
 </ion-header>
 
@@ -27,7 +27,7 @@
 
   <ng-container *ngIf="!loading">
     <div *ngIf="orarend?.length == 0" class="ion-text-center list-empty-placeholder">
-      <ion-icon slot="icon-only" name="sunny" style="font-size: 128px;"></ion-icon>
+      <ion-icon slot="icon-only" name="sunny-outline" style="font-size: 128px;"></ion-icon>
       <p>Ezen a napon nincs órád</p>
     </div>
 

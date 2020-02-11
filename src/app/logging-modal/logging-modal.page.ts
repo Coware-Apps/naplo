@@ -132,8 +132,8 @@ export class LoggingModalPage implements OnInit, OnDestroy {
     this.activeTabIndex = await this.slides.getActiveIndex();
   }
 
-  public async slideToTab(index: number) {
-    await this.slides.slideTo(index);
+  public async slideToTab(event: any) {
+    await this.slides.slideTo(event.detail.value);
   }
 
   public async save() {

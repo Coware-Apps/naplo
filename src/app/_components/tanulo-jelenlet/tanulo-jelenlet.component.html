@@ -9,14 +9,14 @@
   </ion-row>
   <ion-row class="jelenlet-row">
     <ion-col size="12">
-      <ion-segment (ionChange)="segmentChanged($event)" color="primary" *ngIf="!magantanulo">
-        <ion-segment-button value="Jelenlét" [checked]="jelenletAllapot == 'Jelenlét'">
+      <ion-segment (ionChange)="segmentChanged($event)" color="primary" *ngIf="!magantanulo" [value]="jelenletAllapot">
+        <ion-segment-button value="Jelenlét">
           <ion-label>Jelenlét</ion-label>
         </ion-segment-button>
-        <ion-segment-button value="Késés" (click)="presentPicker()" [checked]="jelenletAllapot == 'Késés'">
+        <ion-segment-button value="Késés">
           <ion-label>Késés {{ keses > 0 ? "("+ keses + " p.)" : "" }}</ion-label>
         </ion-segment-button>
-        <ion-segment-button value="Hiányzás" [checked]="jelenletAllapot == 'Hiányzás'">
+        <ion-segment-button value="Hiányzás">
           <ion-label>Hiányzás</ion-label>
         </ion-segment-button>
       </ion-segment>

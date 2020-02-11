@@ -78,7 +78,9 @@ export class TanuloJelenletComponent implements OnInit, OnChanges {
   async segmentChanged(event$: any) {
     this.jelenletAllapot = event$.detail.value;
 
-    if (event$.detail.value != "Késés")
+    if (event$.detail.value == "Késés")
+      this.presentPicker();
+    else
       this.keses = null;
   }
 
