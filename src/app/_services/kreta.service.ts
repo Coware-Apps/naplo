@@ -177,8 +177,8 @@ export class KretaService {
         await this.error.presentAlert("A KRÉTA-szerver érvénytelen választ küldött. Valószínűleg karbantartás alatt van. (" + error + ")");
       } else {
         this.firebase.logError("loginWithRefreshToken(): " + stringify(error));
-        console.error("[LOGIN] " + error);
-        await this.error.presentAlert("Ismeretlen hiba a bejelentkezés megújítása során. (" + error + ")", "Token refresh", "Hiba", () => {
+        console.error("[LOGIN] ", error);
+        await this.error.presentAlert("Ismeretlen hiba a bejelentkezés megújítása során. (" + stringify(error) + ")", "Token refresh", "Hiba", () => {
           this.logout();
         });
       }
