@@ -10,9 +10,24 @@ _Az alkalmazást nem az eKréta Informatikai Zrt. fejlesztette, ezért az esetle
 #### Miben különbözik ez az alkalmazás a hivatalostól?
 Az elsődleges cél, hogy gyorsabb, megbízhatóbb, használhatóbb legyen.
 
+A főbb funkciók:
+- Óra naplózása
+  - Téma betöltése tanmenetből
+  - Elmaradtra állítás
+  - Jelenlét/késés/hiányzás (előző óra, igazolások és tanulmányi státusz figyelembevételével)
+  - Feljegyzések (házi feladat hiány, felszereléshiány, tanórai felmentés, tanórai dicséret)
+  - Házi feladat rögzítése határidővel és leírással
+- Értékelések (naplózáskor vagy közveltenül a csoport kiválasztásával)
+  - Osztályzattal, szövegesen vagy százalékkal
+  - Értékelés témájának, módjának megadása
+  - Beépített átlagszámítás
+- Nem naplózott órák listája
+- Beállítások
+  - Világos és sötét színséma
+  - Alapértelmezett értékelési mód
+
 #### Ötletem van, hova küldhetem?
 Minden ötletet szívesen fogadunk a cowareapps@gmail.com címen. Sajnos az alkalmazás továbbfejlesztésének korlátokat szab, hogy hivatalos dokumentáció híján csak azokkal az adatokkal tudunk dolgozni, amivel a hivatalos alkalmazás is dolgozik.
-Például a hivatalos alkalmazásban jelenleg nem lehet elmaradtra állítani egy órát, ezért ezt mi sem tudjuk megvalósítani, mert nem tudjuk milyen formában kellene ezt az információt elküldeni a szervernek.
 
 #### Biztonságban vannak az adataim?
 Az alkalmazás közvetlenül az e-napló szervereivel kommunikál titkosított kapcsolaton keresztül, semmilyen más szerverre küld semmilyen személyes adatot. Ennek ellenére kizárólag saját felelősségre használható, hiszen a személyes adatok kezelője az iskola, illetve a tanár.

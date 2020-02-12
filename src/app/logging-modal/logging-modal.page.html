@@ -47,9 +47,9 @@
     <ion-slide>
       <ion-item id="oratemaja">
         <ion-label position="floating">Az óra témája</ion-label>
-        <ion-input type="text" [(ngModel)]="tema" required></ion-input>
-        <ion-button (click)="openTanmenet()" size="large" fill="none" slot="end">
-          <ion-icon slot="icon-only" name="clipboard"></ion-icon>
+        <ion-textarea [(ngModel)]="tema" required wrap="soft"></ion-textarea>
+        <ion-button (click)="openTopicOptionsPopover($event)" size="large" fill="none" slot="end">
+          <ion-icon slot="icon-only" name="more" color="primary"></ion-icon>
         </ion-button>
       </ion-item>
 

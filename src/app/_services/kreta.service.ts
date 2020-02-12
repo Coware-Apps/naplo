@@ -7,6 +7,7 @@ import { TanarProfil, Lesson, OsztalyTanuloi, Mulasztas, Feljegyzes, JavasoltJel
 import { ErrorHelper, JwtDecodeHelper } from '../_helpers';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { KretaMissingRoleException, KretaInvalidPasswordException } from '../_models/kreta-exceptions';
+import { stringify } from 'flatted/esm';
 
 @Injectable({
   providedIn: 'root'
@@ -73,7 +74,7 @@ export class KretaService {
       }
 
     } catch (error) {
-      this.firebase.logError("getValidAccessToken(): " + JSON.stringify(error));
+      this.firebase.logError("getValidAccessToken(): " + stringify(error));
       console.error("[LOGIN] " + error);
       await this.error.presentAlert(error, "getValidAccessToken()", undefined, () => {
         this.logout();
@@ -172,11 +173,15 @@ export class KretaService {
       else throw Error("Non-200 response during token login: " + response.data);
 
     } catch (error) {
-      this.firebase.logError("loginWithUsername(): " + JSON.stringify(error));
-      console.error("[LOGIN] " + error);
-      await this.error.presentAlert(error, "loginWithUsername()", undefined, () => {
-        this.logout();
-      });
+      if (error instanceof SyntaxError) {
+        await this.error.presentAlert("A KRÉTA-szerver érvénytelen választ küldött. Valószínűleg karbantartás alatt van. (" + error + ")");
+      } else {
+        this.firebase.logError("loginWithRefreshToken(): " + stringify(error));
+        console.error("[LOGIN] ", error);
+        await this.error.presentAlert("Ismeretlen hiba a bejelentkezés megújítása során. (" + stringify(error) + ")", "Token refresh", "Hiba", () => {
+          this.logout();
+        });
+      }
     }
   }
 

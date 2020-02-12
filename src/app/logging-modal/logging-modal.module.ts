@@ -9,6 +9,7 @@ import { LoggingModalPageRoutingModule } from './logging-modal-routing.module';
 import { LoggingModalPage } from './logging-modal.page';
 import { ComponentsModule } from '../_components/components.module';
 import { CurriculumModalPageModule } from '../curriculum-modal/curriculum-modal.module';
+import { TopicOptionsComponent } from './topic-options/topic-options.component';
 
 @NgModule({
   imports: [
@@ -19,6 +20,10 @@ import { CurriculumModalPageModule } from '../curriculum-modal/curriculum-modal.
     LoggingModalPageRoutingModule,
     CurriculumModalPageModule,
   ],
-  declarations: [LoggingModalPage]
+  declarations: [
+    LoggingModalPage,
+    TopicOptionsComponent
+  ],
+  entryComponents: [TopicOptionsComponent],
 })
 export class LoggingModalPageModule { }

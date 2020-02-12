@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ViewChildren, QueryList, Input, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Lesson, OsztalyTanuloi, Mulasztas, JavasoltJelenletTemplate, Feljegyzes } from '../_models';
-import { IonSlides, LoadingController, ModalController, IonContent } from '@ionic/angular';
+import { IonSlides, LoadingController, ModalController, IonContent, PopoverController, AlertController } from '@ionic/angular';
 import { ErtekelesComponent, TanuloJelenletComponent, TanuloFeljegyzesComponent } from '../_components';
 import { KretaService, ConfigService, NetworkStatusService, ConnectionStatus } from '../_services';
 import { ErrorHelper, DateHelper } from '../_helpers';
@@ -8,6 +8,7 @@ import { takeUntil } from 'rxjs/operators';
 import { componentDestroyed } from '@w11k/ngx-componentdestroyed';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { CurriculumModalPage } from '../curriculum-modal/curriculum-modal.page';
+import { TopicOptionsComponent } from './topic-options/topic-options.component';
 
 @Component({
   selector: 'app-logging-modal',
@@ -52,10 +53,12 @@ export class LoggingModalPage implements OnInit, OnDestroy {
     private error: ErrorHelper,
     private loadingController: LoadingController,
     public dateHelper: DateHelper,
-    public modalController: ModalController,
+    private modalController: ModalController,
     private networkStatus: NetworkStatusService,
     private cd: ChangeDetectorRef,
     private firebase: FirebaseX,
+    private popoverController: PopoverController,
+    private alertController: AlertController,
   ) { }
 
   async ngOnInit() {
@@ -124,16 +127,16 @@ export class LoggingModalPage implements OnInit, OnDestroy {
     if (index !== -1) this.loading.splice(index, 1);
   }
 
-  async onSlideChange() {
+  public async onSlideChange() {
     this.content.scrollToTop(500);
     this.activeTabIndex = await this.slides.getActiveIndex();
   }
 
-  async slideToTab(index: number) {
+  public async slideToTab(index: number) {
     await this.slides.slideTo(index);
   }
 
-  async save() {
+  public async save() {
     // ellenőrzés
     if (this.tema.trim().length <= 0) {
       await this.error.presentAlert("Az óra témáját kötelező kitölteni!");
@@ -195,7 +198,47 @@ export class LoggingModalPage implements OnInit, OnDestroy {
 
   }
 
-  getTanuloLista() {
+  private async saveCancelled() {
+    let request = [
+      {
+        "MobilId": 9,
+        "OrarendiOraId": this.lesson.OrarendiOraId,
+        "TanitasiOraId": this.lesson.TanitasiOraId,
+        "TantargyId": this.lesson.TantargyId,
+        "DatumUtc": this.lesson.KezdeteUtc,
+        "RogzitesDatumUtc": new Date().toISOString(),
+        "OraVegDatumaUtc": this.lesson.VegeUtc,
+        "IsElmaradt": true,
+        "Tema": "Elmaradt tanóra",
+        "Hazifeladat": null,
+        "HazifeladatId": null,
+        "HazifeladatHataridoUtc": null,
+        "TanuloLista": []
+      }
+    ];
+
+    const loading = await this.loadingController.create({ message: 'Mentés...' });
+    await loading.present();
+
+    await this.firebase.startTrace("lesson_logging_post_time");
+    const result = await this.kreta.postLesson(request);
+    this.firebase.stopTrace("lesson_logging_post_time");
+
+    await loading.dismiss();
+
+    if (result && result[0] && result[0].Exception != null) {
+      this.firebase.logError("logging_modal postLesson error: " + result[0].Exception.Message);
+      return await this.error.presentAlert(result[0].Exception.Message);
+    }
+
+    this.firebase.logEvent("lesson_logged", {});
+
+    // sikeres naplózás
+    this.kreta.removeDayFromCache(this.lesson.KezdeteUtc);
+    this.modalController.dismiss({ success: true });
+  }
+
+  private getTanuloLista() {
     let tanuloLista = [];
     this.jelenletComponents.forEach(t => {
 
@@ -212,7 +255,7 @@ export class LoggingModalPage implements OnInit, OnDestroy {
     return tanuloLista;
   }
 
-  async openTanmenet() {
+  private async openTanmenet() {
     const modal = await this.modalController.create({
       component: CurriculumModalPage,
       componentProps: {
@@ -224,10 +267,44 @@ export class LoggingModalPage implements OnInit, OnDestroy {
     const { data } = await modal.onWillDismiss();
     if (data && data.tanmenetElem)
       this.tema = data.tanmenetElem.Tema;
-
   }
 
-  dismiss() {
+  public async openTopicOptionsPopover(ev: any) {
+    const popover = await this.popoverController.create({
+      component: TopicOptionsComponent,
+      event: ev,
+      translucent: true
+    });
+    await popover.present();
+
+    const { data } = await popover.onWillDismiss();
+    if (!data)
+      return;
+    if (data.result == 'cancelled-class') {
+      const alert = await this.alertController.create({
+        header: 'Elmaradtnak jelölöd az órát?',
+        message: 'A megadott értékelések, feljegyzések, házi feladatok nem kerülnek mentésre.',
+        buttons: [
+          {
+            text: 'Mégsem',
+            role: 'cancel',
+            cssClass: 'secondary'
+          }, {
+            text: 'Igen',
+            handler: () => {
+              this.saveCancelled();
+            }
+          }
+        ]
+      });
+
+      await alert.present();
+    }
+    if (data.result == 'curriculum')
+      this.openTanmenet();
+  }
+
+  public dismiss() {
     this.modalController.dismiss();
   }
 
