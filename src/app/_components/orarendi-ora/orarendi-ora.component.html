@@ -12,10 +12,10 @@
       <span class="targynev">{{lesson.TantargyNev}}</span>
       <span
         *ngIf="lesson.HelyettesitoId && this.lesson.HelyettesitoId == this.kreta.currentUser['kreta:institute_user_id']">&nbsp;
-        (<ion-icon name="swap"></ion-icon>&nbsp;{{ getMonogram(lesson.OraTulajdonosTanar.Nev) }})</span>
+        (<ion-icon name="swap-horizontal-outline"></ion-icon>&nbsp;{{ getMonogram(lesson.OraTulajdonosTanar.Nev) }})</span>
       <span
         *ngIf="lesson.HelyettesitoId && this.lesson.HelyettesitoId != this.kreta.currentUser['kreta:institute_user_id']">&nbsp;
-        <ion-icon name="swap"></ion-icon></span>
+        <ion-icon name="swap-horizontal-outline"></ion-icon></span>
     </h2>
     <p>{{lesson.OsztalyCsoportNev}}</p>
     <p>{{lesson.TeremNev}}</p>
