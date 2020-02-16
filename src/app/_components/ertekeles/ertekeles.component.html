@@ -15,17 +15,19 @@
   <ion-input type="text" [value]="ertekelesMod?.Nev" (click)="presentErtekelesModPicker()" readonly></ion-input>
 </ion-item>
 
-<ion-segment id="ertekelesTipusSegment" [(ngModel)]="ertekelesTipus" (ionChange)="updateAtlag($event)">
-  <ion-segment-button [value]="ertekelesTipusok.Osztalyzat">
-    <ion-label>Osztályzat</ion-label>
-  </ion-segment-button>
-  <ion-segment-button [value]="ertekelesTipusok.Szoveg">
-    <ion-label>Szöveges</ion-label>
-  </ion-segment-button>
-  <ion-segment-button [value]="ertekelesTipusok.Szazalek">
-    <ion-label>Százalék</ion-label>
-  </ion-segment-button>
-</ion-segment>
+<ion-item class="tipusSegmentItem">
+  <ion-segment (ionChange)="changeErtekelesTipus($event)" [value]="ertekelesTipus">
+    <ion-segment-button [value]="ertekelesTipusok.Osztalyzat">
+      <ion-label>Osztályzat</ion-label>
+    </ion-segment-button>
+    <ion-segment-button [value]="ertekelesTipusok.Szoveg">
+      <ion-label>Szöveges</ion-label>
+    </ion-segment-button>
+    <ion-segment-button [value]="ertekelesTipusok.Szazalek">
+      <ion-label>Százalék</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+</ion-item>
 
 <ion-list *ngIf="osztalyTanuloi" class="ion-no-padding ion-no-margin" lines="full">
   <ion-item *ngFor="let t of osztalyTanuloi?.TanuloLista">

@@ -167,8 +167,7 @@ export class ErtekelesComponent implements OnInit, OnChanges {
     return true;
   }
 
-  public updateAtlag(event?): void {
-    if (event) this.atlag = null;
+  public updateAtlag(): void {
     if (this.ertekelesTipus == ErtekelesTipus.Szoveg) return;
 
     let ertekelesLista = this.getErtekelesLista();
@@ -188,6 +187,11 @@ export class ErtekelesComponent implements OnInit, OnChanges {
     });
 
     this.atlag = sum / num;
+  }
+
+  public changeErtekelesTipus(event: any) {
+    this.ertekelesTipus = event.detail.value;
+    this.atlag = null;
   }
 
 }

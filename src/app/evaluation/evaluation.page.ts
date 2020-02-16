@@ -96,7 +96,6 @@ export class EvaluationPage implements OnInit, OnDestroy {
       componentProps: { tanitottCsoport: c }
     });
     await modal.present();
-    const { data } = await modal.onWillDismiss();
   }
 
 }

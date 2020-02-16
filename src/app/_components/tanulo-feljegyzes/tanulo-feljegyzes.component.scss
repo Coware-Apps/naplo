@@ -1,6 +1,13 @@
-ion-grid {
-    .nev {
-        font-weight: bold;
-        font-size: 12pt;
+.nev {
+    font-weight: bold;
+    font-size: 12pt;
+}
+
+.feljegyzes-row {
+    display: flex;
+
+    ion-button {
+        flex: 1;
+        height: 3rem;
     }
 }

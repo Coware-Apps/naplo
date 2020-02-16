@@ -3,4 +3,12 @@
     color: grey;
 }
 
-ion-icon { vertical-align: middle; }
+.date-titleline{
+    font-size: 110%;
+
+    ion-icon { padding-right: 8px; }
+}
+
+ion-icon { 
+    vertical-align: text-top; 
+}
