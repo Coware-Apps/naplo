@@ -1,9 +1,17 @@
-ion-grid {
-    .nev {
+.nev {
         font-weight: bold;
         font-size: 12pt;
+}
+
+.jelenlet-row{
+    display: flex;
+    
+    ion-button {
+        flex: 1;
+        height: 3rem;
     }
 }
+
 .javasolt-jelenlet-ok{
     font-weight: normal;
     font-size: 80%;

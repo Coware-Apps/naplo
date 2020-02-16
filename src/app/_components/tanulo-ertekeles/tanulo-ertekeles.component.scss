@@ -7,7 +7,8 @@
     display: flex;
 
     ion-button {
-        width: 100%;
+        flex: 1;
+        height: 3rem;
     }
 
     &.szazalek {

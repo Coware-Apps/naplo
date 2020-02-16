@@ -2,7 +2,7 @@
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
       <ion-button (click)="dismiss()" fill="clear">
-        <ion-icon slot="icon-only" name="arrow-round-back"></ion-icon>
+        <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
     <ion-title>Óra naplózása</ion-title>
@@ -24,18 +24,18 @@
       {{lesson?.OsztalyCsoportNev}}</div>
   </ion-toolbar>
 
-  <ion-segment id="loggingtabs" [disabled]="loading.length > 0">
-    <ion-segment-button value="mulasztasok" [checked]="activeTabIndex == 0" (click)="slideToTab(0)">
-      <ion-icon name="contacts" size="large"></ion-icon>
+  <ion-segment id="loggingtabs" [disabled]="loading.length > 0" [value]="activeTabIndex" (ionChange)="slideToTab($event)">
+    <ion-segment-button value="mulasztasok" value="0">
+      <ion-icon name="man-outline" size="large"></ion-icon>
     </ion-segment-button>
-    <ion-segment-button value="feljegyzesek" [checked]="activeTabIndex == 1" (click)="slideToTab(1)">
-      <ion-icon name="bookmarks" size="large"></ion-icon>
+    <ion-segment-button value="feljegyzesek" value="1">
+      <ion-icon name="receipt-outline" size="large"></ion-icon>
     </ion-segment-button>
-    <ion-segment-button value="hazifeladat" [checked]="activeTabIndex == 2" (click)="slideToTab(2)">
-      <ion-icon name="home" size="large"></ion-icon>
+    <ion-segment-button value="hazifeladat" value="2">
+      <ion-icon name="home-outline" size="large"></ion-icon>
     </ion-segment-button>
-    <ion-segment-button value="ertekelesek" [checked]="activeTabIndex == 3" (click)="slideToTab(3)">
-      <ion-icon name="trophy" size="large"></ion-icon>
+    <ion-segment-button value="ertekelesek" value="3">
+      <ion-icon name="trophy-outline" size="large"></ion-icon>
     </ion-segment-button>
   </ion-segment>
 
@@ -49,7 +49,7 @@
         <ion-label position="floating">Az óra témája</ion-label>
         <ion-textarea [(ngModel)]="tema" required wrap="soft"></ion-textarea>
         <ion-button (click)="openTopicOptionsPopover($event)" size="large" fill="none" slot="end">
-          <ion-icon slot="icon-only" name="more" color="primary"></ion-icon>
+          <ion-icon slot="icon-only" name="ellipsis-vertical-outline" color="primary"></ion-icon>
         </ion-button>
       </ion-item>
 

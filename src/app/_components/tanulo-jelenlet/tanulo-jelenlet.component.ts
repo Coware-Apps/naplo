@@ -75,11 +75,23 @@ export class TanuloJelenletComponent implements OnInit, OnChanges {
 
   }
 
-  async segmentChanged(event$: any) {
-    this.jelenletAllapot = event$.detail.value;
+  async changed(value: string) {
+    console.log(value, this.jelenletAllapot, value == this.jelenletAllapot);
 
-    if (event$.detail.value != "Késés")
+    if (value == this.jelenletAllapot) {
+      this.jelenletAllapot = "Üres";
       this.keses = null;
+      return;
+    }
+    else if (value == "Késés") {
+      const { data } = await this.presentPicker();
+      if (!data)
+        return;
+    }
+    else
+      this.keses = null;
+
+    this.jelenletAllapot = value;
   }
 
   async presentPicker() {
@@ -108,7 +120,8 @@ export class TanuloJelenletComponent implements OnInit, OnChanges {
       delete element.transform;
     });
 
-    picker.present();
+    await picker.present();
+    return await picker.onWillDismiss();
   }
 
   public getJsonOutput(): { "Tipus": KretaEnum, "Keses": number; } {
