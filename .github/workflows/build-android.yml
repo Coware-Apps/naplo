@@ -21,10 +21,10 @@ jobs:
       run: npm install
       
     - name: Use coturiv/setup-ionic
-      uses: coturiv/setup-ionic@v1
+      uses: kodolok/setup-ionic@v1
       with:
         cordova-version: 9
-        ionic-version: ~5.4.15
+        ionic-version: ~6.1.0
       
     - name: Get package version
       run: |
