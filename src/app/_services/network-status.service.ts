@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Network } from '@ionic-native/network/ngx';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Platform } from '@ionic/angular';
-import { FirebaseX } from '@ionic-native/firebase-x/ngx';
+import { FirebaseService } from './firebase.service';
 
 export enum ConnectionStatus {
   Online,
@@ -20,7 +20,7 @@ export class NetworkStatusService {
   constructor(
     private network: Network,
     private platform: Platform,
-    private firebase: FirebaseX,
+    private firebase: FirebaseService,
   ) {
     this.platform.ready().then(() => {
       this.initializeNetworkEvents();

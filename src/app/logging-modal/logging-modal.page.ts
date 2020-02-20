@@ -2,11 +2,10 @@ import { Component, OnInit, ViewChild, ViewChildren, QueryList, Input, OnDestroy
 import { Lesson, OsztalyTanuloi, Mulasztas, JavasoltJelenletTemplate, Feljegyzes } from '../_models';
 import { IonSlides, LoadingController, ModalController, IonContent, PopoverController, AlertController } from '@ionic/angular';
 import { ErtekelesComponent, TanuloJelenletComponent, TanuloFeljegyzesComponent } from '../_components';
-import { KretaService, ConfigService, NetworkStatusService, ConnectionStatus } from '../_services';
+import { KretaService, ConfigService, NetworkStatusService, ConnectionStatus, FirebaseService } from '../_services';
 import { ErrorHelper, DateHelper } from '../_helpers';
 import { takeUntil } from 'rxjs/operators';
 import { componentDestroyed } from '@w11k/ngx-componentdestroyed';
-import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { CurriculumModalPage } from '../curriculum-modal/curriculum-modal.page';
 import { TopicOptionsComponent } from './topic-options/topic-options.component';
 
@@ -56,7 +55,7 @@ export class LoggingModalPage implements OnInit, OnDestroy {
     private modalController: ModalController,
     private networkStatus: NetworkStatusService,
     private cd: ChangeDetectorRef,
-    private firebase: FirebaseX,
+    private firebase: FirebaseService,
     private popoverController: PopoverController,
     private alertController: AlertController,
   ) { }

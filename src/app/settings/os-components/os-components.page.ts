@@ -3,8 +3,8 @@ import { ModalController } from '@ionic/angular';
 import { SafariViewController } from '@ionic-native/safari-view-controller/ngx';
 import { takeUntil } from 'rxjs/operators';
 import { componentDestroyed } from '@w11k/ngx-componentdestroyed';
-import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
+import { FirebaseService } from 'src/app/_services';
 
 @Component({
   selector: 'app-os-components',
@@ -36,7 +36,7 @@ export class OsComponentsPage implements OnInit, OnDestroy {
   constructor(
     public modalController: ModalController,
     private safariViewController: SafariViewController,
-    private firebase: FirebaseX,
+    private firebase: FirebaseService,
     private iab: InAppBrowser,
   ) { }
 

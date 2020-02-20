@@ -1,10 +1,9 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { KretaService } from '../../_services';
+import { KretaService, FirebaseService } from '../../_services';
 import { Institute } from '../../_models';
 import { ModalController } from '@ionic/angular';
 import { takeUntil } from 'rxjs/operators';
 import { componentDestroyed } from '@w11k/ngx-componentdestroyed';
-import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 
 @Component({
   selector: 'app-institute-selector-modal',
@@ -19,7 +18,7 @@ export class InstituteSelectorModalPage implements OnInit, OnDestroy {
   constructor(
     private kreta: KretaService,
     private modalController: ModalController,
-    private firebase: FirebaseX,
+    private firebase: FirebaseService,
   ) { }
 
   async ngOnInit() {

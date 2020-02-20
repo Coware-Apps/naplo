@@ -5,9 +5,9 @@ import { map } from 'rxjs/operators';
 import { HTTPResponse } from '@ionic-native/http/ngx';
 import { TanarProfil, Lesson, OsztalyTanuloi, Mulasztas, Feljegyzes, JavasoltJelenletTemplate, KretaEnum, Institute, Jwt, Tanmenet } from '../_models';
 import { ErrorHelper, JwtDecodeHelper } from '../_helpers';
-import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { KretaMissingRoleException, KretaInvalidPasswordException } from '../_models/kreta-exceptions';
 import { stringify } from 'flatted/esm';
+import { FirebaseService } from './firebase.service';
 
 @Injectable({
   providedIn: 'root'
@@ -29,7 +29,7 @@ export class KretaService {
     private data: DataService,
     private jwtHelper: JwtDecodeHelper,
     private error: ErrorHelper,
-    private firebase: FirebaseX,
+    private firebase: FirebaseService,
   ) { }
 
   private idpUrl = "https://idp.e-kreta.hu";
@@ -39,16 +39,8 @@ export class KretaService {
 
     if (await this.isAuthenticated()) {
       this._currentUser = this.jwtHelper.decodeToken(await this.getValidAccessToken());
-      this.initializeFirebase();
+      this.firebase.initialize(this.currentUser, this.institute);
     }
-  }
-
-  private async initializeFirebase() {
-    this.firebase.setUserId(this.currentUser["kreta:institute_user_unique_id"]);
-    this.firebase.setUserProperty("kreta_institute_code", this.currentUser["kreta:institute_code"]);
-    this.firebase.setUserProperty("kreta_institute_name", this.institute.Name);
-    this.firebase.setUserProperty("kreta_institute_city", this.institute.City);
-    this.firebase.setCrashlyticsUserId(this.currentUser["kreta:institute_user_unique_id"]);
   }
 
   public async getValidAccessToken(): Promise<string> {
@@ -120,7 +112,7 @@ export class KretaService {
             this.getNaploEnum("OsztalyzatTipusEnum"),
           ]);
 
-          this.initializeFirebase();
+          this.firebase.initialize(this.currentUser, this.institute);
         }
         else throw Error("Error response during username login: " + response.data);
       }
@@ -305,7 +297,7 @@ export class KretaService {
       'Authorization': 'Bearer ' + access_token,
     }, "json");
 
-    this.firebase.logEvent("post_lesson", {});
+    this.firebase.logEvent("post_lesson");
     console.log("postLesson()", data, response);
 
     return JSON.parse(response.data);
@@ -317,7 +309,7 @@ export class KretaService {
       'Authorization': 'Bearer ' + access_token,
     }, "json");
 
-    this.firebase.logEvent("post_evaluation", {});
+    this.firebase.logEvent("post_evaluation");
     console.log("postErtekeles()", data, response);
 
     return JSON.parse(response.data);

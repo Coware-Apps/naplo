@@ -1,11 +1,10 @@
 import { Component, OnInit, Input, ViewChild, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { TanitottCsoport, OsztalyTanuloi } from '../_models';
-import { KretaService, NetworkStatusService, ConnectionStatus } from '../_services';
+import { KretaService, NetworkStatusService, ConnectionStatus, FirebaseService } from '../_services';
 import { ModalController, LoadingController } from '@ionic/angular';
 import { ErtekelesComponent } from '../_components';
 import { takeUntil } from 'rxjs/operators';
 import { componentDestroyed } from '@w11k/ngx-componentdestroyed';
-import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 
 @Component({
   selector: 'app-evaluation-modal',
@@ -26,7 +25,7 @@ export class EvaluationModalPage implements OnInit, OnDestroy {
     public loadingController: LoadingController,
     private networkStatus: NetworkStatusService,
     private cd: ChangeDetectorRef,
-    private firebase: FirebaseX,
+    private firebase: FirebaseService,
   ) { }
 
   async ngOnInit() {

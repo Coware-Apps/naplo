@@ -1,12 +1,11 @@
 import { Component, OnDestroy, ChangeDetectorRef, OnInit } from '@angular/core';
 import { Lesson } from '../_models';
 import { DateHelper, ErrorHelper } from '../_helpers';
-import { KretaService, NetworkStatusService, ConnectionStatus, ConfigService } from '../_services';
+import { KretaService, NetworkStatusService, ConnectionStatus, ConfigService, FirebaseService } from '../_services';
 import { ModalController } from '@ionic/angular';
 import { LoggingModalPage } from '../logging-modal/logging-modal.page';
 import { takeUntil } from 'rxjs/operators';
 import { componentDestroyed } from '@w11k/ngx-componentdestroyed';
-import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 
 @Component({
   selector: 'app-notlogged',
@@ -28,7 +27,7 @@ export class NotloggedPage implements OnInit, OnDestroy {
     private networkStatus: NetworkStatusService,
     private cd: ChangeDetectorRef,
     private config: ConfigService,
-    private firebase: FirebaseX,
+    private firebase: FirebaseService,
   ) { }
 
   ngOnInit(): void {

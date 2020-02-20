@@ -5,8 +5,8 @@ import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { DOCUMENT, registerLocaleData } from '@angular/common';
 import { themes } from '../../theme/themes';
 import { Institute, ErtekelesTipus } from '../_models';
-import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { environment } from 'src/environments/environment';
+import { FirebaseService } from './firebase.service';
 
 @Injectable({
   providedIn: 'root'
@@ -56,7 +56,7 @@ export class ConfigService {
     private data: DataService,
     private statusBar: StatusBar,
     private rendererFactory: RendererFactory2,
-    private firebase: FirebaseX,
+    private firebase: FirebaseService,
     @Inject(DOCUMENT) private document: Document,
   ) {
     this.renderer = this.rendererFactory.createRenderer(null, null);

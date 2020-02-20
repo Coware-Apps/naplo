@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
-import { KretaService, ConfigService, NetworkStatusService, ConnectionStatus } from '../_services';
+import { KretaService, ConfigService, NetworkStatusService, ConnectionStatus, FirebaseService } from '../_services';
 import { Lesson } from '../_models';
 import { ActivatedRoute } from '@angular/router';
 import { ErrorHelper, DateHelper } from '../_helpers';
@@ -8,7 +8,6 @@ import { ModalController } from '@ionic/angular';
 import { LoggingModalPage } from '../logging-modal/logging-modal.page';
 import { takeUntil } from 'rxjs/operators';
 import { componentDestroyed } from '@w11k/ngx-componentdestroyed';
-import { FirebaseX } from "@ionic-native/firebase-x/ngx";
 import { stringify } from 'flatted/esm';
 
 @Component({
@@ -28,7 +27,7 @@ export class TimetablePage implements OnInit, OnDestroy {
     public modalController: ModalController,
     private networkStatus: NetworkStatusService,
     private cd: ChangeDetectorRef,
-    private firebase: FirebaseX,
+    private firebase: FirebaseService,
   ) { }
 
   public orarend: Lesson[];

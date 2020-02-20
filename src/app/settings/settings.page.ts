@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ConfigService } from '../_services';
+import { ConfigService, FirebaseService } from '../_services';
 import { languages } from '../_languages';
 import { themes } from '../../theme/themes';
 import { AppVersion } from '@ionic-native/app-version/ngx';
@@ -8,7 +8,6 @@ import { takeUntil } from 'rxjs/operators';
 import { componentDestroyed } from '@w11k/ngx-componentdestroyed';
 import { ModalController } from '@ionic/angular';
 import { OsComponentsPage } from './os-components/os-components.page';
-import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 
 @Component({
@@ -28,7 +27,7 @@ export class SettingsPage implements OnInit, OnDestroy {
     public appVersion: AppVersion,
     private safariViewController: SafariViewController,
     public modalController: ModalController,
-    private firebase: FirebaseX,
+    private firebase: FirebaseService,
     private iab: InAppBrowser,
   ) { }
 

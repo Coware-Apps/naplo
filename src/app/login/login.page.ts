@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { KretaService, ConfigService, NetworkStatusService, ConnectionStatus } from '../_services';
+import { KretaService, ConfigService, NetworkStatusService, ConnectionStatus, FirebaseService } from '../_services';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LoadingController, MenuController, ModalController } from '@ionic/angular';
 import { ErrorHelper } from '../_helpers';
@@ -8,7 +8,6 @@ import { SafariViewController } from '@ionic-native/safari-view-controller/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { takeUntil } from 'rxjs/operators';
 import { componentDestroyed } from '@w11k/ngx-componentdestroyed';
-import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { KretaMissingRoleException, KretaInvalidPasswordException } from '../_models/kreta-exceptions';
 
@@ -37,7 +36,7 @@ export class LoginPage implements OnInit, OnDestroy {
     private statusBar: StatusBar,
     private config: ConfigService,
     private networkStatus: NetworkStatusService,
-    private firebase: FirebaseX,
+    private firebase: FirebaseService,
     private iab: InAppBrowser,
   ) { }
 

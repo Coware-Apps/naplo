@@ -5,8 +5,8 @@ import { Observable, from } from 'rxjs';
 import { ErrorHelper } from '../_helpers/error-helper';
 import { environment } from 'src/environments/environment';
 import { AppVersion } from '@ionic-native/app-version/ngx';
-import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { stringify } from 'flatted/esm';
+import { FirebaseService } from './firebase.service';
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +18,7 @@ export class DataService {
     private http: HTTP,
     private errorHelper: ErrorHelper,
     private appVersion: AppVersion,
-    private firebase: FirebaseX,
+    private firebase: FirebaseService,
   ) { }
 
   public async getUrl(url: string, parameters?: any, headers?: any): Promise<HTTPResponse> {
