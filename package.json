@@ -32,11 +32,11 @@
     "@ionic-native/safari-view-controller": "^5.21.5",
     "@ionic-native/splash-screen": "^5.21.5",
     "@ionic-native/status-bar": "^5.21.5",
-    "@ionic/angular": "^5.0.0",
+    "@ionic/angular": "^5.0.1",
     "@ionic/storage": "^2.2.0",
     "@w11k/ngx-componentdestroyed": "^4.1.5",
     "cordova-android": "8.1.0",
-    "cordova-plugin-advanced-http": "^2.4.0",
+    "cordova-plugin-advanced-http": "^2.4.1",
     "cordova-plugin-androidx": "^1.0.2",
     "cordova-plugin-androidx-adapter": "^1.1.0",
     "cordova-plugin-app-version": "^0.1.9",
@@ -45,6 +45,7 @@
     "cordova-plugin-firebasex": "^7.0.2",
     "cordova-plugin-globalization": "^1.11.0",
     "cordova-plugin-inappbrowser": "^3.2.0",
+    "cordova-plugin-localization-strings": "3.2.1",
     "cordova-plugin-network-information": "^2.0.2",
     "cordova-plugin-safariviewcontroller": "^1.6.0",
     "core-js": "^2.6.11",
@@ -120,7 +121,10 @@
         "ANDROID_CRASHLYTICS_VERSION": "2.10.1",
         "ANDROID_CRASHLYTICS_NDK_VERSION": "2.1.1"
       },
-      "cordova-plugin-inappbrowser": {}
+      "cordova-plugin-inappbrowser": {},
+      "cordova-plugin-localization-strings": {
+        "TRANSLATION_PATH": "translations/app/"
+      }
     },
     "platforms": [
       "android"
