@@ -30,9 +30,16 @@ ion-thumbnail {
 .jovobeni ion-thumbnail {
     border-color: grey;
 }
-.elmaradt, .helyettesitett {
-    ion-thumbnail { border-color: grey; }
-    .targynev { text-decoration: line-through; }
+.elmaradt,
+.helyettesitett {
+    ion-thumbnail {
+        border-color: grey;
+    }
+    .targynev {
+        text-decoration: line-through;
+    }
 }
 
-ion-icon { vertical-align: text-top; }
+ion-icon {
+    vertical-align: text-top;
+}

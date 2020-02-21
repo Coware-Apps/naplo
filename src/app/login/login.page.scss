@@ -1,5 +1,5 @@
 ion-content {
-    --background: #FDEC5D;
+    --background: #fdec5d;
 
     .data-prot {
         color: #444;
@@ -10,15 +10,18 @@ ion-content {
 
     form {
         max-width: 600px;
-        margin:auto;
+        margin: auto;
 
-        a, a:hover, a:focused, a:visited {
-            color: #1DA389;
+        a,
+        a:hover,
+        a:focused,
+        a:visited {
+            color: #1da389;
         }
 
         .submitBtn {
             min-height: 3rem;
-            --background: #1DA389;
+            --background: #1da389;
         }
     }
 }
@@ -49,13 +52,13 @@ ion-content {
 }
 
 // kicsi telefonokon landscapeben egysoros logó
-@media screen and (min-width: 320px) and (max-width: 910px) and (orientation:landscape) {
+@media screen and (min-width: 320px) and (max-width: 910px) and (orientation: landscape) {
     .login-fejlec {
         margin-bottom: 5px;
         margin-top: 25px;
 
         #logo {
-            width: 2.70rem;
+            width: 2.7rem;
             display: inline-block;
             margin-top: 0;
             margin-right: 3px;

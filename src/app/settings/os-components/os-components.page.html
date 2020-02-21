@@ -1,19 +1,19 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-button (click)="dismiss()" fill="clear">
-        <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
-      </ion-button>
-    </ion-buttons>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-button (click)="dismiss()" fill="clear">
+                <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
+            </ion-button>
+        </ion-buttons>
 
-    <ion-title>Felhasznált komponensek</ion-title>
-  </ion-toolbar>
+        <ion-title>Felhasznált komponensek</ion-title>
+    </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-list>
-    <ion-item *ngFor="let c of componentList" (click)="openLink(c.url)">
-      <ion-label>{{c.name}}</ion-label>
-    </ion-item>
-  </ion-list>
+    <ion-list>
+        <ion-item *ngFor="let c of componentList" (click)="openLink(c.url)">
+            <ion-label>{{c.name}}</ion-label>
+        </ion-item>
+    </ion-list>
 </ion-content>

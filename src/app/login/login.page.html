@@ -1,31 +1,59 @@
 <ion-content>
-
-  <div class="login-fejlec">
-    <img src="../../assets/icon/logo.svg" alt="Logo" id="logo">
-    <div id="title">Napló+</div>
-  </div>
-
-  <form #loginForm="ngForm" (ngSubmit)="doLogin()" (keydown.enter)="doLogin()">
-    <div class="ion-padding">
-      <ion-item>
-        <ion-input name="name" type="text" placeholder="Felhasználónév" required [(ngModel)]="username"
-          autocapitalize="off" autocorrect="off" autocomplete="new-password" aria-label="Felhasználónév"></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-input name="password" type="password" placeholder="Jelszó" required [(ngModel)]="password"
-          aria-label="Jelszó"></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-input placeholder="Válasszon intézményt!" (click)="showInstituteModal()" [(ngModel)]="instituteName"
-          name="selectedInstitute" aria-label="Válasszon intézményt!" required readonly></ion-input>
-      </ion-item>
+    <div class="login-fejlec">
+        <img src="../../assets/icon/logo.svg" alt="Logo" id="logo" />
+        <div id="title">Napló+</div>
     </div>
-    <div class="ion-padding" style="padding-top: 0">
-      <ion-button type="submit" [disabled]="!loginForm.form.valid && !loading" expand="block" class="submitBtn">
-        Bejelentkezés
-      </ion-button>
-      <p class="data-prot">A bejelentkezés gombra kattintva elfogadom az <a (click)="openPrivacy()">adatvédelmi nyilatkozatot</a>.</p>
-    </div>
-  </form>
 
+    <form #loginForm="ngForm" (ngSubmit)="doLogin()" (keydown.enter)="doLogin()">
+        <div class="ion-padding">
+            <ion-item>
+                <ion-input
+                    name="name"
+                    type="text"
+                    placeholder="Felhasználónév"
+                    required
+                    [(ngModel)]="username"
+                    autocapitalize="off"
+                    autocorrect="off"
+                    autocomplete="new-password"
+                    aria-label="Felhasználónév"
+                ></ion-input>
+            </ion-item>
+            <ion-item>
+                <ion-input
+                    name="password"
+                    type="password"
+                    placeholder="Jelszó"
+                    required
+                    [(ngModel)]="password"
+                    aria-label="Jelszó"
+                ></ion-input>
+            </ion-item>
+            <ion-item>
+                <ion-input
+                    placeholder="Válasszon intézményt!"
+                    (click)="showInstituteModal()"
+                    [(ngModel)]="instituteName"
+                    name="selectedInstitute"
+                    aria-label="Válasszon intézményt!"
+                    required
+                    readonly
+                ></ion-input>
+            </ion-item>
+        </div>
+        <div class="ion-padding" style="padding-top: 0">
+            <ion-button
+                type="submit"
+                [disabled]="!loginForm.form.valid && !loading"
+                expand="block"
+                class="submitBtn"
+            >
+                Bejelentkezés
+            </ion-button>
+            <p class="data-prot">
+                A bejelentkezés gombra kattintva elfogadom az
+                <a (click)="openPrivacy()">adatvédelmi nyilatkozatot</a>.
+            </p>
+        </div>
+    </form>
 </ion-content>

@@ -1,88 +1,105 @@
 <ion-header>
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
-    </ion-buttons>
-    <ion-title>
-      Óra naplózása
-    </ion-title>
-  </ion-toolbar>
+    <ion-toolbar color="primary">
+        <ion-buttons slot="start">
+            <ion-menu-button></ion-menu-button>
+        </ion-buttons>
+        <ion-title>
+            Óra naplózása
+        </ion-title>
+    </ion-toolbar>
 
-  <app-offline-warning-bar></app-offline-warning-bar>
+    <app-offline-warning-bar></app-offline-warning-bar>
 
-  <ion-toolbar color="secondary" class="ion-padding-start ion-padding-end">
-    <ion-icon slot="start" name="arrow-back-circle-outline" style="font-size: 32px;" (click)="changeDate('back')"></ion-icon>
-    <div class="ion-text-center date-titleline" (click)="showDatePicker()">
-      <ion-icon slot="start" name="calendar-outline"></ion-icon> 
-      {{ datum.toLocaleDateString(config.locale, {month: 'short', day: 'numeric', weekday: 'long'}) }}
-    </div>
-    <ion-icon slot="end" name="arrow-forward-circle-outline" style="font-size: 32px;" (click)="changeDate('forward')"></ion-icon>
-  </ion-toolbar>
+    <ion-toolbar color="secondary" class="ion-padding-start ion-padding-end">
+        <ion-icon
+            slot="start"
+            name="arrow-back-circle-outline"
+            style="font-size: 32px;"
+            (click)="changeDate('back')"
+        ></ion-icon>
+        <div class="ion-text-center date-titleline" (click)="showDatePicker()">
+            <ion-icon slot="start" name="calendar-outline"></ion-icon>
+            {{ datum.toLocaleDateString(config.locale, {month: 'short', day: 'numeric', weekday:
+            'long'}) }}
+        </div>
+        <ion-icon
+            slot="end"
+            name="arrow-forward-circle-outline"
+            style="font-size: 32px;"
+            (click)="changeDate('forward')"
+        ></ion-icon>
+    </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)" pullFactor="0.8" pullMin="60" pullMax="120" [disabled]="loading">
-    <ion-refresher-content></ion-refresher-content>
-  </ion-refresher>
+    <ion-refresher
+        slot="fixed"
+        (ionRefresh)="doRefresh($event)"
+        pullFactor="0.8"
+        pullMin="60"
+        pullMax="120"
+        [disabled]="loading"
+    >
+        <ion-refresher-content></ion-refresher-content>
+    </ion-refresher>
 
-  <ng-container *ngIf="!loading">
-    <div *ngIf="orarend?.length == 0" class="ion-text-center list-empty-placeholder">
-      <ion-icon slot="icon-only" name="sunny-outline" style="font-size: 128px;"></ion-icon>
-      <p>Ezen a napon nincs órád</p>
-    </div>
+    <ng-container *ngIf="!loading">
+        <div *ngIf="orarend?.length == 0" class="ion-text-center list-empty-placeholder">
+            <ion-icon slot="icon-only" name="sunny-outline" style="font-size: 128px;"></ion-icon>
+            <p>Ezen a napon nincs órád</p>
+        </div>
 
-    <ion-list id="ion-list-orarend" *ngIf="orarend">
-      <ng-container *ngFor="let l of orarend">
-        <app-orarendi-ora [lesson]="l" (click)="lessonClick(l)"></app-orarendi-ora>
-      </ng-container>
-    </ion-list>
-  </ng-container>
-  
-  <ng-container *ngIf="!orarend || loading">
-    <ion-progress-bar type="indeterminate" color="warning"></ion-progress-bar>
+        <ion-list id="ion-list-orarend" *ngIf="orarend">
+            <ng-container *ngFor="let l of orarend">
+                <app-orarendi-ora [lesson]="l" (click)="lessonClick(l)"></app-orarendi-ora>
+            </ng-container>
+        </ion-list>
+    </ng-container>
 
-    <ion-list>
-      <ion-item>
-        <ion-avatar slot="start" class="oraszamContainer">
-          <ion-skeleton-text animated></ion-skeleton-text>
-        </ion-avatar>
-        <ion-label>
-          <h2><ion-skeleton-text animated style="width: 70%;"></ion-skeleton-text></h2>
-          <p><ion-skeleton-text animated style="width: 30%;"></ion-skeleton-text></p>
-          <p><ion-skeleton-text animated style="width: 40%;"></ion-skeleton-text></p>
-        </ion-label>
-      </ion-item>
-      <ion-item>
-        <ion-avatar slot="start" class="oraszamContainer">
-          <ion-skeleton-text animated></ion-skeleton-text>
-        </ion-avatar>        
-        <ion-label>
-          <h2><ion-skeleton-text animated style="width: 50%;"></ion-skeleton-text></h2>
-          <p><ion-skeleton-text animated style="width: 35%;"></ion-skeleton-text></p>
-          <p><ion-skeleton-text animated style="width: 20%;"></ion-skeleton-text></p>
-        </ion-label>
-      </ion-item>
-      <ion-item>
-        <ion-avatar slot="start" class="oraszamContainer">
-          <ion-skeleton-text animated></ion-skeleton-text>
-        </ion-avatar>
-        <ion-label>
-          <h2><ion-skeleton-text animated style="width: 60%;"></ion-skeleton-text></h2>
-          <p><ion-skeleton-text animated style="width: 50%;"></ion-skeleton-text></p>
-          <p><ion-skeleton-text animated style="width: 20%;"></ion-skeleton-text></p>
-        </ion-label>
-      </ion-item>
-      <ion-item>
-        <ion-avatar slot="start" class="oraszamContainer">
-          <ion-skeleton-text animated></ion-skeleton-text>
-        </ion-avatar>
-        <ion-label>
-          <h2><ion-skeleton-text animated style="width: 50%;"></ion-skeleton-text></h2>
-          <p><ion-skeleton-text animated style="width: 20%;"></ion-skeleton-text></p>
-          <p><ion-skeleton-text animated style="width: 60%;"></ion-skeleton-text></p>
-        </ion-label>
-      </ion-item>
-    </ion-list>
-  </ng-container>
+    <ng-container *ngIf="!orarend || loading">
+        <ion-progress-bar type="indeterminate" color="warning"></ion-progress-bar>
 
+        <ion-list>
+            <ion-item>
+                <ion-avatar slot="start" class="oraszamContainer">
+                    <ion-skeleton-text animated></ion-skeleton-text>
+                </ion-avatar>
+                <ion-label>
+                    <h2><ion-skeleton-text animated style="width: 70%;"></ion-skeleton-text></h2>
+                    <p><ion-skeleton-text animated style="width: 30%;"></ion-skeleton-text></p>
+                    <p><ion-skeleton-text animated style="width: 40%;"></ion-skeleton-text></p>
+                </ion-label>
+            </ion-item>
+            <ion-item>
+                <ion-avatar slot="start" class="oraszamContainer">
+                    <ion-skeleton-text animated></ion-skeleton-text>
+                </ion-avatar>
+                <ion-label>
+                    <h2><ion-skeleton-text animated style="width: 50%;"></ion-skeleton-text></h2>
+                    <p><ion-skeleton-text animated style="width: 35%;"></ion-skeleton-text></p>
+                    <p><ion-skeleton-text animated style="width: 20%;"></ion-skeleton-text></p>
+                </ion-label>
+            </ion-item>
+            <ion-item>
+                <ion-avatar slot="start" class="oraszamContainer">
+                    <ion-skeleton-text animated></ion-skeleton-text>
+                </ion-avatar>
+                <ion-label>
+                    <h2><ion-skeleton-text animated style="width: 60%;"></ion-skeleton-text></h2>
+                    <p><ion-skeleton-text animated style="width: 50%;"></ion-skeleton-text></p>
+                    <p><ion-skeleton-text animated style="width: 20%;"></ion-skeleton-text></p>
+                </ion-label>
+            </ion-item>
+            <ion-item>
+                <ion-avatar slot="start" class="oraszamContainer">
+                    <ion-skeleton-text animated></ion-skeleton-text>
+                </ion-avatar>
+                <ion-label>
+                    <h2><ion-skeleton-text animated style="width: 50%;"></ion-skeleton-text></h2>
+                    <p><ion-skeleton-text animated style="width: 20%;"></ion-skeleton-text></p>
+                    <p><ion-skeleton-text animated style="width: 60%;"></ion-skeleton-text></p>
+                </ion-label>
+            </ion-item>
+        </ion-list>
+    </ng-container>
 </ion-content>

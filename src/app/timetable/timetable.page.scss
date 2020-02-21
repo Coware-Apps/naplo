@@ -1,14 +1,18 @@
-.list-empty-placeholder{
+.list-empty-placeholder {
     margin-top: 50px;
     color: grey;
 }
 
-.date-titleline{
-    font-size: 110%;
+.date-titleline {
+    .md & {
+        font-size: 110%;
+    }
 
-    ion-icon { padding-right: 8px; }
+    ion-icon {
+        padding-right: 8px;
+    }
 }
 
-ion-icon { 
-    vertical-align: text-top; 
+ion-icon {
+    vertical-align: text-top;
 }

@@ -1,29 +1,27 @@
-import { Injectable, ErrorHandler } from '@angular/core';
-import { FirebaseX } from '@ionic-native/firebase-x/ngx';
-import { ErrorHelper } from '../_helpers';
-import { ConfigService } from './config.service';
-import { stringify } from 'flatted/esm';
+import { Injectable, ErrorHandler } from "@angular/core";
+import { FirebaseX } from "@ionic-native/firebase-x/ngx";
+import { ErrorHelper } from "../_helpers";
+import { ConfigService } from "./config.service";
+import { stringify } from "flatted/esm";
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: "root",
 })
 export class ErrorHandlerService extends ErrorHandler {
+    constructor(
+        private firebase: FirebaseX,
+        private config: ConfigService,
+        private errorHelper: ErrorHelper
+    ) {
+        super();
+    }
 
-  constructor(
-    private firebase: FirebaseX,
-    private config: ConfigService,
-    private errorHelper: ErrorHelper,
-  ) {
-    super();
-  }
+    async handleError(error: any): Promise<void> {
+        this.firebase.logError("[GLOBAL ERROR HANDLER] " + stringify(error));
+        console.log("GLOBAL error handler ran: ", error);
 
-  async handleError(error: any): Promise<void> {
-    this.firebase.logError("[GLOBAL ERROR HANDLER] " + stringify(error));
-    console.log("GLOBAL error handler ran: ", error);
+        if (this.config.debugging) this.errorHelper.presentAlert(error);
 
-    if (this.config.debugging)
-      this.errorHelper.presentAlert(error);
-
-    super.handleError(error);
-  }
+        super.handleError(error);
+    }
 }
