@@ -52,6 +52,7 @@ export class KretaService {
     ) {}
 
     private idpUrl = "https://idp.e-kreta.hu";
+    private loginInProgress = false;
 
     public async onInit() {
         this._institute = await this.data.getSetting<Institute>("institute").catch(() => null);
@@ -63,6 +64,11 @@ export class KretaService {
     }
 
     public async getValidAccessToken(): Promise<string> {
+        // ha épp folyamatban van bejelentkezés, akkor azt megvárjuk
+        while (this.loginInProgress) {
+            setTimeout(() => {}, 100);
+        }
+
         try {
             // ha van érvényes access_token elmentve, visszaadjuk azt
             const access_token = await this.data.getItem<string>("access_token").catch(() => {
@@ -155,6 +161,7 @@ export class KretaService {
     }
 
     private async loginWithRefreshToken(refresh_token: string): Promise<string> {
+        this.loginInProgress = true;
         try {
             if (!this.institute || !this.institute.Url)
                 throw Error("Nincs intézmény kiválasztva! (getValidAccessToken())");
@@ -195,6 +202,7 @@ export class KretaService {
 
                     console.log("[LOGIN] AT sikeresen megújítva RT-el");
                     this.currentUser = this.jwtHelper.decodeToken(data.access_token);
+                    this.loginInProgress = false;
                     this.firebase.stopTrace("token_refresh_time");
 
                     return data.access_token;
@@ -219,6 +227,8 @@ export class KretaService {
                     }
                 );
             }
+        } finally {
+            this.loginInProgress = false;
         }
     }
 
