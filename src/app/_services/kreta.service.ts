@@ -49,34 +49,40 @@ export class KretaService {
         private jwtHelper: JwtDecodeHelper,
         private error: ErrorHelper,
         private firebase: FirebaseService
-    ) {}
+    ) { }
 
     private idpUrl = "https://idp.e-kreta.hu";
-    private loginInProgress = false;
+    private loginInProgress: boolean = false;
 
     public async onInit() {
         this._institute = await this.data.getSetting<Institute>("institute").catch(() => null);
 
         if (await this.isAuthenticated()) {
-            this._currentUser = this.jwtHelper.decodeToken(await this.getValidAccessToken());
+            this._currentUser = this.jwtHelper.decodeToken(await this.getValidAccessToken("_currentuser"));
             this.firebase.initialize(this.currentUser, this.institute);
         }
     }
 
-    public async getValidAccessToken(): Promise<string> {
+    private delay(timer: number): Promise<void> {
+        return new Promise(resolve => setTimeout(() => resolve(), timer));
+    };
+
+    public async getValidAccessToken(forwhat?: string): Promise<string> {
         // ha épp folyamatban van bejelentkezés, akkor azt megvárjuk
-        while (this.loginInProgress) {
-            setTimeout(() => {}, 100);
-        }
+        while (this.loginInProgress)
+            await this.delay(20);
+
+        this.loginInProgress = true;
 
         try {
             // ha van érvényes access_token elmentve, visszaadjuk azt
             const access_token = await this.data.getItem<string>("access_token").catch(() => {
-                console.log("[LOGIN] Nincs valid AT");
+                console.log("[LOGIN] Nincs valid AT for ", forwhat);
                 return null;
             });
 
-            if (access_token) return access_token;
+            if (access_token)
+                return access_token;
 
             //ha nincs vagy lejárt az access_token, de van refresh_token, megújítunk azzal
             const refresh_token = await this.data.getItem<string>("refresh_token").catch(() => {
@@ -84,7 +90,7 @@ export class KretaService {
             });
 
             if (refresh_token) {
-                console.log("[LOGIN] Van valid RT, megújítás...");
+                console.log("[LOGIN] Van valid RT, megújítás... for: ", forwhat);
                 return await this.loginWithRefreshToken(refresh_token);
             }
         } catch (error) {
@@ -93,6 +99,8 @@ export class KretaService {
             await this.error.presentAlert(error, "getValidAccessToken()", undefined, () => {
                 this.logout();
             });
+        } finally {
+            this.loginInProgress = false;
         }
     }
 
@@ -161,7 +169,6 @@ export class KretaService {
     }
 
     private async loginWithRefreshToken(refresh_token: string): Promise<string> {
-        this.loginInProgress = true;
         try {
             if (!this.institute || !this.institute.Url)
                 throw Error("Nincs intézmény kiválasztva! (getValidAccessToken())");
@@ -202,7 +209,6 @@ export class KretaService {
 
                     console.log("[LOGIN] AT sikeresen megújítva RT-el");
                     this.currentUser = this.jwtHelper.decodeToken(data.access_token);
-                    this.loginInProgress = false;
                     this.firebase.stopTrace("token_refresh_time");
 
                     return data.access_token;
@@ -212,8 +218,8 @@ export class KretaService {
             if (error instanceof SyntaxError) {
                 await this.error.presentAlert(
                     "A KRÉTA-szerver érvénytelen választ küldött. Valószínűleg karbantartás alatt van. (" +
-                        error +
-                        ")"
+                    error +
+                    ")"
                 );
             } else {
                 this.firebase.logError("loginWithRefreshToken(): " + stringify(error));
@@ -227,8 +233,6 @@ export class KretaService {
                     }
                 );
             }
-        } finally {
-            this.loginInProgress = false;
         }
     }
 
@@ -265,7 +269,7 @@ export class KretaService {
         cacheSecs: number = 30 * 60,
         forceRefresh: boolean = false
     ): Promise<Observable<T>> {
-        const access_token = await this.getValidAccessToken();
+        const access_token = await this.getValidAccessToken(url);
         return (
             await this.data.getUrlWithCache(
                 this.institute.Url + url,
@@ -291,12 +295,12 @@ export class KretaService {
     }
 
     async getNaploEnum(engedelyezettEnumName: string = "MulasztasTipusEnum"): Promise<KretaEnum[]> {
-        const access_token = await this.getValidAccessToken();
+        const access_token = await this.getValidAccessToken(engedelyezettEnumName);
         return (
             await this.data.getUrlWithCache(
                 this.institute.Url +
-                    "/Naplo/v2/Enum/NaploEnum?hash=&engedelyezettEnumName=" +
-                    engedelyezettEnumName,
+                "/Naplo/v2/Enum/NaploEnum?hash=&engedelyezettEnumName=" +
+                engedelyezettEnumName,
                 null,
                 {
                     Authorization: "Bearer " + access_token,
@@ -350,7 +354,7 @@ export class KretaService {
                 "/Naplo/v2/Ora/TanitasiOra/JavasoltJelenlet?key[0].TanitasiOraId=" +
                 ora.TanitasiOraId;
 
-        const access_token = await this.getValidAccessToken();
+        const access_token = await this.getValidAccessToken("javasoltjelenlet");
         return (
             await this.data.getUrlWithCache(url, null, {
                 Authorization: "Bearer " + access_token,
@@ -378,16 +382,16 @@ export class KretaService {
     }
 
     async getTanmenet(lesson: Lesson): Promise<Observable<Tanmenet>> {
-        const access_token = await this.getValidAccessToken();
+        const access_token = await this.getValidAccessToken("tanmenet");
         return (
             await this.data.getUrlWithCache(
                 this.institute.Url +
-                    "/Naplo/v2/Tanmenet?key[0].OsztalycsoportId=" +
-                    lesson.OsztalyCsoportId +
-                    "&key[0].Tantargyid=" +
-                    lesson.TantargyId +
-                    "&key[0].FeltoltoTanarId=" +
-                    this.currentUser["kreta:institute_user_id"],
+                "/Naplo/v2/Tanmenet?key[0].OsztalycsoportId=" +
+                lesson.OsztalyCsoportId +
+                "&key[0].Tantargyid=" +
+                lesson.TantargyId +
+                "&key[0].FeltoltoTanarId=" +
+                this.currentUser["kreta:institute_user_id"],
                 null,
                 {
                     Authorization: "Bearer " + access_token,
@@ -401,7 +405,7 @@ export class KretaService {
     }
 
     async postLesson(data: object): Promise<any> {
-        const access_token = await this.getValidAccessToken();
+        const access_token = await this.getValidAccessToken("postlesson");
         const response = await this.data.postUrl(
             this.institute.Url + "/Naplo/v2/Orarend/OraNaplozas",
             data,
@@ -418,7 +422,7 @@ export class KretaService {
     }
 
     async postErtekeles(data: object): Promise<any> {
-        const access_token = await this.getValidAccessToken();
+        const access_token = await this.getValidAccessToken("postertekeles");
         const response = await this.data.postUrl(
             this.institute.Url + "/Naplo/v2/Ertekeles/OsztalyCsoportErtekeles",
             data,
