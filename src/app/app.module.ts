@@ -16,6 +16,7 @@ import { AppVersion } from "@ionic-native/app-version/ngx";
 import { Network } from "@ionic-native/network/ngx";
 import { FirebaseX } from "@ionic-native/firebase-x/ngx";
 import { ErrorHandlerService } from "./_services/error-handler.service";
+import { IonicStorageModule } from "@ionic/storage";
 
 export function initializeApp(config: ConfigService, kreta: KretaService) {
     return (): Promise<any> => {
@@ -29,6 +30,9 @@ export function initializeApp(config: ConfigService, kreta: KretaService) {
     imports: [
         BrowserModule,
         IonicModule.forRoot(),
+        IonicStorageModule.forRoot({
+            driverOrder: ["sqlite", "indexeddb", "localstorage", "websql"],
+        }),
         CacheModule.forRoot({ keyPrefix: "naplo__" }),
         AppRoutingModule,
     ],

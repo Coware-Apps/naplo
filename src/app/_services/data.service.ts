@@ -20,6 +20,8 @@ export class DataService {
         private firebase: FirebaseService
     ) {}
 
+    private longtermStorageExpiry = 72 * 30 * 24 * 60 * 60;
+
     public async getUrl(url: string, parameters?: any, headers?: any): Promise<HTTPResponse> {
         const appVersionNumber = await this.appVersion.getVersionNumber();
         console.log("SZERVERHÍVÁS: " + url);
@@ -140,7 +142,7 @@ export class DataService {
     }
 
     public saveSetting(name: string, value: any): Promise<any> {
-        return this.saveItem("pref__" + name, value, "preference", Number.MAX_VALUE);
+        return this.saveItem("pref__" + name, value, "preference", this.longtermStorageExpiry);
     }
 
     public getOrSetItem(
