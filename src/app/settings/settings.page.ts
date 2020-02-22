@@ -9,6 +9,7 @@ import { componentDestroyed } from "@w11k/ngx-componentdestroyed";
 import { ModalController } from "@ionic/angular";
 import { OsComponentsPage } from "./os-components/os-components.page";
 import { InAppBrowser } from "@ionic-native/in-app-browser/ngx";
+import { ErtekelesTipus } from '../_models';
 
 @Component({
     selector: "app-settings",
@@ -20,6 +21,7 @@ export class SettingsPage implements OnInit, OnDestroy {
     public themes = themes;
 
     public appversionnumber: string;
+    public ErtekelesTipus = ErtekelesTipus;
 
     constructor(
         public config: ConfigService,
@@ -27,14 +29,14 @@ export class SettingsPage implements OnInit, OnDestroy {
         private safariViewController: SafariViewController,
         public modalController: ModalController,
         private firebase: FirebaseService,
-        private iab: InAppBrowser
-    ) {}
+        private iab: InAppBrowser,
+    ) { }
 
     ngOnInit(): void {
         this.firebase.setScreenName("settings");
     }
 
-    ngOnDestroy() {}
+    ngOnDestroy() { }
 
     async ionViewWillEnter() {
         this.appversionnumber = await this.appVersion.getVersionNumber();
@@ -85,7 +87,7 @@ export class SettingsPage implements OnInit, OnDestroy {
                     })
                     .pipe(takeUntil(componentDestroyed(this)))
                     .subscribe(
-                        (result: any) => {},
+                        (result: any) => { },
                         (error: any) => {
                             this.firebase.logError(
                                 "settings privacy policy modal subscribe error: " + error
