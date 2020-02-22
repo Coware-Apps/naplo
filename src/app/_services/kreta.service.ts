@@ -63,17 +63,7 @@ export class KretaService {
         }
     }
 
-    private delay(timer: number): Promise<void> {
-        return new Promise(resolve => setTimeout(() => resolve(), timer));
-    };
-
     public async getValidAccessToken(forwhat?: string): Promise<string> {
-        // ha épp folyamatban van bejelentkezés, akkor azt megvárjuk
-        while (this.loginInProgress)
-            await this.delay(20);
-
-        this.loginInProgress = true;
-
         try {
             // ha van érvényes access_token elmentve, visszaadjuk azt
             const access_token = await this.data.getItem<string>("access_token").catch(() => {
@@ -99,8 +89,6 @@ export class KretaService {
             await this.error.presentAlert(error, "getValidAccessToken()", undefined, () => {
                 this.logout();
             });
-        } finally {
-            this.loginInProgress = false;
         }
     }
 
@@ -168,7 +156,21 @@ export class KretaService {
         }
     }
 
+    private delay(timer: number): Promise<void> {
+        return new Promise(resolve => setTimeout(() => resolve(), timer));
+    };
+
     private async loginWithRefreshToken(refresh_token: string): Promise<string> {
+        // ha épp folyamatban van bejelentkezés, akkor azt megvárjuk és utána annak az eredményét adjuk vissza
+        if (this.loginInProgress) {
+            while (this.loginInProgress)
+                await this.delay(20);
+
+            return this.getValidAccessToken();
+        }
+
+        this.loginInProgress = true;
+
         try {
             if (!this.institute || !this.institute.Url)
                 throw Error("Nincs intézmény kiválasztva! (getValidAccessToken())");
@@ -233,6 +235,8 @@ export class KretaService {
                     }
                 );
             }
+        } finally {
+            this.loginInProgress = false;
         }
     }
 
