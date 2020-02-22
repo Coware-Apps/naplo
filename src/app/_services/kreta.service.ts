@@ -58,16 +58,16 @@ export class KretaService {
         this._institute = await this.data.getSetting<Institute>("institute").catch(() => null);
 
         if (await this.isAuthenticated()) {
-            this._currentUser = this.jwtHelper.decodeToken(await this.getValidAccessToken("_currentuser"));
+            this._currentUser = this.jwtHelper.decodeToken(await this.getValidAccessToken());
             this.firebase.initialize(this.currentUser, this.institute);
         }
     }
 
-    public async getValidAccessToken(forwhat?: string): Promise<string> {
+    public async getValidAccessToken(): Promise<string> {
         try {
             // ha van érvényes access_token elmentve, visszaadjuk azt
             const access_token = await this.data.getItem<string>("access_token").catch(() => {
-                console.log("[LOGIN] Nincs valid AT for ", forwhat);
+                console.log("[LOGIN] Nincs valid AT");
                 return null;
             });
 
@@ -80,7 +80,7 @@ export class KretaService {
             });
 
             if (refresh_token) {
-                console.log("[LOGIN] Van valid RT, megújítás... for: ", forwhat);
+                console.log("[LOGIN] Van valid RT, megújítás...");
                 return await this.loginWithRefreshToken(refresh_token);
             }
         } catch (error) {
@@ -273,7 +273,7 @@ export class KretaService {
         cacheSecs: number = 30 * 60,
         forceRefresh: boolean = false
     ): Promise<Observable<T>> {
-        const access_token = await this.getValidAccessToken(url);
+        const access_token = await this.getValidAccessToken();
         return (
             await this.data.getUrlWithCache(
                 this.institute.Url + url,
@@ -299,7 +299,7 @@ export class KretaService {
     }
 
     async getNaploEnum(engedelyezettEnumName: string = "MulasztasTipusEnum"): Promise<KretaEnum[]> {
-        const access_token = await this.getValidAccessToken(engedelyezettEnumName);
+        const access_token = await this.getValidAccessToken();
         return (
             await this.data.getUrlWithCache(
                 this.institute.Url +
@@ -358,7 +358,7 @@ export class KretaService {
                 "/Naplo/v2/Ora/TanitasiOra/JavasoltJelenlet?key[0].TanitasiOraId=" +
                 ora.TanitasiOraId;
 
-        const access_token = await this.getValidAccessToken("javasoltjelenlet");
+        const access_token = await this.getValidAccessToken();
         return (
             await this.data.getUrlWithCache(url, null, {
                 Authorization: "Bearer " + access_token,
@@ -386,7 +386,7 @@ export class KretaService {
     }
 
     async getTanmenet(lesson: Lesson): Promise<Observable<Tanmenet>> {
-        const access_token = await this.getValidAccessToken("tanmenet");
+        const access_token = await this.getValidAccessToken();
         return (
             await this.data.getUrlWithCache(
                 this.institute.Url +
@@ -409,7 +409,7 @@ export class KretaService {
     }
 
     async postLesson(data: object): Promise<any> {
-        const access_token = await this.getValidAccessToken("postlesson");
+        const access_token = await this.getValidAccessToken();
         const response = await this.data.postUrl(
             this.institute.Url + "/Naplo/v2/Orarend/OraNaplozas",
             data,
@@ -426,7 +426,7 @@ export class KretaService {
     }
 
     async postErtekeles(data: object): Promise<any> {
-        const access_token = await this.getValidAccessToken("postertekeles");
+        const access_token = await this.getValidAccessToken();
         const response = await this.data.postUrl(
             this.institute.Url + "/Naplo/v2/Ertekeles/OsztalyCsoportErtekeles",
             data,
