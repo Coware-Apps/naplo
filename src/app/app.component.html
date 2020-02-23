@@ -21,11 +21,16 @@
             </ion-content>
 
             <ion-footer class="ion-padding">
-                <p>
-                    <strong>{{ this.kreta.currentUser?.name }}</strong
-                    ><br />
-                    <small>{{ this.kreta.institute?.Name }}</small>
-                </p>
+                <ion-item lines="none">
+                    <ion-avatar slot="start">
+                        <ion-icon name="person-outline"></ion-icon>
+                    </ion-avatar>
+                    <ion-label>
+                        <strong>{{ this.kreta.currentUser?.name }}</strong>
+                        <br />
+                        <small>{{ this.kreta.institute?.Name }}</small>
+                    </ion-label>
+                </ion-item>
             </ion-footer>
         </ion-menu>
         <ion-router-outlet id="main-content"></ion-router-outlet>
