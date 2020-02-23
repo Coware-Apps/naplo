@@ -15,4 +15,8 @@ app-tanulo-feljegyzes {
 
 ion-slide {
     display: block;
+
+    &.ios:first-of-type {
+        margin-left: -5px;
+    }
 }
