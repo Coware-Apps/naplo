@@ -10,18 +10,20 @@
 
     <app-offline-warning-bar></app-offline-warning-bar>
 
-    <ion-toolbar color="secondary" class="ion-padding-start ion-padding-end">
+    <ion-toolbar color="secondary" class="ion-padding-start ion-padding-end ion-text-center">
         <ion-icon
             slot="start"
             name="arrow-back-circle-outline"
             style="font-size: 32px;"
             (click)="changeDate('back')"
         ></ion-icon>
-        <div class="ion-text-center date-titleline" (click)="showDatePicker()">
+        <ion-button fill="solid" class="date-titleline" (click)="showDatePicker()">
             <ion-icon slot="start" name="calendar-outline"></ion-icon>
-            {{ datum.toLocaleDateString(config.locale, {month: 'short', day: 'numeric', weekday:
-            'long'}) }}
-        </div>
+            <ion-label>
+                {{ datum.toLocaleDateString(config.locale, {month: 'short', day: 'numeric', weekday:
+                'long'}) }}
+            </ion-label>
+        </ion-button>
         <ion-icon
             slot="end"
             name="arrow-forward-circle-outline"
