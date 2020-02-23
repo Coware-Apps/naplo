@@ -8,6 +8,7 @@ import { CurriculumModalPageRoutingModule } from "./curriculum-modal-routing.mod
 
 import { CurriculumModalPage } from "./curriculum-modal.page";
 import { ComponentsModule } from "../_components/components.module";
+import { TranslateModule } from "@ngx-translate/core";
 
 @NgModule({
     imports: [
@@ -16,6 +17,7 @@ import { ComponentsModule } from "../_components/components.module";
         IonicModule,
         ComponentsModule,
         CurriculumModalPageRoutingModule,
+        TranslateModule,
     ],
     declarations: [CurriculumModalPage],
 })

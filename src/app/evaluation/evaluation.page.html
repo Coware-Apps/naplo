@@ -4,7 +4,7 @@
             <ion-menu-button></ion-menu-button>
         </ion-buttons>
 
-        <ion-title>Értékelés</ion-title>
+        <ion-title translate="eval.title">Értékelés</ion-title>
     </ion-toolbar>
 
     <app-offline-warning-bar></app-offline-warning-bar>
@@ -58,11 +58,8 @@
         <ion-item lines="none" class="note">
             <ion-icon name="information-circle-outline" slot="start"></ion-icon>
             <ion-note
-                >A lista technikai okokból csak azokat a csoportokat tartalmazza, akikkel az elmúlt
-                {{napToCheck}} napban órád volt.<br />
-                Az itt meg nem jelenő csoportokat az óra naplózása funkción keresztül
-                értékelheted.</ion-note
-            >
+                [innerHTML]="'eval.info-days-limit' | translate:{value: napToCheck}"
+            ></ion-note>
         </ion-item>
     </div>
 
@@ -75,11 +72,7 @@
             name="information-circle-outline"
             style="font-size: 128px;"
         ></ion-icon>
-        <p><strong>A lista üres</strong></p>
-        <p>
-            Technikai okokból csak azokat a csoportok jelennek meg, akikkel az elmúlt {{napToCheck}}
-            napban órád volt.<br />
-            Az itt nem látható csoportokat az óra naplózása funkción keresztül értékelheted.
-        </p>
+        <p><strong translate="eval.list-empty">A lista üres</strong></p>
+        <p [innerHTML]="'eval.info-days-limit-empty' | translate:{value: napToCheck}"></p>
     </div>
 </ion-content>

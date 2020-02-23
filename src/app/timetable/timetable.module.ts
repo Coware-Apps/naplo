@@ -10,6 +10,7 @@ import { TimetablePage } from "./timetable.page";
 import { DatePicker } from "@ionic-native/date-picker/ngx";
 import { LoggingModalPageModule } from "../logging-modal/logging-modal.module";
 import { ComponentsModule } from "../_components/components.module";
+import { TranslateModule } from "@ngx-translate/core";
 
 @NgModule({
     imports: [
@@ -19,6 +20,7 @@ import { ComponentsModule } from "../_components/components.module";
         TimetablePageRoutingModule,
         LoggingModalPageModule,
         ComponentsModule,
+        TranslateModule,
     ],
     providers: [DatePicker],
     declarations: [TimetablePage],

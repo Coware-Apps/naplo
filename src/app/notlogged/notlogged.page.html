@@ -4,7 +4,7 @@
             <ion-menu-button></ion-menu-button>
         </ion-buttons>
 
-        <ion-title>Nem naplózott órák</ion-title>
+        <ion-title>{{'notlogged.title'|translate}}</ion-title>
     </ion-toolbar>
 
     <app-offline-warning-bar></app-offline-warning-bar>
@@ -34,9 +34,8 @@
 
         <ion-item lines="none" class="note">
             <ion-icon name="information-circle-outline" slot="start"></ion-icon>
-            <ion-note
-                >Ez a lista technikai okokból csak az elmúlt {{napToCheck}} nap nem naplózott óráit
-                tartalmazza.</ion-note
+            <ion-note translate [translateParams]="{value: napToCheck}"
+                >notlogged.info-days-limit</ion-note
             >
         </ion-item>
     </ng-container>
@@ -50,8 +49,8 @@
             name="information-circle-outline"
             style="font-size: 128px;"
         ></ion-icon>
-        <p><strong>A lista üres</strong></p>
-        <p>Technikai okokból csak az elmúlt {{napToCheck}} nap óráit tudjuk ellenőrizni.</p>
+        <p><strong>{{'notlogged.list-empty'|translate}}</strong></p>
+        <p translate [translateParams]="{value: napToCheck}">notlogged.info-days-limit-empty</p>
     </div>
 
     <div *ngIf="loading">

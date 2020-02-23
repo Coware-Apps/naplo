@@ -3,7 +3,7 @@
         <ion-menu contentId="main-content" type="overlay">
             <ion-header>
                 <ion-toolbar color="primary">
-                    <ion-title>Napló+</ion-title>
+                    <ion-title translate="app.name"></ion-title>
                 </ion-toolbar>
             </ion-header>
 
@@ -12,9 +12,7 @@
                     <ion-menu-toggle auto-hide="false" *ngFor="let p of appPages">
                         <ion-item [routerDirection]="'root'" [routerLink]="[p.url]">
                             <ion-icon slot="start" [name]="p.icon" color="primary"></ion-icon>
-                            <ion-label>
-                                {{ p.title }}
-                            </ion-label>
+                            <ion-label [translate]="p.title"></ion-label>
                         </ion-item>
                     </ion-menu-toggle>
                 </ion-list>

@@ -7,6 +7,7 @@ import { environment } from "src/environments/environment";
 import { AppVersion } from "@ionic-native/app-version/ngx";
 import { stringify } from "flatted/esm";
 import { FirebaseService } from "./firebase.service";
+import { TranslateService } from "@ngx-translate/core";
 
 @Injectable({
     providedIn: "root",
@@ -17,7 +18,8 @@ export class DataService {
         private http: HTTP,
         private errorHelper: ErrorHelper,
         private appVersion: AppVersion,
-        private firebase: FirebaseService
+        private firebase: FirebaseService,
+        private translate: TranslateService
     ) {}
 
     private longtermStorageExpiry = 72 * 30 * 24 * 60 * 60;
@@ -41,7 +43,10 @@ export class DataService {
 
         const response = this.http.get(url, parameters, headers).catch(async err => {
             this.firebase.logError("getUrl(" + url + ") HTTP error: " + stringify(err));
-            await this.errorHelper.presentToast("Kommunikációs hiba.", 10000);
+            await this.errorHelper.presentToast(
+                await this.translate.get("common.comm-error").toPromise(),
+                10000
+            );
             throw new Error("[HTTP] response: " + err.error);
         });
 
@@ -119,7 +124,10 @@ export class DataService {
                     e.error_description != "invalid_username_or_password"
                 ) {
                     this.firebase.logError("postUrl(" + url + ") HTTP error: " + stringify(err));
-                    await this.errorHelper.presentToast("Kommunikációs hiba.", 10000);
+                    await this.errorHelper.presentToast(
+                        await this.translate.get("common.comm-error").toPromise(),
+                        10000
+                    );
                 }
             } catch (ex) {}
 

@@ -10,6 +10,7 @@ import { LoggingModalPage } from "./logging-modal.page";
 import { ComponentsModule } from "../_components/components.module";
 import { CurriculumModalPageModule } from "../curriculum-modal/curriculum-modal.module";
 import { TopicOptionsComponent } from "./topic-options/topic-options.component";
+import { TranslateModule } from "@ngx-translate/core";
 
 @NgModule({
     imports: [
@@ -19,6 +20,7 @@ import { TopicOptionsComponent } from "./topic-options/topic-options.component";
         ComponentsModule,
         LoggingModalPageRoutingModule,
         CurriculumModalPageModule,
+        TranslateModule,
     ],
     declarations: [LoggingModalPage, TopicOptionsComponent],
     entryComponents: [TopicOptionsComponent],

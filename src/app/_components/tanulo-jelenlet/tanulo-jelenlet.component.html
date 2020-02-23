@@ -11,20 +11,21 @@
         expand="block"
         [fill]="jelenletAllapot == 'Jelenlét' ? 'solid' : 'outline'"
     >
-        Jelenlét
+        {{ "presence-states.present" | translate }}
     </ion-button>
     <ion-button
         (click)="changed('Késés')"
         expand="block"
         [fill]="jelenletAllapot == 'Késés' ? 'solid' : 'outline'"
     >
-        Késés {{ keses > 0 ? "(" + keses + " p.)" : "" }}
+        {{ "presence-states.late" | translate }}
+        {{ keses > 0 ? ("logging.lateness-min" | translate: { value: keses }) : "" }}
     </ion-button>
     <ion-button
         (click)="changed('Hiányzás')"
         expand="block"
         [fill]="jelenletAllapot == 'Hiányzás' ? 'solid' : 'outline'"
     >
-        Hiányzás
+        {{ "presence-states.absent" | translate }}
     </ion-button>
 </div>

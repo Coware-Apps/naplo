@@ -11,6 +11,7 @@ import { InstituteSelectorModalPageModule } from "./institute-selector-modal/ins
 import { SafariViewController } from "@ionic-native/safari-view-controller/ngx";
 import { InAppBrowser } from "@ionic-native/in-app-browser/ngx";
 import { Market } from "@ionic-native/market/ngx";
+import { TranslateModule } from "@ngx-translate/core";
 
 @NgModule({
     imports: [
@@ -19,6 +20,7 @@ import { Market } from "@ionic-native/market/ngx";
         IonicModule,
         LoginPageRoutingModule,
         InstituteSelectorModalPageModule,
+        TranslateModule,
     ],
     providers: [SafariViewController, InAppBrowser, Market],
     declarations: [LoginPage],

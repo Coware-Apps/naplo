@@ -1,0 +1,103 @@
+{
+    "app.name": "Napló+",
+    "common": {
+        "cancel": "Mégse",
+        "done": "Kész",
+        "save": "Mentés",
+        "error": "Hiba",
+        "ok": "OK",
+        "comm-error": "Kommunikációs hiba"
+    },
+    "evaluation-types": {
+        "mark": "Osztályzat",
+        "percentage": "Százalék",
+        "textual": "Szöveges"
+    },
+    "presence-states": {
+        "present": "Jelenlét",
+        "late": "Késés",
+        "absent": "Hiányzás"
+    },
+    "offline": {
+        "cant-save": "Nincs internet, az adatok nem menthetők",
+        "cant-update": "Nincs internet, az adatok nem frissülnek"
+    },
+    "login": {
+        "instruction": "Válassza ki intézményét, majd adja meg a KRÉTA-rendszerben használt felhasználónevét és jelszavát!",
+        "institution": "Intézmény",
+        "username": "Felhasználónév",
+        "password": "Jelszó",
+        "login": "Bejelentkezés",
+        "pp-and-tos": "Adatvédelmi nyilatkozat és felhasználási feltételek"
+    },
+    "institute-selector": {
+        "filter": "Intézmények szűrése..."
+    },
+    "timetable": {
+        "title": "Óra naplózása",
+        "no-lesson-today": "Ezen a napon nincs órád"
+    },
+    "logging": {
+        "title": "Óra naplózása",
+        "save": "Mentés",
+        "lesson-seqnum": "{{value}}. óra",
+        "lesson-topic": "Az óra témája",
+        "homework-deadline": "A házi feladat határideje",
+        "homework-desc": "A házi feladat leírása",
+        "tab-presence": "Jelenlét",
+        "tab-memo": "Feljegyzés",
+        "tab-homework": "Házi feladat",
+        "tab-eval": "Értékelés",
+        "options-curriculum": "Tanmenet",
+        "options-cancelled": "Elmaradt óra",
+        "lateness-min": "({{value}} p.)"
+    },
+    "curriculum": {
+        "title": "Tanmenet",
+        "list-empty": "A lista üres",
+        "list-empty-desc": "Úgy tűnik, ehhez a foglalkozáshoz még nem töltöttél fel tanmenetet. Ezt a KRÉTA webes felületén belépve tudod megtenni."
+    },
+    "eval": {
+        "title": "Értékelés",
+        "info-days-limit": "A lista technikai okokból csak azokat a csoportokat tartalmazza, akikkel az elmúlt {{value}} napban órád volt.<br />Az itt meg nem jelenő csoportokat az óra naplózása funkción keresztül értékelheted.",
+        "list-empty": "A lista üres",
+        "info-days-imit-empty": "Technikai okokból csak azokat a csoportok jelennek meg, akikkel az elmúlt {{napToCheck}} napban órád volt.<br />Az itt nem látható csoportokat az óra naplózása funkción keresztül értékelheted.",
+        "field-date": "Az értékelés dátuma",
+        "field-topic": "Az értékelés témája",
+        "field-mode": "Az értékelés módja",
+        "average-of": "A beírt értékelések átlaga:",
+        "textual-placeholder": "Ide írj szöveges értékelést..."
+    },
+    "notlogged": {
+        "title": "Nem naplózott órák",
+        "info-days-limit": "Ez a lista technikai okokból csak az elmúlt {{value}} nap nem naplózott óráit tartalmazza.",
+        "list-empty": "A lista üres",
+        "info-days-limit-empty": "Technikai okokból csak az elmúlt {{value}} nap óráit tudjuk ellenőrizni."
+    },
+    "settings": {
+        "title": "Beállítások",
+        "header-appearance": "Megjelenés",
+        "color-scheme": "Színséma",
+        "language": "Nyelv",
+        "header-behaviour": "Működés",
+        "default-evaluation-type": "Alapértelmezett értékelés típus",
+        "detailed-errors": "Részletes hibaüzenetek",
+        "usage-statistics": "Névtelen használati statisztikák",
+        "usage-statistics-desc": "Ezzel segíted az alkalmazás fejlesztését",
+        "error-reporting": "Hibejelentések küldése",
+        "error-reporting-desc": "Névtelen információk továbbítása hibák esetén",
+        "header-danger-zone": "Veszélyzóna",
+        "logout": "Kijelentkezés",
+        "header-about": "Információk",
+        "version": "Verzió",
+        "os-components": "Nyílt forráskódú komponensek",
+        "privacy-policy": "Adatvédelmi nyilatkozat"
+    },
+    "os-components": {
+        "title": "Felhasznált komponensek"
+    },
+    "kreta": {
+        "api-error": "A KRÉTA-szerver érvénytelen választ küldött. Valószínűleg karbantartás alatt van.",
+        "login-unknown-error": "Ismeretlen hiba a bejelentkezés megújítása során."
+    }
+}

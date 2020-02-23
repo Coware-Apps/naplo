@@ -7,6 +7,7 @@ import { themes } from "../../theme/themes";
 import { Institute, ErtekelesTipus } from "../_models";
 import { environment } from "src/environments/environment";
 import { FirebaseService } from "./firebase.service";
+import { TranslateService } from "@ngx-translate/core";
 
 @Injectable({
     providedIn: "root",
@@ -66,6 +67,7 @@ export class ConfigService {
         private statusBar: StatusBar,
         private rendererFactory: RendererFactory2,
         private firebase: FirebaseService,
+        private translate: TranslateService,
         @Inject(DOCUMENT) private document: Document
     ) {
         this.renderer = this.rendererFactory.createRenderer(null, null);
@@ -124,8 +126,10 @@ export class ConfigService {
         }
 
         this._locale = locale;
-
         const localeId = locale.substring(0, 2);
+
+        this.translate.use(localeId);
+
         if (localeId == "en") return; // az 'en' már gyárilag be van töltve
 
         return import(

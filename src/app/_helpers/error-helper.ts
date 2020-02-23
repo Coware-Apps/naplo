@@ -1,5 +1,6 @@
 import { Injectable } from "@angular/core";
 import { AlertController, ToastController } from "@ionic/angular";
+import { TranslateService } from "@ngx-translate/core";
 
 @Injectable({
     providedIn: "root",
@@ -7,7 +8,8 @@ import { AlertController, ToastController } from "@ionic/angular";
 export class ErrorHelper {
     constructor(
         private alertController: AlertController,
-        private toastController: ToastController
+        private toastController: ToastController,
+        private translate: TranslateService
     ) {}
 
     private alert: HTMLIonAlertElement;
@@ -16,16 +18,16 @@ export class ErrorHelper {
     async presentAlert(
         msg: string,
         subheader?: string | number,
-        header: string = "Hiba",
+        header?: string,
         okHandler?: (value: any) => boolean | void | { [key: string]: any }
     ): Promise<HTMLIonAlertElement> {
         this.alert = await this.alertController.create({
-            header: header,
+            header: header || (await this.translate.get("common.error").toPromise()),
             subHeader: subheader ? subheader.toString() : "",
             message: msg,
             buttons: [
                 {
-                    text: "OK",
+                    text: await this.translate.get("common.ok").toPromise(),
                     handler: okHandler,
                 },
             ],
@@ -43,7 +45,7 @@ export class ErrorHelper {
             duration: duration,
             buttons: [
                 {
-                    text: "OK",
+                    text: await this.translate.get("common.ok").toPromise(),
                     role: "cancel",
                 },
             ],

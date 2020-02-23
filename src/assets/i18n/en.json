@@ -1,0 +1,102 @@
+{
+    "app.name": "Napló+",
+    "common": {
+        "cancel": "Cancel",
+        "done": "Dome",
+        "save": "Save",
+        "error": "Error",
+        "ok": "OK",
+        "comm-error": "Communication error"
+    },
+    "evaluation-types": {
+        "mark": "Mark",
+        "percentage": "Percentage",
+        "textual": "Textual"
+    },
+    "presence-states": {
+        "present": "Present",
+        "late": "Late",
+        "absent": "Absent"
+    },
+    "offline": {
+        "cant-save": "You can't save without internet",
+        "cant-update": "Data is not updated without internet"
+    },
+    "login": {
+        "instruction": "Please select your institution, then enter your KRETA credentials.",
+        "institution": "Institution",
+        "username": "Username",
+        "password": "Password",
+        "login": "Log in",
+        "pp-and-tos": "Privacy policy and terms of service"
+    },
+    "institute-selector": {
+        "filter": "Filter institutions..."
+    },
+    "timetable": {
+        "title": "Timetable",
+        "no-lesson-today": "You don't have any lessons on this day"
+    },
+    "logging": {
+        "title": "Log a lesson",
+        "lesson-seqnum": "Lesson #{{value}}",
+        "lesson-topic": "Topic of the lesson",
+        "homework-deadline": "Deadline",
+        "homework-desc": "Description",
+        "tab-presence": "Persence",
+        "tab-memo": "Memos",
+        "tab-homework": "Homework",
+        "tab-eval": "Evaluation",
+        "options-curriculum": "Curriculum",
+        "options-cancelled": "Cancelled lesson",
+        "lateness-min": "({{value}} min.)"
+    },
+    "curriculum": {
+        "title": "Curriculum",
+        "list-empty": "The list is empty",
+        "list-empty-desc": "Looks like you haven't uploaded a curriculum for this group. You can upload one on the web based KRETA."
+    },
+    "eval": {
+        "title": "Evaluation",
+        "info-days-limit": "Due to technical reasons, the list only contains the groups you had lesson with in the last {{value}} days.<br />You can grade the rest through the logging menu option.",
+        "list-empty": "The list is empty",
+        "info-days-imit-empty": "Due to technical reasons, the list only contains the groups you had lesson with in the last {{value}} days.<br />You can grade the rest through the logging menu option.",
+        "field-date": "Date of the evaluation",
+        "field-topic": "Subject",
+        "field-mode": "Evaluation method",
+        "average-of": "Average of the entered evaluations:",
+        "textual-placeholder": "Enter your evaluation here..."
+    },
+    "notlogged": {
+        "title": "Not yet logged lessons",
+        "info-days-limit": "Due to technical reasons this list only includes the non-logged lessons of the last {{value}} days.",
+        "list-empty": "The list is empty",
+        "info-days-limit-empty": "Due to technical reasons, we can only check the last {{value}} day's lessons."
+    },
+    "settings": {
+        "title": "Settings",
+        "header-appearance": "Appearance",
+        "color-scheme": "Theme",
+        "language": "Language",
+        "header-behaviour": "Behaviour",
+        "default-evaluation-type": "Default evaluation method",
+        "detailed-errors": "Detailed error messages",
+        "usage-statistics": "Send anonymous usage stats",
+        "usage-statistics-desc": "This helps us develop the app",
+        "error-reporting": "Error reporting",
+        "error-reporting-desc": "Also helps us with the development",
+        "header-danger-zone": "Danger zone",
+        "logout": "Log out",
+        "header-about": "About",
+        "version": "Version",
+        "os-components": "Open source components",
+        "privacy-policy": "Privacy policy"
+    },
+    "os-components": {
+        "title": "Open source components"
+    },
+    "kreta": {
+        "api-error": "The KRETA server sent an invalid response. It's probably under maintenance.",
+        "login-unknown-error": "Unknown erro occurred during login."
+    }
+}

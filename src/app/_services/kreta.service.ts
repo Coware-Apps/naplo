@@ -22,6 +22,7 @@ import {
 } from "../_models/kreta-exceptions";
 import { stringify } from "flatted/esm";
 import { FirebaseService } from "./firebase.service";
+import { TranslateService } from "@ngx-translate/core";
 
 @Injectable({
     providedIn: "root",
@@ -48,7 +49,8 @@ export class KretaService {
         private data: DataService,
         private jwtHelper: JwtDecodeHelper,
         private error: ErrorHelper,
-        private firebase: FirebaseService
+        private firebase: FirebaseService,
+        private translate: TranslateService
     ) {}
 
     private idpUrl = "https://idp.e-kreta.hu";
@@ -218,17 +220,18 @@ export class KretaService {
         } catch (error) {
             if (error instanceof SyntaxError) {
                 await this.error.presentAlert(
-                    "A KRÉTA-szerver érvénytelen választ küldött. Valószínűleg karbantartás alatt van. (" +
-                        error +
-                        ")"
+                    (await this.translate.get("common.comm-error").toPromise()) + " (" + error + ")"
                 );
             } else {
                 this.firebase.logError("loginWithRefreshToken(): " + stringify(error));
                 console.error("[LOGIN] ", error);
                 await this.error.presentAlert(
-                    "Ismeretlen hiba a bejelentkezés megújítása során. (" + stringify(error) + ")",
+                    (await this.translate.get("kreta.login-unknown-error").toPromise()) +
+                        " (" +
+                        stringify(error) +
+                        ")",
                     "Token refresh",
-                    "Hiba",
+                    await this.translate.get("common.error").toPromise(),
                     () => {
                         this.logout();
                     }

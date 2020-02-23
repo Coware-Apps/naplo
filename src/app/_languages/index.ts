@@ -1,18 +1,10 @@
 export var languages = [
     {
-        id: "hu-HU",
+        id: "hu",
         nativeName: "Magyar",
     },
     {
-        id: "en-US",
-        nativeName: "English (US)",
-    },
-    {
-        id: "en-UK",
-        nativeName: "English (UK)",
-    },
-    {
-        id: "de-DE",
-        nativeName: "Deutsch",
+        id: "en",
+        nativeName: "English",
     },
 ];

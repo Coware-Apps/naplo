@@ -8,6 +8,7 @@ import { EvaluationModalPageRoutingModule } from "./evaluation-modal-routing.mod
 
 import { EvaluationModalPage } from "./evaluation-modal.page";
 import { ComponentsModule } from "../_components/components.module";
+import { TranslateModule } from "@ngx-translate/core";
 
 @NgModule({
     imports: [
@@ -16,6 +17,7 @@ import { ComponentsModule } from "../_components/components.module";
         IonicModule,
         ComponentsModule,
         EvaluationModalPageRoutingModule,
+        TranslateModule,
     ],
     declarations: [EvaluationModalPage],
 })

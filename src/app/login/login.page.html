@@ -1,22 +1,20 @@
 <ion-content>
     <div class="login-fejlec">
         <img src="../../assets/icon/logo.svg" alt="Logo" id="logo" />
-        <div id="title">Napló+</div>
+        <div id="title">{{'app.name'|translate}}</div>
     </div>
 
     <form #loginForm="ngForm" (ngSubmit)="doLogin()" (keydown.enter)="doLogin()">
         <div class="ion-padding">
             <p>
-                Válassza ki intézményét, majd adja meg a KRÉTA-rendszerben használt felhasználónevét
-                és jelszavát!
+                {{'login.instruction'|translate}}
             </p>
             <ion-item>
                 <ion-input
-                    placeholder="Intézmény"
+                    placeholder="{{'login.institution' | translate}}"
                     (click)="showInstituteModal()"
                     [(ngModel)]="instituteName"
                     name="selectedInstitute"
-                    aria-label="Válasszon intézményt!"
                     required
                     readonly
                 ></ion-input>
@@ -25,23 +23,21 @@
                 <ion-input
                     name="name"
                     type="text"
-                    placeholder="Felhasználónév"
+                    placeholder="{{'login.username' | translate}}"
                     required
                     [(ngModel)]="username"
                     autocapitalize="off"
                     autocorrect="off"
                     autocomplete="new-password"
-                    aria-label="Felhasználónév"
                 ></ion-input>
             </ion-item>
             <ion-item>
                 <ion-input
                     name="password"
                     type="password"
-                    placeholder="Jelszó"
+                    placeholder="{{'login.password' | translate}}"
                     required
                     [(ngModel)]="password"
-                    aria-label="Jelszó"
                 ></ion-input>
             </ion-item>
         </div>
@@ -52,10 +48,10 @@
                 expand="block"
                 class="submitBtn"
             >
-                Bejelentkezés
+                {{'login.login' | translate}}
             </ion-button>
             <p class="data-prot">
-                <a (click)="openPrivacy()">Adatvédelmi nyilatkozat és felhasználási feltételek</a>
+                <a (click)="openPrivacy()">{{'login.pp-and-tos'|translate}}</a>
             </p>
         </div>
     </form>

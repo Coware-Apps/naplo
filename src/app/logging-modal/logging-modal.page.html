@@ -5,17 +5,17 @@
                 <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
             </ion-button>
         </ion-buttons>
-        <ion-title>Óra naplózása</ion-title>
+        <ion-title translate="logging.title"></ion-title>
 
         <ion-buttons slot="end">
             <ion-button (click)="save()" [disabled]="currentlyOffline">
-                <ion-label>Mentés</ion-label>
+                <ion-label translate="common.save"></ion-label>
             </ion-button>
         </ion-buttons>
     </ion-toolbar>
 
     <app-offline-warning-bar
-        warningMessage="Nincs internet, az adatok nem menthetők"
+        warningMessage="{{'offline.cant-save'|translate}}"
     ></app-offline-warning-bar>
 
     <ion-progress-bar
@@ -28,7 +28,11 @@
         <div>
             {{ kezdete?.toLocaleDateString(config.locale, {month: 'short', day: 'numeric', weekday:
             'short'}) }} &ndash; {{lesson?.TantargyNev}}<br />
-            {{lesson?.OsztalyCsoportNev}} &ndash; {{evesOraSorszam}}. óra
+            {{lesson?.OsztalyCsoportNev}} &ndash;
+            <span
+                translate="logging.lesson-seqnum"
+                [translateParams]="{value: evesOraSorszam}"
+            ></span>
         </div>
     </ion-toolbar>
 </ion-header>
@@ -37,7 +41,7 @@
     <ion-slides (ionSlideWillChange)="onSlideChange()" #slides>
         <ion-slide>
             <ion-item id="oratemaja">
-                <ion-label position="stacked">Az óra témája</ion-label>
+                <ion-label position="stacked" translate="logging.lesson-topic"></ion-label>
                 <ion-textarea [(ngModel)]="tema" required wrap="soft"></ion-textarea>
                 <ion-button
                     (click)="openTopicOptionsPopover($event)"
@@ -98,7 +102,7 @@
 
         <ion-slide>
             <ion-item>
-                <ion-label position="stacked">A házi feladat határideje</ion-label>
+                <ion-label position="stacked" translate="logging.homework-deadline"></ion-label>
                 <ion-datetime
                     displayFormat="YYYY. MM. DD."
                     [min]="this.dateHelper.getTodayString()"
@@ -111,7 +115,7 @@
             </ion-item>
 
             <ion-item>
-                <ion-label position="stacked">A házi feladat leírása</ion-label>
+                <ion-label position="stacked" translate="logging.homework-desc"></ion-label>
                 <ion-textarea [(ngModel)]="hfSzoveg" id="hfSzoveg" rows="10"></ion-textarea>
             </ion-item>
         </ion-slide>
@@ -129,18 +133,18 @@
 <ion-tab-bar slot="bottom">
     <ion-tab-button (click)="slideToTab(0)" [selected]="activeTabIndex == 0">
         <ion-icon name="man-outline"></ion-icon>
-        <ion-label>Jelenlét</ion-label>
+        <ion-label translate="logging.tab-presence"></ion-label>
     </ion-tab-button>
     <ion-tab-button (click)="slideToTab(1)" [selected]="activeTabIndex == 1">
         <ion-icon name="receipt-outline"></ion-icon>
-        <ion-label>Feljegyzés</ion-label>
+        <ion-label translate="logging.tab-memo"></ion-label>
     </ion-tab-button>
     <ion-tab-button (click)="slideToTab(2)" [selected]="activeTabIndex == 2">
         <ion-icon name="home-outline"></ion-icon>
-        <ion-label>Házi feladat</ion-label>
+        <ion-label translate="logging.tab-homework"></ion-label>
     </ion-tab-button>
     <ion-tab-button (click)="slideToTab(3)" [selected]="activeTabIndex == 3">
         <ion-icon name="trophy-outline"></ion-icon>
-        <ion-label>Értékelés</ion-label>
+        <ion-label translate="logging.tab-eval"></ion-label>
     </ion-tab-button>
 </ion-tab-bar>

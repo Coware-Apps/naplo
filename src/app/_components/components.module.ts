@@ -9,6 +9,7 @@ import { FormsModule } from "@angular/forms";
 import { OrarendiOraComponent } from "./orarendi-ora/orarendi-ora.component";
 import { OfflineWarningBarComponent } from "./offline-warning-bar/offline-warning-bar.component";
 import { PipesModule } from "../_pipes/pipes.module";
+import { TranslateModule } from "@ngx-translate/core";
 
 @NgModule({
     declarations: [
@@ -27,6 +28,6 @@ import { PipesModule } from "../_pipes/pipes.module";
         OrarendiOraComponent,
         OfflineWarningBarComponent,
     ],
-    imports: [CommonModule, IonicModule, FormsModule, PipesModule],
+    imports: [CommonModule, IonicModule, FormsModule, PipesModule, TranslateModule],
 })
 export class ComponentsModule {}

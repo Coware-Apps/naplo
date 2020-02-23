@@ -6,16 +6,16 @@
             </ion-button>
         </ion-buttons>
 
-        <ion-title>Tanmenet</ion-title>
+        <ion-title translate="curriculum.title">Tanmenet</ion-title>
     </ion-toolbar>
 
     <app-offline-warning-bar
-        warningMessage="Nincs internet, az adatok nem frissülnek"
+        warningMessage="{{'offline.cant-update'|translate}}"
     ></app-offline-warning-bar>
 
     <ion-toolbar color="secondary" class="ion-text-center">
         {{lesson.TantargyNev}}<br />
-        {{evesOraSorszam}}. óra
+        <span translate="logging.lesson-seqnum" [translateParams]="{value: evesOraSorszam}"></span>
     </ion-toolbar>
 </ion-header>
 
@@ -35,11 +35,8 @@
             name="information-circle-outline"
             style="font-size: 128px;"
         ></ion-icon>
-        <p><strong>A lista üres</strong></p>
-        <p>
-            Úgy tűnik, ehhez a foglalkozáshoz még nem töltöttél fel tanmenetet. Ezt a KRÉTA webes
-            felületén belépve tudod megtenni.
-        </p>
+        <p><strong translate="curriculum.list-empty">A lista üres</strong></p>
+        <p translate="list-empty-desc"></p>
     </div>
 
     <ion-list *ngIf="!tanmenet">

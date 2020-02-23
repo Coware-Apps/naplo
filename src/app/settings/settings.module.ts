@@ -10,6 +10,7 @@ import { SettingsPage } from "./settings.page";
 import { SafariViewController } from "@ionic-native/safari-view-controller/ngx";
 import { OsComponentsPageModule } from "./os-components/os-components.module";
 import { InAppBrowser } from "@ionic-native/in-app-browser/ngx";
+import { TranslateModule } from "@ngx-translate/core";
 
 @NgModule({
     imports: [
@@ -18,6 +19,7 @@ import { InAppBrowser } from "@ionic-native/in-app-browser/ngx";
         IonicModule,
         SettingsPageRoutingModule,
         OsComponentsPageModule,
+        TranslateModule,
     ],
     providers: [SafariViewController, InAppBrowser],
     declarations: [SettingsPage],

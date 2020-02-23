@@ -12,14 +12,14 @@ import { KretaService } from "./_services";
 })
 export class AppComponent {
     public appPages = [
-        { title: "Óra naplózása", url: "/timetable", icon: "book-outline" },
+        { title: "timetable.title", url: "/timetable", icon: "book-outline" },
         {
-            title: "Nem naplózott órák",
+            title: "notlogged.title",
             url: "/notlogged",
             icon: "hourglass-outline",
         },
-        { title: "Értékelés", url: "/evaluation", icon: "trophy-outline" },
-        { title: "Beállítások", url: "/settings", icon: "settings-outline" },
+        { title: "eval.title", url: "/evaluation", icon: "trophy-outline" },
+        { title: "settings.title", url: "/settings", icon: "settings-outline" },
     ];
 
     constructor(
