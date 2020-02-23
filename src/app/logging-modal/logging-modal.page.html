@@ -1,102 +1,146 @@
 <ion-header>
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-button (click)="dismiss()" fill="clear">
-        <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-    <ion-title>Óra naplózása</ion-title>
+    <ion-toolbar color="primary">
+        <ion-buttons slot="start">
+            <ion-button (click)="dismiss()" fill="clear">
+                <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-title>Óra naplózása</ion-title>
 
-    <ion-buttons slot="end">
-      <ion-button (click)="save()" [disabled]="currentlyOffline">
-        <ion-label>Mentés</ion-label>
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
+        <ion-buttons slot="end">
+            <ion-button (click)="save()" [disabled]="currentlyOffline">
+                <ion-label>Mentés</ion-label>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
 
-  <app-offline-warning-bar warningMessage="Nincs internet, az adatok nem menthetők"></app-offline-warning-bar>
+    <app-offline-warning-bar
+        warningMessage="Nincs internet, az adatok nem menthetők"
+    ></app-offline-warning-bar>
 
-  <ion-progress-bar type="indeterminate" color="warning" *ngIf="loading.length > 0"></ion-progress-bar>
+    <ion-progress-bar
+        type="indeterminate"
+        color="warning"
+        *ngIf="loading.length > 0"
+    ></ion-progress-bar>
 
-  <ion-toolbar color="secondary" class="ion-text-center">
-    <div>{{ kezdete?.toLocaleDateString(config.locale, {month: 'short', day: 'numeric', weekday: 'short'}) }} -
-      {{lesson?.TantargyNev}}<br>
-      {{lesson?.OsztalyCsoportNev}}</div>
-  </ion-toolbar>
-
-  <ion-segment id="loggingtabs" [disabled]="loading.length > 0" [value]="activeTabIndex" (ionChange)="slideToTab($event)">
-    <ion-segment-button value="mulasztasok" value="0">
-      <ion-icon name="man-outline" size="large"></ion-icon>
-    </ion-segment-button>
-    <ion-segment-button value="feljegyzesek" value="1">
-      <ion-icon name="receipt-outline" size="large"></ion-icon>
-    </ion-segment-button>
-    <ion-segment-button value="hazifeladat" value="2">
-      <ion-icon name="home-outline" size="large"></ion-icon>
-    </ion-segment-button>
-    <ion-segment-button value="ertekelesek" value="3">
-      <ion-icon name="trophy-outline" size="large"></ion-icon>
-    </ion-segment-button>
-  </ion-segment>
-
+    <ion-toolbar color="secondary" class="ion-text-center">
+        <div>
+            {{ kezdete?.toLocaleDateString(config.locale, {month: 'short', day: 'numeric', weekday:
+            'short'}) }} - {{lesson?.TantargyNev}}<br />
+            {{lesson?.OsztalyCsoportNev}}
+        </div>
+    </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-slides (ionSlideWillChange)="onSlideChange()" #slides>
+    <ion-slides (ionSlideWillChange)="onSlideChange()" #slides>
+        <ion-slide>
+            <ion-item id="oratemaja">
+                <ion-label position="stacked">Az óra témája</ion-label>
+                <ion-textarea [(ngModel)]="tema" required wrap="soft"></ion-textarea>
+                <ion-button
+                    (click)="openTopicOptionsPopover($event)"
+                    size="large"
+                    fill="none"
+                    slot="end"
+                >
+                    <ion-icon
+                        slot="icon-only"
+                        name="ellipsis-vertical-outline"
+                        color="primary"
+                    ></ion-icon>
+                </ion-button>
+            </ion-item>
 
-    <ion-slide>
-      <ion-item id="oratemaja">
-        <ion-label position="floating">Az óra témája</ion-label>
-        <ion-textarea [(ngModel)]="tema" required wrap="soft"></ion-textarea>
-        <ion-button (click)="openTopicOptionsPopover($event)" size="large" fill="none" slot="end">
-          <ion-icon slot="icon-only" name="ellipsis-vertical-outline" color="primary"></ion-icon>
-        </ion-button>
-      </ion-item>
+            <ion-list
+                *ngIf="osztalyTanuloi && loading.length == 0"
+                class="ion-no-padding ion-no-margin"
+                lines="full"
+            >
+                <ion-item *ngFor="let t of osztalyTanuloi?.TanuloLista">
+                    <app-tanulo-jelenlet
+                        [tanulo]="t"
+                        [mulasztasok]="mulasztasok"
+                        [javasoltJelenlet]="javasoltJelenlet"
+                    ></app-tanulo-jelenlet>
+                </ion-item>
+            </ion-list>
 
-      <ion-list *ngIf="osztalyTanuloi && loading.length == 0" class="ion-no-padding ion-no-margin" lines="full">
-        <ion-item *ngFor="let t of osztalyTanuloi?.TanuloLista">
-          <app-tanulo-jelenlet [tanulo]="t" [mulasztasok]="mulasztasok"
-            [javasoltJelenlet]="javasoltJelenlet"></app-tanulo-jelenlet>
-        </ion-item>
-      </ion-list>
+            <div *ngIf="loading.length > 0">
+                <ion-list
+                    *ngFor="let i of [].constructor(5)"
+                    class="ion-no-padding ion-no-margin"
+                    lines="full"
+                >
+                    <ion-item>
+                        <ion-label>
+                            <ion-skeleton-text style="width: 50%; height: 14px"></ion-skeleton-text>
+                            <ion-skeleton-text
+                                style="width: 100%; height: 27px"
+                            ></ion-skeleton-text>
+                        </ion-label>
+                    </ion-item>
+                </ion-list>
+            </div>
+        </ion-slide>
 
-      <div *ngIf="loading.length > 0">
-        <ion-list *ngFor="let i of [].constructor(5)" class="ion-no-padding ion-no-margin" lines="full">
-          <ion-item>
-            <ion-label>
-              <ion-skeleton-text style="width: 50%; height: 14px"></ion-skeleton-text>
-              <ion-skeleton-text style="width: 100%; height: 27px"></ion-skeleton-text>
-            </ion-label>
-          </ion-item>
-        </ion-list>
-      </div>
-    </ion-slide>
+        <ion-slide>
+            <ion-list *ngIf="osztalyTanuloi" class="ion-no-padding ion-no-margin" lines="full">
+                <ion-item *ngFor="let t of osztalyTanuloi?.TanuloLista">
+                    <app-tanulo-feljegyzes
+                        [tanulo]="t"
+                        [allapot]="feljegyzesek"
+                    ></app-tanulo-feljegyzes>
+                </ion-item>
+            </ion-list>
+        </ion-slide>
 
-    <ion-slide>
-      <ion-list *ngIf="osztalyTanuloi" class="ion-no-padding ion-no-margin" lines="full">
-        <ion-item *ngFor="let t of osztalyTanuloi?.TanuloLista">
-          <app-tanulo-feljegyzes [tanulo]="t" [allapot]="feljegyzesek"></app-tanulo-feljegyzes>
-        </ion-item>
-      </ion-list>
-    </ion-slide>
+        <ion-slide>
+            <ion-item>
+                <ion-label position="stacked">A házi feladat határideje</ion-label>
+                <ion-datetime
+                    displayFormat="YYYY. MM. DD."
+                    [min]="this.dateHelper.getTodayString()"
+                    [max]="this.dateHelper.getMonthFromToday(3)"
+                    [(ngModel)]="hfHatarido"
+                    cancelText="Mégse"
+                    doneText="Kész"
+                >
+                </ion-datetime>
+            </ion-item>
 
-    <ion-slide>
-      <ion-item>
-        <ion-label position="floating">A házi feladat határideje</ion-label>
-        <ion-datetime displayFormat="YYYY. MM. DD." [min]="this.dateHelper.getTodayString()"
-          [max]="this.dateHelper.getMonthFromToday(3)" [(ngModel)]="hfHatarido" cancelText="Mégse" doneText="Kész">
-        </ion-datetime>
-      </ion-item>
+            <ion-item>
+                <ion-label position="stacked">A házi feladat leírása</ion-label>
+                <ion-textarea [(ngModel)]="hfSzoveg" id="hfSzoveg"></ion-textarea>
+            </ion-item>
+        </ion-slide>
 
-      <ion-item>
-        <ion-label position="floating">A házi feladat leírása</ion-label>
-        <ion-textarea [(ngModel)]="hfSzoveg" id="hfSzoveg" rows="6"></ion-textarea>
-      </ion-item>
-    </ion-slide>
-
-    <ion-slide>
-      <app-ertekeles [lesson]="lesson" [osztalyTanuloi]="osztalyTanuloi" #ertekeles></app-ertekeles>
-    </ion-slide>
-
-  </ion-slides>
+        <ion-slide>
+            <app-ertekeles
+                [lesson]="lesson"
+                [osztalyTanuloi]="osztalyTanuloi"
+                #ertekeles
+            ></app-ertekeles>
+        </ion-slide>
+    </ion-slides>
 </ion-content>
+
+<ion-tab-bar slot="bottom">
+    <ion-tab-button (click)="slideToTab(0)" [selected]="activeTabIndex == 0">
+        <ion-icon name="man-outline"></ion-icon>
+        <ion-label>Jelenlét</ion-label>
+    </ion-tab-button>
+    <ion-tab-button (click)="slideToTab(1)" [selected]="activeTabIndex == 1">
+        <ion-icon name="receipt-outline"></ion-icon>
+        <ion-label>Feljegyzés</ion-label>
+    </ion-tab-button>
+    <ion-tab-button (click)="slideToTab(2)" [selected]="activeTabIndex == 2">
+        <ion-icon name="home-outline"></ion-icon>
+        <ion-label>Házi feladat</ion-label>
+    </ion-tab-button>
+    <ion-tab-button (click)="slideToTab(3)" [selected]="activeTabIndex == 3">
+        <ion-icon name="trophy-outline"></ion-icon>
+        <ion-label>Értékelés</ion-label>
+    </ion-tab-button>
+</ion-tab-bar>

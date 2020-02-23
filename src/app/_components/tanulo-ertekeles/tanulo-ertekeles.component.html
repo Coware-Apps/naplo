@@ -1,34 +1,70 @@
-<ion-label class="nev">{{tanulo.Nev}}</ion-label>
+<ion-label class="nev">{{ tanulo.Nev }}</ion-label>
 
 <div class="ertekeles-row osztalyzat" *ngIf="tipus == ertekelesTipus.Osztalyzat">
-  <ion-button (click)="setJegy(1)" [fill]="jegy == 1 ? 'solid' : 'outline'" expand="block" size="large">
-    <ion-label>1</ion-label>
-  </ion-button>
-  <ion-button (click)="setJegy(2)" [fill]="jegy == 2 ? 'solid' : 'outline'" expand="block" size="large">
-    <ion-label>2</ion-label>
-  </ion-button>
-  <ion-button (click)="setJegy(3)" [fill]="jegy == 3 ? 'solid' : 'outline'" expand="block" size="large">
-    <ion-label>3</ion-label>
-  </ion-button>
-  <ion-button (click)="setJegy(4)" [fill]="jegy == 4 ? 'solid' : 'outline'" expand="block" size="large">
-    <ion-label>4</ion-label>
-  </ion-button>
-  <ion-button (click)="setJegy(5)" [fill]="jegy == 5 ? 'solid' : 'outline'" expand="block" size="large">
-    <ion-label>5</ion-label>
-  </ion-button>
+    <ion-button
+        (click)="setJegy(1)"
+        [fill]="jegy == 1 ? 'solid' : 'outline'"
+        expand="block"
+        size="large"
+    >
+        <ion-label>1</ion-label>
+    </ion-button>
+    <ion-button
+        (click)="setJegy(2)"
+        [fill]="jegy == 2 ? 'solid' : 'outline'"
+        expand="block"
+        size="large"
+    >
+        <ion-label>2</ion-label>
+    </ion-button>
+    <ion-button
+        (click)="setJegy(3)"
+        [fill]="jegy == 3 ? 'solid' : 'outline'"
+        expand="block"
+        size="large"
+    >
+        <ion-label>3</ion-label>
+    </ion-button>
+    <ion-button
+        (click)="setJegy(4)"
+        [fill]="jegy == 4 ? 'solid' : 'outline'"
+        expand="block"
+        size="large"
+    >
+        <ion-label>4</ion-label>
+    </ion-button>
+    <ion-button
+        (click)="setJegy(5)"
+        [fill]="jegy == 5 ? 'solid' : 'outline'"
+        expand="block"
+        size="large"
+    >
+        <ion-label>5</ion-label>
+    </ion-button>
 </div>
 
 <div class="ertekeles-row szoveges" *ngIf="tipus == ertekelesTipus.Szoveg">
-  <ion-input type="text" placeholder="Ide írj szöveges értékelést..." [(ngModel)]="szoveges"></ion-input>
+    <ion-input
+        type="text"
+        placeholder="Ide írj szöveges értékelést..."
+        [(ngModel)]="szoveges"
+    ></ion-input>
 </div>
 
 <div class="ertekeles-row szazalek" *ngIf="tipus == ertekelesTipus.Szazalek">
-  <ion-button (click)="changeSzazalek(-10)" size="large">--</ion-button>
-  <ion-button (click)="changeSzazalek(-1)" size="large">-</ion-button>
-  <ion-input type="number" min="0" max="100" [(ngModel)]="szazalek" size="4" placeholder="%"></ion-input>
-  <ion-button (click)="changeSzazalek(1)" size="large">+</ion-button>
-  <ion-button (click)="changeSzazalek(10)" size="large">++</ion-button>
-  <ion-button (click)="deleteSzazalek()" [disabled]="!szazalek" size="large" class="trash">
-    <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
-  </ion-button>
+    <ion-button (click)="changeSzazalek(-10)" size="large" fill="outline">--</ion-button>
+    <ion-button (click)="changeSzazalek(-1)" size="large" fill="outline">-</ion-button>
+    <ion-input
+        type="number"
+        min="0"
+        max="100"
+        [(ngModel)]="szazalek"
+        size="4"
+        placeholder="%"
+    ></ion-input>
+    <ion-button (click)="changeSzazalek(1)" size="large" fill="outline">+</ion-button>
+    <ion-button (click)="changeSzazalek(10)" size="large" fill="outline">++</ion-button>
+    <ion-button (click)="deleteSzazalek()" [disabled]="!szazalek" fill="outline" class="trash">
+        <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+    </ion-button>
 </div>

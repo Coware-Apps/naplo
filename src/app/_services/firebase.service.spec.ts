@@ -1,12 +1,12 @@
 import { TestBed } from "@angular/core/testing";
 
-import { ErrorHandlerService } from "./error-handler.service";
+import { FirebaseService } from "./firebase.service";
 
-describe("ErrorHandlerService", () => {
+describe("FirebaseService", () => {
     beforeEach(() => TestBed.configureTestingModule({}));
 
     it("should be created", () => {
-        const service: ErrorHandlerService = TestBed.get(ErrorHandlerService);
+        const service: FirebaseService = TestBed.get(FirebaseService);
         expect(service).toBeTruthy();
     });
 });

@@ -6,26 +6,25 @@
 // }
 
 export class KretaException extends Error {
-
     constructor(public message: string, name?: string) {
         super(message);
-        this.name = name || 'KretaException';
+        this.name = name || "KretaException";
         this.message = message;
         this.stack = (<any>new Error()).stack;
     }
     toString() {
-        return this.name + ': ' + this.message;
+        return this.name + ": " + this.message;
     }
 }
 
 export class KretaInvalidPasswordException extends KretaException {
     constructor() {
-        super('Invalid username or bad password.', 'InvalidPasswordException');
+        super("Invalid username or bad password.", "InvalidPasswordException");
     }
 }
 
 export class KretaMissingRoleException extends KretaException {
     constructor() {
-        super('Missing role.', 'MissingRoleException');
+        super("Missing role.", "MissingRoleException");
     }
 }

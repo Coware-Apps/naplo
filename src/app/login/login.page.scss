@@ -1,8 +1,10 @@
 ion-content {
-    --background: #FDEC5D;
+    --background: #fdec5d;
+    --color: #444;
+
+    --ion-color-primary: #1da389;
 
     .data-prot {
-        color: #444;
         text-align: center;
         font-size: 90%;
         margin-block-start: 1.4rem;
@@ -10,15 +12,11 @@ ion-content {
 
     form {
         max-width: 600px;
-        margin:auto;
-
-        a, a:hover, a:focused, a:visited {
-            color: #1DA389;
-        }
+        margin: auto;
+        text-align: center;
 
         .submitBtn {
             min-height: 3rem;
-            --background: #1DA389;
         }
     }
 }
@@ -27,7 +25,6 @@ ion-content {
     margin-bottom: 25px;
     text-align: center;
     font-size: 1.65rem;
-    color: #444;
 
     // alapból nagy logo
     #logo {
@@ -49,13 +46,13 @@ ion-content {
 }
 
 // kicsi telefonokon landscapeben egysoros logó
-@media screen and (min-width: 320px) and (max-width: 910px) and (orientation:landscape) {
+@media screen and (min-width: 320px) and (max-width: 910px) and (orientation: landscape) {
     .login-fejlec {
         margin-bottom: 5px;
         margin-top: 25px;
 
         #logo {
-            width: 2.70rem;
+            width: 2.7rem;
             display: inline-block;
             margin-top: 0;
             margin-right: 3px;

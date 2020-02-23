@@ -1,4 +1,4 @@
-import { KretaEnum } from './kreta-enum';
+import { KretaEnum } from "./kreta-enum";
 
 export interface Lesson {
     OrarendiOraId?: number;

@@ -1,17 +1,30 @@
-<div size="12" class="nev">{{tanulo.Nev}}
-  <span class="javasolt-jelenlet-ok" *ngIf="javasoltJelenletOk">
-    <ion-icon slot="start" name="warning"></ion-icon>
-    {{javasoltJelenletOk}}
-  </span>
+<div size="12" class="nev">
+    {{ tanulo.Nev }}
+    <span class="javasolt-jelenlet-ok" *ngIf="javasoltJelenletOk">
+        <ion-icon slot="start" name="warning"></ion-icon>
+        {{ javasoltJelenletOk }}
+    </span>
 </div>
 <div class="jelenlet-row" *ngIf="!magantanulo">
-  <ion-button (click)="changed('Jelenlét')" expand="block" [fill]="jelenletAllapot == 'Jelenlét' ? 'solid' : 'outline'">
-    Jelenlét
-  </ion-button>
-  <ion-button (click)="changed('Késés')" expand="block" [fill]="jelenletAllapot == 'Késés' ? 'solid' : 'outline'">
-    Késés {{ keses > 0 ? "("+ keses + " p.)" : "" }}
-  </ion-button>
-  <ion-button (click)="changed('Hiányzás')" expand="block" [fill]="jelenletAllapot == 'Hiányzás' ? 'solid' : 'outline'">
-    Hiányzás
-  </ion-button>
+    <ion-button
+        (click)="changed('Jelenlét')"
+        expand="block"
+        [fill]="jelenletAllapot == 'Jelenlét' ? 'solid' : 'outline'"
+    >
+        Jelenlét
+    </ion-button>
+    <ion-button
+        (click)="changed('Késés')"
+        expand="block"
+        [fill]="jelenletAllapot == 'Késés' ? 'solid' : 'outline'"
+    >
+        Késés {{ keses > 0 ? "(" + keses + " p.)" : "" }}
+    </ion-button>
+    <ion-button
+        (click)="changed('Hiányzás')"
+        expand="block"
+        [fill]="jelenletAllapot == 'Hiányzás' ? 'solid' : 'outline'"
+    >
+        Hiányzás
+    </ion-button>
 </div>
