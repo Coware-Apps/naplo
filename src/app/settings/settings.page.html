@@ -52,9 +52,11 @@
                 (ionChange)="changeErtekelesTipus($event)"
                 [value]="config.defaultErtekelesTipus"
             >
-                <ion-select-option value="0">Osztályzat</ion-select-option>
-                <ion-select-option value="1">Százalék</ion-select-option>
-                <ion-select-option value="2">Szöveges</ion-select-option>
+                <ion-select-option [value]="ErtekelesTipus.Osztalyzat"
+                    >Osztályzat</ion-select-option
+                >
+                <ion-select-option [value]="ErtekelesTipus.Szazalek">Százalék</ion-select-option>
+                <ion-select-option [value]="ErtekelesTipus.Szoveg">Szöveges</ion-select-option>
             </ion-select>
         </ion-item>
         <ion-item>

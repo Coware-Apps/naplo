@@ -9,6 +9,7 @@ import { componentDestroyed } from "@w11k/ngx-componentdestroyed";
 import { ModalController } from "@ionic/angular";
 import { OsComponentsPage } from "./os-components/os-components.page";
 import { InAppBrowser } from "@ionic-native/in-app-browser/ngx";
+import { ErtekelesTipus } from "../_models";
 
 @Component({
     selector: "app-settings",
@@ -20,6 +21,7 @@ export class SettingsPage implements OnInit, OnDestroy {
     public themes = themes;
 
     public appversionnumber: string;
+    public ErtekelesTipus = ErtekelesTipus;
 
     constructor(
         public config: ConfigService,
