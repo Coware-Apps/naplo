@@ -1,22 +1,57 @@
 import { Injectable } from "@angular/core";
-import { NgxIndexedDBService } from "ngx-indexed-db";
 import { DataService } from "./data.service";
 
 @Injectable({
     providedIn: "root",
 })
 export class StorageMigrationService {
-    constructor(private idb: NgxIndexedDBService, private data: DataService) {}
+    constructor(private data: DataService) {}
 
+    private indexedDB: IDBFactory =
+        window.indexedDB ||
+        (<any>window).mozIndexedDB ||
+        (<any>window).webkitIndexedDB ||
+        (<any>window).msIndexedDB;
     private longtermStorageExpiry = 72 * 30 * 24 * 60 * 60;
 
+    private openDB(): Promise<IDBDatabase> {
+        return new Promise<IDBDatabase>((resolve, reject) => {
+            let req: IDBOpenDBRequest = this.indexedDB.open("__ionicCache");
+            req.onsuccess = (e: any) => resolve(e.target.result);
+            req.onerror = (e: any) => reject(e);
+        });
+    }
+
+    private getKey(objectStore: IDBObjectStore, key: string): Promise<IDBRequest<IDBValidKey>> {
+        return new Promise<IDBRequest<IDBValidKey>>((resolve, reject) => {
+            let req: IDBRequest<IDBValidKey> = objectStore.getKey(key);
+            req.onsuccess = (e: any) => resolve(e.target.result);
+            req.onerror = (e: any) => reject(e);
+        });
+    }
+
     public async onInit() {
+        if (!this.indexedDB) {
+            console.log("[DB MIGRATION] No indexedDB, exiting.");
+            return;
+        }
+
         if (await this.data.itemExists("refresh_token")) {
             console.log("[DB MIGRATION] refresh_token exists in SQLite, migration not needed.");
             return;
         }
 
-        let token = await this.idb.getByKey("_ionickv", "naplo__refresh_token").catch(() => null);
+        const db: IDBDatabase = await this.openDB().catch(() => null);
+
+        if (!db || db.objectStoreNames.length || !db.objectStoreNames.contains("_ionickv")) {
+            console.log("[DB MIGRATION] No _ionickv object store, exiting");
+            return;
+        }
+
+        const transaction: IDBTransaction = db.transaction("_ionickv", "readonly");
+        const os: IDBObjectStore = transaction.objectStore("_ionickv");
+
+        let token = await this.getKey(os, "naplo__refresh_token").catch(() => null);
         if (!token) {
             console.log("[DB MIGRATION] No refresh_token in IDB, no migration needed.");
             return;
@@ -43,21 +78,21 @@ export class StorageMigrationService {
         ];
 
         let promises = [];
-        keys.forEach(key => promises.push(this.migratePreference(key)));
+        keys.forEach(key => promises.push(this.migratePreference(os, key)));
         await Promise.all(promises);
 
-        await this.idb.clear("_ionickv");
+        os.clear();
         console.log("[DB MIGRATION] IDB cleared.");
         console.log("[DB MIGRATION] Complete.");
     }
 
-    private async migratePreference(key: string): Promise<void> {
-        // console.log("[DB MIGRATION] Starting migration of key: ", key);
+    private async migratePreference(objectStore: IDBObjectStore, key: string): Promise<void> {
+        console.log("[DB MIGRATION] Starting migration of key: ", key);
 
         if (!(await this.data.itemExists(key))) {
-            let item = await this.idb.getByKey("_ionickv", "naplo__pref__" + key).catch(() => null);
+            let item = await this.getKey(objectStore, "naplo__pref__" + key).catch(() => null);
 
-            // console.log("[DB MIGRATION] Key, item from idb: ", key, item);
+            console.log("[DB MIGRATION] Key, item from idb: ", key, item);
 
             if (item) {
                 let value;
