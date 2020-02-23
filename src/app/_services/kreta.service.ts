@@ -115,6 +115,11 @@ export class KretaService {
                 const data = JSON.parse(response.data);
 
                 if (data && data.access_token) {
+                    this.currentUser = this.jwtHelper.decodeToken(data.access_token);
+
+                    if (this.currentUser.role.indexOf("Tanar") === -1)
+                        throw new KretaMissingRoleException();
+
                     await Promise.all([
                         this.data.saveItem(
                             "access_token",
@@ -129,11 +134,6 @@ export class KretaService {
                             this.longtermStorageExpiry
                         ),
                     ]);
-
-                    this.currentUser = this.jwtHelper.decodeToken(data.access_token);
-
-                    if (this.currentUser.role.indexOf("Tanar") === -1)
-                        throw new KretaMissingRoleException();
 
                     Promise.all([
                         this.getNaploEnum("MulasztasTipusEnum"),
