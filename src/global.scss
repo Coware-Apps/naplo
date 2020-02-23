@@ -16,7 +16,7 @@
 @import "~@ionic/angular/css/normalize.css";
 @import "~@ionic/angular/css/structure.css";
 @import "~@ionic/angular/css/typography.css";
-@import '~@ionic/angular/css/display.css';
+@import "~@ionic/angular/css/display.css";
 
 /* Optional CSS utils that can be commented out */
 @import "~@ionic/angular/css/padding.css";
@@ -26,11 +26,16 @@
 @import "~@ionic/angular/css/flex-utils.css";
 
 ion-list {
-    &.list-md, &.list-ios {
-        background:transparent;
+    &.list-md,
+    &.list-ios {
+        background: transparent;
         padding: 0;
         margin: 8px 0;
     }
+}
+
+ion-item.ios {
+    --padding-start: 10px;
 }
 
 @media only screen and (min-height: 600px) and (min-width: 768px) and (orientation: landscape) {
