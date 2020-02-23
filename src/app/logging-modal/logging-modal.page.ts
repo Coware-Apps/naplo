@@ -51,6 +51,7 @@ export class LoggingModalPage implements OnInit, OnDestroy {
 
     public loading: string[];
     public kezdete: Date;
+    public evesOraSorszam: number = 0;
     public activeTabIndex: number = 0;
     public currentlyOffline: boolean;
 
@@ -106,6 +107,10 @@ export class LoggingModalPage implements OnInit, OnDestroy {
             this.hfSzoveg = this.lesson.HazifeladatSzovege
                 ? this.lesson.HazifeladatSzovege.replace(/\<br \/\>/g, "\n")
                 : null;
+            this.evesOraSorszam =
+                this.lesson.Allapot.Nev == "Naplozott"
+                    ? this.lesson.EvesOraszam
+                    : this.lesson.EvesOraszam + 1;
 
             await this.firebase.startTrace("logging_modal_load_time");
 

@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { ConfigService, FirebaseService } from "../_services";
+import { ConfigService, FirebaseService, KretaService } from "../_services";
 import { languages } from "../_languages";
 import { themes } from "../../theme/themes";
 import { AppVersion } from "@ionic-native/app-version/ngx";
@@ -9,6 +9,7 @@ import { componentDestroyed } from "@w11k/ngx-componentdestroyed";
 import { ModalController } from "@ionic/angular";
 import { OsComponentsPage } from "./os-components/os-components.page";
 import { InAppBrowser } from "@ionic-native/in-app-browser/ngx";
+import { ErtekelesTipus } from "../_models";
 
 @Component({
     selector: "app-settings",
@@ -20,6 +21,7 @@ export class SettingsPage implements OnInit, OnDestroy {
     public themes = themes;
 
     public appversionnumber: string;
+    public ErtekelesTipus = ErtekelesTipus;
 
     constructor(
         public config: ConfigService,
@@ -27,7 +29,8 @@ export class SettingsPage implements OnInit, OnDestroy {
         private safariViewController: SafariViewController,
         public modalController: ModalController,
         private firebase: FirebaseService,
-        private iab: InAppBrowser
+        private iab: InAppBrowser,
+        private kreta: KretaService
     ) {}
 
     ngOnInit(): void {
@@ -82,6 +85,7 @@ export class SettingsPage implements OnInit, OnDestroy {
                         url: "https://coware-apps.github.io/naplo/privacy",
                         barColor: "#3880ff",
                         toolbarColor: "#3880ff",
+                        controlTintColor: "#ffffff",
                     })
                     .pipe(takeUntil(componentDestroyed(this)))
                     .subscribe(
@@ -108,5 +112,9 @@ export class SettingsPage implements OnInit, OnDestroy {
                 });
             }
         });
+    }
+
+    async logout() {
+        await this.kreta.logout();
     }
 }

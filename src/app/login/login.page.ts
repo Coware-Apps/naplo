@@ -170,6 +170,7 @@ export class LoginPage implements OnInit, OnDestroy {
                         url: "https://coware-apps.github.io/naplo/privacy",
                         barColor: "#3880ff",
                         toolbarColor: "#3880ff",
+                        controlTintColor: "#ffffff",
                     })
                     .pipe(takeUntil(componentDestroyed(this)))
                     .subscribe(

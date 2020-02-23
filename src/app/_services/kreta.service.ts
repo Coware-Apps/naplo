@@ -53,6 +53,7 @@ export class KretaService {
 
     private idpUrl = "https://idp.e-kreta.hu";
     private longtermStorageExpiry = 72 * 30 * 24 * 60 * 60;
+    private loginInProgress: boolean = false;
 
     public async onInit() {
         this._institute = await this.data.getSetting<Institute>("institute").catch(() => null);
@@ -115,11 +116,6 @@ export class KretaService {
                 const data = JSON.parse(response.data);
 
                 if (data && data.access_token) {
-                    this.currentUser = this.jwtHelper.decodeToken(data.access_token);
-
-                    if (this.currentUser.role.indexOf("Tanar") === -1)
-                        throw new KretaMissingRoleException();
-
                     await Promise.all([
                         this.data.saveItem(
                             "access_token",
@@ -134,6 +130,11 @@ export class KretaService {
                             this.longtermStorageExpiry
                         ),
                     ]);
+
+                    this.currentUser = this.jwtHelper.decodeToken(data.access_token);
+
+                    if (this.currentUser.role.indexOf("Tanar") === -1)
+                        throw new KretaMissingRoleException();
 
                     Promise.all([
                         this.getNaploEnum("MulasztasTipusEnum"),
@@ -155,7 +156,20 @@ export class KretaService {
         }
     }
 
+    private delay(timer: number): Promise<void> {
+        return new Promise(resolve => setTimeout(() => resolve(), timer));
+    }
+
     private async loginWithRefreshToken(refresh_token: string): Promise<string> {
+        // ha épp folyamatban van bejelentkezés, akkor azt megvárjuk és utána annak az eredményét adjuk vissza
+        if (this.loginInProgress) {
+            while (this.loginInProgress) await this.delay(20);
+
+            return this.getValidAccessToken();
+        }
+
+        this.loginInProgress = true;
+
         try {
             if (!this.institute || !this.institute.Url)
                 throw Error("Nincs intézmény kiválasztva! (getValidAccessToken())");
@@ -220,6 +234,8 @@ export class KretaService {
                     }
                 );
             }
+        } finally {
+            this.loginInProgress = false;
         }
     }
 
