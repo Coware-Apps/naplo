@@ -88,6 +88,21 @@
         </ion-item>
     </ion-list>
 
+    <ion-list-header>
+        <ion-label>Kijelentkezés</ion-label>
+    </ion-list-header>
+
+    <ion-button
+        color="danger"
+        expand="block"
+        fill="outline"
+        (click)="logout()"
+        class="ion-padding-horizontal"
+    >
+        <ion-icon slot="start" name="log-out-outline"></ion-icon>
+        <ion-label>Kijelentkezés</ion-label>
+    </ion-button>
+
     <ion-list>
         <ion-list-header>
             <ion-label>Információk</ion-label>
