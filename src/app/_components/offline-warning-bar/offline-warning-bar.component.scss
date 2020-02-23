@@ -3,8 +3,9 @@ ion-icon {
 }
 ion-toolbar {
     --min-height: 30px;
+    --ion-safe-area-top: 0;
 }
 
 ion-note {
-    --color: #666 !important;
+    --color: #333 !important;
 }

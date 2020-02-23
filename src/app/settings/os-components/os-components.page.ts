@@ -57,6 +57,18 @@ export class OsComponentsPage implements OnInit, OnDestroy {
             name: "cordova-plugin-firebasex",
             url: "https://github.com/dpa99c/cordova-plugin-firebasex",
         },
+        {
+            name: "kelvinhokk/cordova-plugin-localization-strings",
+            url: "https://github.com/kelvinhokk/cordova-plugin-localization-strings",
+        },
+        {
+            name: "xpbrew/cordova-sqlite-storage",
+            url: "https://github.com/xpbrew/cordova-sqlite-storage",
+        },
+        {
+            name: "xmartlabs/cordova-plugin-market",
+            url: "https://github.com/xmartlabs/cordova-plugin-market",
+        },
     ];
 
     constructor(
@@ -80,6 +92,7 @@ export class OsComponentsPage implements OnInit, OnDestroy {
                         url: url,
                         barColor: "#3880ff",
                         toolbarColor: "#3880ff",
+                        controlTintColor: "#ffffff",
                     })
                     .pipe(takeUntil(componentDestroyed(this)))
                     .subscribe(

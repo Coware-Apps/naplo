@@ -52,6 +52,7 @@ export class KretaService {
     ) {}
 
     private idpUrl = "https://idp.e-kreta.hu";
+    private longtermStorageExpiry = 72 * 30 * 24 * 60 * 60;
 
     public async onInit() {
         this._institute = await this.data.getSetting<Institute>("institute").catch(() => null);
@@ -125,7 +126,7 @@ export class KretaService {
                             "refresh_token",
                             data.refresh_token,
                             null,
-                            Number.MAX_VALUE
+                            this.longtermStorageExpiry
                         ),
                     ]);
 
@@ -189,7 +190,7 @@ export class KretaService {
                             "refresh_token",
                             data.refresh_token,
                             null,
-                            Number.MAX_VALUE
+                            this.longtermStorageExpiry
                         ),
                     ]);
 
@@ -241,7 +242,7 @@ export class KretaService {
                 {
                     apiKey: "7856d350-1fda-45f5-822d-e1a2f3f1acf0",
                 },
-                Number.MAX_VALUE
+                this.longtermStorageExpiry
             )
         ).pipe(map(x => JSON.parse(x.data)));
     }
@@ -276,7 +277,7 @@ export class KretaService {
         console.log("getTanarProfil()");
         return this.getAuthenticatedAdatcsomag<TanarProfil>(
             "/Naplo/v2/Tanar/Profil",
-            Number.MAX_VALUE
+            this.longtermStorageExpiry
         );
     }
 
@@ -291,7 +292,7 @@ export class KretaService {
                 {
                     Authorization: "Bearer " + access_token,
                 },
-                Number.MAX_VALUE
+                this.longtermStorageExpiry
             )
         )
             .pipe(

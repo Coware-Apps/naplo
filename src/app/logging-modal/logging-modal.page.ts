@@ -91,7 +91,7 @@ export class LoggingModalPage implements OnInit, OnDestroy {
         private firebase: FirebaseService,
         private popoverController: PopoverController,
         private alertController: AlertController
-    ) { }
+    ) {}
 
     async ngOnInit() {
         this.loading = ["osztalyTanuloi", "javasoltJelenlet"];
@@ -107,9 +107,10 @@ export class LoggingModalPage implements OnInit, OnDestroy {
             this.hfSzoveg = this.lesson.HazifeladatSzovege
                 ? this.lesson.HazifeladatSzovege.replace(/\<br \/\>/g, "\n")
                 : null;
-            this.evesOraSorszam = this.lesson.Allapot.Nev == "Naplozott"
-                ? this.lesson.EvesOraszam
-                : this.lesson.EvesOraszam + 1;
+            this.evesOraSorszam =
+                this.lesson.Allapot.Nev == "Naplozott"
+                    ? this.lesson.EvesOraszam
+                    : this.lesson.EvesOraszam + 1;
 
             await this.firebase.startTrace("logging_modal_load_time");
 
@@ -157,7 +158,7 @@ export class LoggingModalPage implements OnInit, OnDestroy {
             });
     }
 
-    ngOnDestroy(): void { }
+    ngOnDestroy(): void {}
 
     private loadingDone(key: string) {
         var index = this.loading.indexOf(key);

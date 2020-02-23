@@ -20,12 +20,13 @@ export class CurriculumModalPage implements OnInit, OnDestroy {
         private modalController: ModalController,
         private networkStatus: NetworkStatusService,
         private kreta: KretaService
-    ) { }
+    ) {}
 
     async ngOnInit() {
-        this.evesOraSorszam = this.lesson.Allapot.Nev == "Naplozott"
-            ? this.lesson.EvesOraszam
-            : this.lesson.EvesOraszam + 1;
+        this.evesOraSorszam =
+            this.lesson.Allapot.Nev == "Naplozott"
+                ? this.lesson.EvesOraszam
+                : this.lesson.EvesOraszam + 1;
 
         (await this.kreta.getTanmenet(this.lesson)).subscribe(x => (this.tanmenet = x));
 
@@ -37,7 +38,7 @@ export class CurriculumModalPage implements OnInit, OnDestroy {
             });
     }
 
-    ngOnDestroy() { }
+    ngOnDestroy() {}
 
     save(t: TanmenetElem) {
         this.modalController.dismiss({ tanmenetElem: t });

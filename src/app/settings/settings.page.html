@@ -88,6 +88,21 @@
         </ion-item>
     </ion-list>
 
+    <ion-list-header>
+        <ion-label>Veszélyzóna</ion-label>
+    </ion-list-header>
+
+    <ion-button
+        color="danger"
+        expand="block"
+        fill="outline"
+        (click)="logout()"
+        class="ion-padding-horizontal"
+    >
+        <ion-icon slot="start" name="log-out-outline"></ion-icon>
+        <ion-label>Kijelentkezés</ion-label>
+    </ion-button>
+
     <ion-list>
         <ion-list-header>
             <ion-label>Információk</ion-label>
@@ -97,10 +112,10 @@
             <ion-label>Verzió</ion-label>
             <ion-note slot="end">v{{ appversionnumber }}</ion-note>
         </ion-item>
-        <ion-item type="button" (click)="openLicenses()">
+        <ion-item button type="button" (click)="openLicenses()">
             <ion-label>Nyílt forráskódú komponensek</ion-label>
         </ion-item>
-        <ion-item type="button" (click)="openPrivacy()">
+        <ion-item button type="button" (click)="openPrivacy()">
             <ion-label>Adatvédelmi nyilatkozat</ion-label>
         </ion-item>
     </ion-list>

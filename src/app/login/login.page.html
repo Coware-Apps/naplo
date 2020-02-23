@@ -6,6 +6,21 @@
 
     <form #loginForm="ngForm" (ngSubmit)="doLogin()" (keydown.enter)="doLogin()">
         <div class="ion-padding">
+            <p>
+                Válassza ki intézményét, majd adja meg a KRÉTA-rendszerben használt felhasználónevét
+                és jelszavát!
+            </p>
+            <ion-item>
+                <ion-input
+                    placeholder="Intézmény"
+                    (click)="showInstituteModal()"
+                    [(ngModel)]="instituteName"
+                    name="selectedInstitute"
+                    aria-label="Válasszon intézményt!"
+                    required
+                    readonly
+                ></ion-input>
+            </ion-item>
             <ion-item>
                 <ion-input
                     name="name"
@@ -29,17 +44,6 @@
                     aria-label="Jelszó"
                 ></ion-input>
             </ion-item>
-            <ion-item>
-                <ion-input
-                    placeholder="Válasszon intézményt!"
-                    (click)="showInstituteModal()"
-                    [(ngModel)]="instituteName"
-                    name="selectedInstitute"
-                    aria-label="Válasszon intézményt!"
-                    required
-                    readonly
-                ></ion-input>
-            </ion-item>
         </div>
         <div class="ion-padding" style="padding-top: 0">
             <ion-button
@@ -51,8 +55,7 @@
                 Bejelentkezés
             </ion-button>
             <p class="data-prot">
-                A bejelentkezés gombra kattintva elfogadom az
-                <a (click)="openPrivacy()">adatvédelmi nyilatkozatot</a>.
+                <a (click)="openPrivacy()">Adatvédelmi nyilatkozat és felhasználási feltételek</a>
             </p>
         </div>
     </form>
