@@ -14,6 +14,7 @@ export class CurriculumModalPage implements OnInit, OnDestroy {
     @Input() public lesson: Lesson;
     public currentlyOffline: boolean;
     public tanmenet: Tanmenet;
+    public evesOraSorszam: number = 0;
 
     constructor(
         private modalController: ModalController,
@@ -22,6 +23,11 @@ export class CurriculumModalPage implements OnInit, OnDestroy {
     ) {}
 
     async ngOnInit() {
+        this.evesOraSorszam =
+            this.lesson.Allapot.Nev == "Naplozott"
+                ? this.lesson.EvesOraszam
+                : this.lesson.EvesOraszam + 1;
+
         (await this.kreta.getTanmenet(this.lesson)).subscribe(x => (this.tanmenet = x));
 
         this.networkStatus

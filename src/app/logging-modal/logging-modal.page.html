@@ -27,8 +27,8 @@
     <ion-toolbar color="secondary" class="ion-text-center">
         <div>
             {{ kezdete?.toLocaleDateString(config.locale, {month: 'short', day: 'numeric', weekday:
-            'short'}) }} - {{lesson?.TantargyNev}}<br />
-            {{lesson?.OsztalyCsoportNev}}
+            'short'}) }} &ndash; {{lesson?.TantargyNev}}<br />
+            {{lesson?.OsztalyCsoportNev}} &ndash; {{evesOraSorszam}}. óra
         </div>
     </ion-toolbar>
 </ion-header>
