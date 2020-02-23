@@ -18,6 +18,10 @@
         "late": "Késés",
         "absent": "Hiányzás"
     },
+    "themes": {
+        "dark": "Sötét",
+        "light": "Világos"
+    },
     "offline": {
         "cant-save": "Nincs internet, az adatok nem menthetők",
         "cant-update": "Nincs internet, az adatok nem frissülnek"

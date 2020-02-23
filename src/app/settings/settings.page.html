@@ -20,9 +20,11 @@
                 (ionChange)="changeTheme($event)"
                 [value]="config.theme"
             >
-                <ion-select-option *ngFor="let t of themes" [value]="t.id"
-                    >{{t.name}}</ion-select-option
-                >
+                <ion-select-option
+                    *ngFor="let t of themes"
+                    [value]="t.id"
+                    [translate]="'themes.'+t.id"
+                ></ion-select-option>
             </ion-select>
         </ion-item>
         <ion-item lines="inset">

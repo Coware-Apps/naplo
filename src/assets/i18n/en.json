@@ -18,6 +18,10 @@
         "late": "Late",
         "absent": "Absent"
     },
+    "themes": {
+        "dark": "Dark",
+        "light": "Light"
+    },
     "offline": {
         "cant-save": "You can't save without internet",
         "cant-update": "Data is not updated without internet"

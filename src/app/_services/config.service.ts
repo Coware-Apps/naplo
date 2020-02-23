@@ -122,19 +122,19 @@ export class ConfigService {
         if (!locale) {
             locale = await await this.data
                 .getSetting<string>("locale")
-                .catch(async () => (await this.globalization.getLocaleName()).value);
+                .catch(async () =>
+                    (await this.globalization.getLocaleName()).value.substring(0, 2)
+                );
         }
 
         this._locale = locale;
-        const localeId = locale.substring(0, 2);
+        this.translate.use(locale);
 
-        this.translate.use(localeId);
-
-        if (localeId == "en") return; // az 'en' már gyárilag be van töltve
+        if (locale == "en") return; // az 'en' már gyárilag be van töltve
 
         return import(
             /* webpackInclude: /(hu|de)\.js$/ */
-            `@angular/common/locales/${localeId}.js`
+            `@angular/common/locales/${locale}.js`
         ).then(module => registerLocaleData(module.default));
     }
 }
