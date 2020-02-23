@@ -34,18 +34,25 @@ ion-list {
     }
 }
 
+/* ios-en bal oldalt több a padding mint jobb oldalt */
 ion-item.ios {
     --padding-start: 10px;
 }
+ion-list-header.ios {
+    margin-left: -10px;
+}
 
+/* tablet modal magasságok */
 @media only screen and (min-height: 600px) and (min-width: 768px) and (orientation: landscape) {
-    .sc-ion-modal-md-h {
+    .sc-ion-modal-md-h,
+    .sc-ion-modal-ios-h {
         --min-height: 95%;
     }
 }
 
 @media only screen and (min-height: 600px) and (min-width: 768px) and (orientation: portrait) {
-    .sc-ion-modal-md-h {
+    .sc-ion-modal-md-h,
+    .sc-ion-modal-ios-h {
         --min-height: 80%;
     }
 }
