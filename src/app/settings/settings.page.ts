@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { ConfigService, FirebaseService } from "../_services";
+import { ConfigService, FirebaseService, KretaService } from "../_services";
 import { languages } from "../_languages";
 import { themes } from "../../theme/themes";
 import { AppVersion } from "@ionic-native/app-version/ngx";
@@ -27,7 +27,8 @@ export class SettingsPage implements OnInit, OnDestroy {
         private safariViewController: SafariViewController,
         public modalController: ModalController,
         private firebase: FirebaseService,
-        private iab: InAppBrowser
+        private iab: InAppBrowser,
+        private kreta: KretaService
     ) {}
 
     ngOnInit(): void {
@@ -108,5 +109,9 @@ export class SettingsPage implements OnInit, OnDestroy {
                 });
             }
         });
+    }
+
+    async logout() {
+        await this.kreta.logout();
     }
 }
