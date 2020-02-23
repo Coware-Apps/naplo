@@ -13,18 +13,43 @@ export class StorageMigrationService {
         (<any>window).webkitIndexedDB ||
         (<any>window).msIndexedDB;
     private longtermStorageExpiry = 72 * 30 * 24 * 60 * 60;
+    private database: IDBDatabase;
+    private objectStoreName = "_ionickv";
 
     private openDB(): Promise<IDBDatabase> {
         return new Promise<IDBDatabase>((resolve, reject) => {
             let req: IDBOpenDBRequest = this.indexedDB.open("__ionicCache");
+            req.onsuccess = (e: any) => {
+                this.database = e.target.result;
+                resolve(e.target.result);
+            };
+            req.onerror = (e: any) => reject(e);
+        });
+    }
+
+    private getByKey(key: string): Promise<any> {
+        return new Promise<IDBRequest<IDBValidKey>>((resolve, reject) => {
+            const transaction: IDBTransaction = this.database.transaction(
+                this.objectStoreName,
+                "readonly"
+            );
+            const objectStore: IDBObjectStore = transaction.objectStore(this.objectStoreName);
+
+            let req: IDBRequest<IDBValidKey> = objectStore.get(key);
             req.onsuccess = (e: any) => resolve(e.target.result);
             req.onerror = (e: any) => reject(e);
         });
     }
 
-    private getKey(objectStore: IDBObjectStore, key: string): Promise<IDBRequest<IDBValidKey>> {
-        return new Promise<IDBRequest<IDBValidKey>>((resolve, reject) => {
-            let req: IDBRequest<IDBValidKey> = objectStore.getKey(key);
+    private clearOS(): Promise<IDBRequest> {
+        return new Promise<IDBRequest>((resolve, reject) => {
+            const transaction: IDBTransaction = this.database.transaction(
+                this.objectStoreName,
+                "readwrite"
+            );
+            const objectStore: IDBObjectStore = transaction.objectStore(this.objectStoreName);
+
+            let req: IDBRequest<IDBValidKey> = objectStore.clear();
             req.onsuccess = (e: any) => resolve(e.target.result);
             req.onerror = (e: any) => reject(e);
         });
@@ -41,17 +66,18 @@ export class StorageMigrationService {
             return;
         }
 
-        const db: IDBDatabase = await this.openDB().catch(() => null);
+        await this.openDB().catch(() => null);
 
-        if (!db || db.objectStoreNames.length || !db.objectStoreNames.contains("_ionickv")) {
-            console.log("[DB MIGRATION] No _ionickv object store, exiting");
+        if (
+            !this.database ||
+            this.database.objectStoreNames.length < 1 ||
+            !this.database.objectStoreNames.contains(this.objectStoreName)
+        ) {
+            console.log("[DB MIGRATION] No " + this.objectStoreName + " object store, exiting");
             return;
         }
 
-        const transaction: IDBTransaction = db.transaction("_ionickv", "readonly");
-        const os: IDBObjectStore = transaction.objectStore("_ionickv");
-
-        let token = await this.getKey(os, "naplo__refresh_token").catch(() => null);
+        let token = await this.getByKey("naplo__refresh_token").catch(() => null);
         if (!token) {
             console.log("[DB MIGRATION] No refresh_token in IDB, no migration needed.");
             return;
@@ -63,7 +89,7 @@ export class StorageMigrationService {
                 this.longtermStorageExpiry
             );
             console.log(
-                "[DB MIGRATION] Migration complete: refresh_token",
+                "[DB MIGRATION] Migration complete: refresh_token = ",
                 await this.data.getItem("refresh_token")
             );
         }
@@ -78,21 +104,21 @@ export class StorageMigrationService {
         ];
 
         let promises = [];
-        keys.forEach(key => promises.push(this.migratePreference(os, key)));
+        keys.forEach(key => promises.push(this.migratePreference(key)));
         await Promise.all(promises);
 
-        os.clear();
+        await this.clearOS();
         console.log("[DB MIGRATION] IDB cleared.");
         console.log("[DB MIGRATION] Complete.");
     }
 
-    private async migratePreference(objectStore: IDBObjectStore, key: string): Promise<void> {
-        console.log("[DB MIGRATION] Starting migration of key: ", key);
+    private async migratePreference(key: string): Promise<void> {
+        // console.log("[DB MIGRATION] Starting migration of key: ", key);
 
         if (!(await this.data.itemExists(key))) {
-            let item = await this.getKey(objectStore, "naplo__pref__" + key).catch(() => null);
+            let item = await this.getByKey("naplo__pref__" + key);
 
-            console.log("[DB MIGRATION] Key, item from idb: ", key, item);
+            // console.log("[DB MIGRATION] Key, item from idb: ", key, item);
 
             if (item) {
                 let value;
