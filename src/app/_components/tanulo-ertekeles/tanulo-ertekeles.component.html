@@ -46,7 +46,7 @@
 <div class="ertekeles-row szoveges" *ngIf="tipus == ertekelesTipus.Szoveg">
     <ion-input
         type="text"
-        placeholder="Ide írj szöveges értékelést..."
+        placeholder="{{ 'eval.textual-placeholder' | translate }}"
         [(ngModel)]="szoveges"
     ></ion-input>
 </div>

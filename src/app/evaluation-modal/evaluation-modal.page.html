@@ -6,17 +6,17 @@
             </ion-button>
         </ion-buttons>
 
-        <ion-title>Értékelés</ion-title>
+        <ion-title translate="eval.title">Értékelés</ion-title>
 
         <ion-buttons slot="end">
             <ion-button (click)="save()" [disabled]="currentlyOffline">
-                <ion-label>Mentés</ion-label>
+                <ion-label translate="common.save">Mentés</ion-label>
             </ion-button>
         </ion-buttons>
     </ion-toolbar>
 
     <app-offline-warning-bar
-        warningMessage="Nincs internet, az adatok nem menthetők"
+        warningMessage="{{'offline.cant-save'|translate}}"
     ></app-offline-warning-bar>
 
     <ion-toolbar color="secondary" class="ion-text-center">

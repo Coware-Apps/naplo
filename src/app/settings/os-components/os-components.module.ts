@@ -9,9 +9,16 @@ import { OsComponentsPageRoutingModule } from "./os-components-routing.module";
 import { OsComponentsPage } from "./os-components.page";
 import { SafariViewController } from "@ionic-native/safari-view-controller/ngx";
 import { InAppBrowser } from "@ionic-native/in-app-browser/ngx";
+import { TranslateModule } from "@ngx-translate/core";
 
 @NgModule({
-    imports: [CommonModule, FormsModule, IonicModule, OsComponentsPageRoutingModule],
+    imports: [
+        CommonModule,
+        FormsModule,
+        IonicModule,
+        OsComponentsPageRoutingModule,
+        TranslateModule,
+    ],
     providers: [SafariViewController, InAppBrowser],
     declarations: [OsComponentsPage],
 })

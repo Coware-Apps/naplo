@@ -1,4 +1,1 @@
-export var themes = [
-    { id: "light", name: "Világos" },
-    { id: "dark", name: "Sötét" },
-];
+export var themes = [{ id: "light" }, { id: "dark" }];

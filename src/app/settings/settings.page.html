@@ -3,65 +3,77 @@
         <ion-buttons slot="start">
             <ion-menu-button></ion-menu-button>
         </ion-buttons>
-        <ion-title>Beállítások</ion-title>
+        <ion-title>{{ 'settings.title' | translate }}</ion-title>
     </ion-toolbar>
 </ion-header>
 
 <ion-content>
     <ion-list>
         <ion-list-header>
-            <ion-label>Megjelenés</ion-label>
+            <ion-label>{{ 'settings.header-appearance' | translate }}</ion-label>
         </ion-list-header>
 
         <ion-item lines="inset">
-            <ion-label>Színséma</ion-label>
+            <ion-label>{{ 'settings.color-scheme' | translate }}</ion-label>
             <ion-select
                 interface="popover"
                 (ionChange)="changeTheme($event)"
                 [value]="config.theme"
             >
-                <ion-select-option *ngFor="let t of themes" [value]="t.id"
-                    >{{t.name}}</ion-select-option
+                <ion-select-option
+                    *ngFor="let t of themes"
+                    [value]="t.id"
+                    [translate]="'themes.'+t.id"
+                ></ion-select-option>
+            </ion-select>
+        </ion-item>
+        <ion-item lines="inset">
+            <ion-label>{{'settings.language' |translate}}</ion-label>
+            <ion-select
+                interface="popover"
+                (ionChange)="changeLanguage($event)"
+                [value]="config.locale"
+            >
+                <ion-select-option *ngFor="let l of languages" [value]="l.id"
+                    >{{l.nativeName}}</ion-select-option
                 >
             </ion-select>
         </ion-item>
-        <!-- <ion-item lines="inset">
-      <ion-label>Nyelv</ion-label>
-      <ion-select interface="popover" (ionChange)="changeLanguage($event)">
-        <ion-select-option *ngFor="let l of languages" [value]="l.id" [selected]="config.locale == l.id">{{l.nativeName}}</ion-select-option>
-      </ion-select>
-    </ion-item> -->
 
-        <ion-item>
+        <!--  <ion-item>
             <ion-label>Nyelv</ion-label>
             <ion-select interface="popover" placeholder="Automatikus" disabled>
                 <ion-select-option value="auto">Automatikus</ion-select-option>
             </ion-select>
-        </ion-item>
+        </ion-item> -->
     </ion-list>
 
     <ion-list>
         <ion-list-header>
-            <ion-label>Működés</ion-label>
+            <ion-label>{{ 'settings.header-behaviour' | translate}}</ion-label>
         </ion-list-header>
 
         <ion-item lines="inset">
-            <ion-label>Alapértelmezett értékelés típus</ion-label>
+            <ion-label>{{'settings.default-evaluation-type'|translate}}</ion-label>
             <ion-select
                 interface="popover"
                 (ionChange)="changeErtekelesTipus($event)"
                 [value]="config.defaultErtekelesTipus"
             >
                 <ion-select-option [value]="ErtekelesTipus.Osztalyzat"
-                    >Osztályzat</ion-select-option
+                    >{{'evaluation-types.mark' | translate }}</ion-select-option
                 >
-                <ion-select-option [value]="ErtekelesTipus.Szazalek">Százalék</ion-select-option>
-                <ion-select-option [value]="ErtekelesTipus.Szoveg">Szöveges</ion-select-option>
+                <ion-select-option [value]="ErtekelesTipus.Szazalek"
+                    >{{'evaluation-types.percentage' | translate }}</ion-select-option
+                >
+                <ion-select-option [value]="ErtekelesTipus.Szoveg"
+                    >{{'evaluation-types.textual' | translate }}</ion-select-option
+                >
             </ion-select>
         </ion-item>
         <ion-item>
             <ion-label
-                >Részletes hibaüzenetek<br />
+                >{{'settings.detailed-errors'|translate}}<br />
                 <ion-note>Technikai jellegű információk megjelenítése</ion-note></ion-label
             >
             <ion-toggle
@@ -72,8 +84,8 @@
         </ion-item>
         <ion-item>
             <ion-label
-                >Névtelen használati statisztikák küldése<br />
-                <ion-note>Ezzel segíted az alkalmazás fejlesztését</ion-note></ion-label
+                >{{'settings.usage-statistics'|translate}}<br />
+                <ion-note>{{'settings.usage-statistics-desc'|translate}}</ion-note></ion-label
             >
             <ion-toggle
                 slot="end"
@@ -83,15 +95,15 @@
         </ion-item>
         <ion-item>
             <ion-label
-                >Hibejelentések küldése<br />
-                <ion-note>Névtelen információk továbbítása hibák esetén</ion-note></ion-label
+                >{{'settings.error-reporting'|translate}}<br />
+                <ion-note>{{'settings.error-reporting-desc'|translate}}</ion-note></ion-label
             >
             <ion-toggle slot="end" checked disabled></ion-toggle>
         </ion-item>
     </ion-list>
 
     <ion-list-header>
-        <ion-label>Veszélyzóna</ion-label>
+        <ion-label>{{'settings.header-danger-zone'|translate}}</ion-label>
     </ion-list-header>
 
     <ion-button
@@ -102,23 +114,23 @@
         class="ion-padding-horizontal"
     >
         <ion-icon slot="start" name="log-out-outline"></ion-icon>
-        <ion-label>Kijelentkezés</ion-label>
+        <ion-label>{{'settings.logout' | translate}}</ion-label>
     </ion-button>
 
     <ion-list>
         <ion-list-header>
-            <ion-label>Információk</ion-label>
+            <ion-label>{{'settings.header-about'|translate}}</ion-label>
         </ion-list-header>
 
         <ion-item>
-            <ion-label>Verzió</ion-label>
+            <ion-label>{{'settings.version'|translate}}</ion-label>
             <ion-note slot="end">v{{ appversionnumber }}</ion-note>
         </ion-item>
         <ion-item button type="button" (click)="openLicenses()">
-            <ion-label>Nyílt forráskódú komponensek</ion-label>
+            <ion-label>{{'settings.os-components'|translate}}</ion-label>
         </ion-item>
         <ion-item button type="button" (click)="openPrivacy()">
-            <ion-label>Adatvédelmi nyilatkozat</ion-label>
+            <ion-label>{{'settings.privacy-policy'|translate}}</ion-label>
         </ion-item>
     </ion-list>
 </ion-content>

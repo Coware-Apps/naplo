@@ -9,6 +9,7 @@ import { EvaluationPageRoutingModule } from "./evaluation-routing.module";
 import { EvaluationPage } from "./evaluation.page";
 import { EvaluationModalPageModule } from "../evaluation-modal/evaluation-modal.module";
 import { ComponentsModule } from "../_components/components.module";
+import { TranslateModule } from "@ngx-translate/core";
 
 @NgModule({
     imports: [
@@ -18,6 +19,7 @@ import { ComponentsModule } from "../_components/components.module";
         EvaluationPageRoutingModule,
         EvaluationModalPageModule,
         ComponentsModule,
+        TranslateModule,
     ],
     declarations: [EvaluationPage],
 })
