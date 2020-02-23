@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { ConfigService, FirebaseService } from "../_services";
+import { ConfigService, FirebaseService, KretaService } from "../_services";
 import { languages } from "../_languages";
 import { themes } from "../../theme/themes";
 import { AppVersion } from "@ionic-native/app-version/ngx";
@@ -9,7 +9,7 @@ import { componentDestroyed } from "@w11k/ngx-componentdestroyed";
 import { ModalController } from "@ionic/angular";
 import { OsComponentsPage } from "./os-components/os-components.page";
 import { InAppBrowser } from "@ionic-native/in-app-browser/ngx";
-import { ErtekelesTipus } from '../_models';
+import { ErtekelesTipus } from "../_models";
 
 @Component({
     selector: "app-settings",
@@ -30,13 +30,14 @@ export class SettingsPage implements OnInit, OnDestroy {
         public modalController: ModalController,
         private firebase: FirebaseService,
         private iab: InAppBrowser,
-    ) { }
+        private kreta: KretaService
+    ) {}
 
     ngOnInit(): void {
         this.firebase.setScreenName("settings");
     }
 
-    ngOnDestroy() { }
+    ngOnDestroy() {}
 
     async ionViewWillEnter() {
         this.appversionnumber = await this.appVersion.getVersionNumber();
@@ -84,10 +85,11 @@ export class SettingsPage implements OnInit, OnDestroy {
                         url: "https://coware-apps.github.io/naplo/privacy",
                         barColor: "#3880ff",
                         toolbarColor: "#3880ff",
+                        controlTintColor: "#ffffff",
                     })
                     .pipe(takeUntil(componentDestroyed(this)))
                     .subscribe(
-                        (result: any) => { },
+                        (result: any) => {},
                         (error: any) => {
                             this.firebase.logError(
                                 "settings privacy policy modal subscribe error: " + error
@@ -110,5 +112,9 @@ export class SettingsPage implements OnInit, OnDestroy {
                 });
             }
         });
+    }
+
+    async logout() {
+        await this.kreta.logout();
     }
 }

@@ -37,8 +37,4 @@ export class AppComponent {
             this.splashScreen.hide();
         });
     }
-
-    async logout() {
-        await this.kreta.logout();
-    }
 }

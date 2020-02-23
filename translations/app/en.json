@@ -1,8 +1,9 @@
 {
-  "config_ios": {
-    "CFBundleName": "Log+"
-  },
-  "config_android": {
-    "app_name": "Log+"
-  }
+    "config_ios": {
+        "CFBundleName": "Napló+",
+        "CFBundleDisplayName": "Napló+"
+    },
+    "config_android": {
+        "app_name": "Napló+"
+    }
 }

@@ -11,14 +11,20 @@ import { AppRoutingModule } from "./app-routing.module";
 import { CacheModule } from "ionic-cache";
 import { HTTP } from "@ionic-native/http/ngx";
 import { Globalization } from "@ionic-native/globalization/ngx";
-import { ConfigService, KretaService } from "./_services";
+import { ConfigService, KretaService, StorageMigrationService } from "./_services";
 import { AppVersion } from "@ionic-native/app-version/ngx";
 import { Network } from "@ionic-native/network/ngx";
 import { FirebaseX } from "@ionic-native/firebase-x/ngx";
 import { ErrorHandlerService } from "./_services/error-handler.service";
+import { IonicStorageModule } from "@ionic/storage";
 
-export function initializeApp(config: ConfigService, kreta: KretaService) {
-    return (): Promise<any> => {
+export function initializeApp(
+    config: ConfigService,
+    kreta: KretaService,
+    storage: StorageMigrationService
+) {
+    return async (): Promise<any> => {
+        await storage.onInit();
         return Promise.all([config.onInit(), kreta.onInit()]);
     };
 }
@@ -29,6 +35,9 @@ export function initializeApp(config: ConfigService, kreta: KretaService) {
     imports: [
         BrowserModule,
         IonicModule.forRoot(),
+        IonicStorageModule.forRoot({
+            driverOrder: ["sqlite", "indexeddb", "localstorage", "websql"],
+        }),
         CacheModule.forRoot({ keyPrefix: "naplo__" }),
         AppRoutingModule,
     ],
@@ -40,10 +49,11 @@ export function initializeApp(config: ConfigService, kreta: KretaService) {
         AppVersion,
         Network,
         FirebaseX,
+
         {
             provide: APP_INITIALIZER,
             useFactory: initializeApp,
-            deps: [ConfigService, KretaService],
+            deps: [ConfigService, KretaService, StorageMigrationService],
             multi: true,
         },
         { provide: ErrorHandler, useClass: ErrorHandlerService },
