@@ -10,6 +10,7 @@ import { LoginPage } from "./login.page";
 import { InstituteSelectorModalPageModule } from "./institute-selector-modal/institute-selector-modal.module";
 import { SafariViewController } from "@ionic-native/safari-view-controller/ngx";
 import { InAppBrowser } from "@ionic-native/in-app-browser/ngx";
+import { Market } from "@ionic-native/market/ngx";
 
 @NgModule({
     imports: [
@@ -19,7 +20,7 @@ import { InAppBrowser } from "@ionic-native/in-app-browser/ngx";
         LoginPageRoutingModule,
         InstituteSelectorModalPageModule,
     ],
-    providers: [SafariViewController, InAppBrowser],
+    providers: [SafariViewController, InAppBrowser, Market],
     declarations: [LoginPage],
 })
 export class LoginPageModule {}

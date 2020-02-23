@@ -7,7 +7,12 @@ import {
     FirebaseService,
 } from "../_services";
 import { ActivatedRoute, Router } from "@angular/router";
-import { LoadingController, MenuController, ModalController } from "@ionic/angular";
+import {
+    LoadingController,
+    MenuController,
+    ModalController,
+    AlertController,
+} from "@ionic/angular";
 import { ErrorHelper } from "../_helpers";
 import { InstituteSelectorModalPage } from "./institute-selector-modal/institute-selector-modal.page";
 import { SafariViewController } from "@ionic-native/safari-view-controller/ngx";
@@ -15,6 +20,7 @@ import { StatusBar } from "@ionic-native/status-bar/ngx";
 import { takeUntil } from "rxjs/operators";
 import { componentDestroyed } from "@w11k/ngx-componentdestroyed";
 import { InAppBrowser } from "@ionic-native/in-app-browser/ngx";
+import { Market } from "@ionic-native/market/ngx";
 import {
     KretaMissingRoleException,
     KretaInvalidPasswordException,
@@ -45,7 +51,9 @@ export class LoginPage implements OnInit, OnDestroy {
         private config: ConfigService,
         private networkStatus: NetworkStatusService,
         private firebase: FirebaseService,
-        private iab: InAppBrowser
+        private iab: InAppBrowser,
+        private market: Market,
+        private alertController: AlertController
     ) {}
 
     ngOnInit() {
@@ -101,7 +109,26 @@ export class LoginPage implements OnInit, OnDestroy {
                 return await this.error.presentAlert("A felhasználónév vagy jelszó hibás.");
             } else if (e instanceof KretaMissingRoleException) {
                 this.firebase.logEvent("login_missing_role", {});
-                await this.error.presentAlert("A bejelentkezéshez 'Tanár' szerepkör szükséges.");
+                const alert = await this.alertController.create({
+                    header: "Jogosultság szükséges",
+                    message:
+                        "A bejelentkezéshez 'Tanár' szerepkör szükséges.<br>Diákoknak és szülőknek az Arisztokréta alkalmazást ajánljuk. Megnyitja az áruházban?",
+                    buttons: [
+                        {
+                            text: "Nem",
+                            role: "cancel",
+                        },
+                        {
+                            text: "Igen",
+                            handler: async () => {
+                                this.firebase.logEvent("login_ariszo_opened");
+                                await this.market.open("hu.coware.ellenorzo");
+                            },
+                        },
+                    ],
+                });
+
+                await alert.present();
             } else if (e.error) {
                 this.firebase.logError("login error with msg: " + e.error);
                 const data = JSON.parse(e.error);
