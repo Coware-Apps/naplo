@@ -1,8 +1,9 @@
 ion-content {
     --background: #fdec5d;
+    --color: #444;
+    --ion-color-primary: #1da389;
 
     .data-prot {
-        color: #444;
         text-align: center;
         font-size: 90%;
         margin-block-start: 1.4rem;
@@ -11,17 +12,10 @@ ion-content {
     form {
         max-width: 600px;
         margin: auto;
-
-        a,
-        a:hover,
-        a:focused,
-        a:visited {
-            color: #1da389;
-        }
+        text-align: center;
 
         .submitBtn {
             min-height: 3rem;
-            --background: #1da389;
         }
     }
 }
@@ -30,7 +24,6 @@ ion-content {
     margin-bottom: 25px;
     text-align: center;
     font-size: 1.65rem;
-    color: #444;
 
     // alapból nagy logo
     #logo {

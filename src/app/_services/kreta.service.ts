@@ -49,9 +49,10 @@ export class KretaService {
         private jwtHelper: JwtDecodeHelper,
         private error: ErrorHelper,
         private firebase: FirebaseService
-    ) { }
+    ) {}
 
     private idpUrl = "https://idp.e-kreta.hu";
+    private longtermStorageExpiry = 72 * 30 * 24 * 60 * 60;
     private loginInProgress: boolean = false;
 
     public async onInit() {
@@ -71,8 +72,7 @@ export class KretaService {
                 return null;
             });
 
-            if (access_token)
-                return access_token;
+            if (access_token) return access_token;
 
             //ha nincs vagy lejárt az access_token, de van refresh_token, megújítunk azzal
             const refresh_token = await this.data.getItem<string>("refresh_token").catch(() => {
@@ -127,7 +127,7 @@ export class KretaService {
                             "refresh_token",
                             data.refresh_token,
                             null,
-                            Number.MAX_VALUE
+                            this.longtermStorageExpiry
                         ),
                     ]);
 
@@ -158,13 +158,12 @@ export class KretaService {
 
     private delay(timer: number): Promise<void> {
         return new Promise(resolve => setTimeout(() => resolve(), timer));
-    };
+    }
 
     private async loginWithRefreshToken(refresh_token: string): Promise<string> {
         // ha épp folyamatban van bejelentkezés, akkor azt megvárjuk és utána annak az eredményét adjuk vissza
         if (this.loginInProgress) {
-            while (this.loginInProgress)
-                await this.delay(20);
+            while (this.loginInProgress) await this.delay(20);
 
             return this.getValidAccessToken();
         }
@@ -205,7 +204,7 @@ export class KretaService {
                             "refresh_token",
                             data.refresh_token,
                             null,
-                            Number.MAX_VALUE
+                            this.longtermStorageExpiry
                         ),
                     ]);
 
@@ -220,8 +219,8 @@ export class KretaService {
             if (error instanceof SyntaxError) {
                 await this.error.presentAlert(
                     "A KRÉTA-szerver érvénytelen választ küldött. Valószínűleg karbantartás alatt van. (" +
-                    error +
-                    ")"
+                        error +
+                        ")"
                 );
             } else {
                 this.firebase.logError("loginWithRefreshToken(): " + stringify(error));
@@ -259,7 +258,7 @@ export class KretaService {
                 {
                     apiKey: "7856d350-1fda-45f5-822d-e1a2f3f1acf0",
                 },
-                Number.MAX_VALUE
+                this.longtermStorageExpiry
             )
         ).pipe(map(x => JSON.parse(x.data)));
     }
@@ -294,7 +293,7 @@ export class KretaService {
         console.log("getTanarProfil()");
         return this.getAuthenticatedAdatcsomag<TanarProfil>(
             "/Naplo/v2/Tanar/Profil",
-            Number.MAX_VALUE
+            this.longtermStorageExpiry
         );
     }
 
@@ -303,13 +302,13 @@ export class KretaService {
         return (
             await this.data.getUrlWithCache(
                 this.institute.Url +
-                "/Naplo/v2/Enum/NaploEnum?hash=&engedelyezettEnumName=" +
-                engedelyezettEnumName,
+                    "/Naplo/v2/Enum/NaploEnum?hash=&engedelyezettEnumName=" +
+                    engedelyezettEnumName,
                 null,
                 {
                     Authorization: "Bearer " + access_token,
                 },
-                Number.MAX_VALUE
+                this.longtermStorageExpiry
             )
         )
             .pipe(
@@ -390,12 +389,12 @@ export class KretaService {
         return (
             await this.data.getUrlWithCache(
                 this.institute.Url +
-                "/Naplo/v2/Tanmenet?key[0].OsztalycsoportId=" +
-                lesson.OsztalyCsoportId +
-                "&key[0].Tantargyid=" +
-                lesson.TantargyId +
-                "&key[0].FeltoltoTanarId=" +
-                this.currentUser["kreta:institute_user_id"],
+                    "/Naplo/v2/Tanmenet?key[0].OsztalycsoportId=" +
+                    lesson.OsztalyCsoportId +
+                    "&key[0].Tantargyid=" +
+                    lesson.TantargyId +
+                    "&key[0].FeltoltoTanarId=" +
+                    this.currentUser["kreta:institute_user_id"],
                 null,
                 {
                     Authorization: "Bearer " + access_token,
