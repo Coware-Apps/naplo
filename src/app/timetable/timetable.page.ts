@@ -140,6 +140,7 @@ export class TimetablePage implements OnInit, OnDestroy {
             })
             .then(
                 date => {
+                    if (!date) return;
                     date = this.dateHelper.createDateAsUTC(date);
                     this.datum = date;
                     this.loadTimetable();
