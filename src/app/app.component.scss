@@ -1,6 +1,10 @@
 ion-menu {
-    ion-toolbar.ion-color-primary{
+    ion-toolbar.ion-color-primary {
         --ion-color-primary: var(--ion-color-brand) !important;
     }
     color: var(--ion-text-color);
+}
+
+ion-avatar ion-icon {
+    font-size: 2.2em;
 }

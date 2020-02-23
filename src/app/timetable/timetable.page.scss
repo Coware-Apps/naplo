@@ -1,14 +1,30 @@
-.list-empty-placeholder{
+.list-empty-placeholder {
     margin-top: 50px;
     color: grey;
 }
 
-.date-titleline{
-    font-size: 110%;
+.date-titleline {
+    --color: var(--ion-color-secondary-contrast);
+    --border-color: var(--ion-color-secondary-contrast);
 
-    ion-icon { padding-right: 8px; }
+    &.ios {
+        /* small*/
+        --border-radius: 6px;
+        --padding-top: 0;
+        --padding-start: 0.9em;
+        --padding-end: 0.9em;
+        --padding-bottom: 0;
+        height: 2.1em;
+        font-size: 13px;
+    }
 }
 
-ion-icon { 
-    vertical-align: text-top; 
+ion-icon {
+    vertical-align: text-top;
+}
+
+.timetable-date-toolbar {
+    & > ion-icon {
+        font-size: 32px;
+    }
 }

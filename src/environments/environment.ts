@@ -3,8 +3,8 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false,
-  userAgent: 'NaploPlusz/%APP_VERSION_NUMBER%',
+    production: false,
+    userAgent: "NaploPlusz/%APP_VERSION_NUMBER%",
 };
 
 /*

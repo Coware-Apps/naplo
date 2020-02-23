@@ -1,20 +1,24 @@
 .nev {
-        font-weight: bold;
-        font-size: 12pt;
+    font-weight: bold;
+    font-size: 12pt;
 }
 
-.jelenlet-row{
+.jelenlet-row {
     display: flex;
-    
+
     ion-button {
         flex: 1;
         height: 3rem;
+
+        &.ios {
+            height: 2.5rem;
+        }
     }
 }
 
-.javasolt-jelenlet-ok{
+.javasolt-jelenlet-ok {
     font-weight: normal;
     font-size: 80%;
     padding-left: 10px;
-    color:red;
+    color: red;
 }

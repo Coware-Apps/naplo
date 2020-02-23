@@ -1,132 +1,184 @@
-import { Injectable } from '@angular/core';
+import { Injectable } from "@angular/core";
 import { CacheService, CacheValueFactory } from "ionic-cache";
-import { HTTP, HTTPResponse } from '@ionic-native/http/ngx';
-import { Observable, from } from 'rxjs';
-import { ErrorHelper } from '../_helpers/error-helper';
-import { environment } from 'src/environments/environment';
-import { AppVersion } from '@ionic-native/app-version/ngx';
-import { FirebaseX } from '@ionic-native/firebase-x/ngx';
-import { stringify } from 'flatted/esm';
+import { HTTP, HTTPResponse } from "@ionic-native/http/ngx";
+import { Observable, from } from "rxjs";
+import { ErrorHelper } from "../_helpers/error-helper";
+import { environment } from "src/environments/environment";
+import { AppVersion } from "@ionic-native/app-version/ngx";
+import { stringify } from "flatted/esm";
+import { FirebaseService } from "./firebase.service";
+import { TranslateService } from "@ngx-translate/core";
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: "root",
 })
 export class DataService {
+    constructor(
+        private cache: CacheService,
+        private http: HTTP,
+        private errorHelper: ErrorHelper,
+        private appVersion: AppVersion,
+        private firebase: FirebaseService,
+        private translate: TranslateService
+    ) {}
 
-  constructor(
-    private cache: CacheService,
-    private http: HTTP,
-    private errorHelper: ErrorHelper,
-    private appVersion: AppVersion,
-    private firebase: FirebaseX,
-  ) { }
+    private longtermStorageExpiry = 72 * 30 * 24 * 60 * 60;
 
-  public async getUrl(url: string, parameters?: any, headers?: any): Promise<HTTPResponse> {
-    const appVersionNumber = await this.appVersion.getVersionNumber();
-    console.log("SZERVERHÍVÁS: " + url);
+    public async getUrl(url: string, parameters?: any, headers?: any): Promise<HTTPResponse> {
+        const appVersionNumber = await this.appVersion.getVersionNumber();
+        console.log("SZERVERHÍVÁS: " + url);
 
-    if (headers)
-      headers["User-Agent"] = environment.userAgent.replace("%APP_VERSION_NUMBER%", appVersionNumber);
-    else
-      headers = { "User-Agent": environment.userAgent.replace("%APP_VERSION_NUMBER%", appVersionNumber) };
+        if (headers)
+            headers["User-Agent"] = environment.userAgent.replace(
+                "%APP_VERSION_NUMBER%",
+                appVersionNumber
+            );
+        else
+            headers = {
+                "User-Agent": environment.userAgent.replace(
+                    "%APP_VERSION_NUMBER%",
+                    appVersionNumber
+                ),
+            };
 
-    const response = this.http.get(url, parameters, headers)
-      .catch(async err => {
-        this.firebase.logError("getUrl(" + url + ") HTTP error: " + stringify(err));
-        await this.errorHelper.presentToast("Kommunikációs hiba.", 10000);
-        throw new Error("[HTTP] response: " + err.error);
-      });
-
-    return response;
-  }
-
-  private fetchAndCacheUrl(url: string, parameters?: any, headers?: any, ttlInSec?: number): Observable<HTTPResponse> {
-    let ttl = ttlInSec || 60 * 60;
-    let obs = this.cache.loadFromDelayedObservable<HTTPResponse>(url, from(this.getUrl(url, parameters, headers)), null, ttl, 'all');
-    console.log("Cache miss: ", url, obs);
-
-    return obs;
-  }
-
-  public async getUrlWithCache(url: string, parameters?: any, headers?: any, ttlInSec: number = 60 * 60, forceRefresh: boolean = false): Promise<Observable<HTTPResponse>> {
-    if (forceRefresh) {
-      return this.fetchAndCacheUrl(url, parameters, headers, ttlInSec);
-    }
-    else {
-      let obs: Observable<HTTPResponse>;
-      let c = await this.getItem(url)
-        .catch(() => {
-          obs = this.fetchAndCacheUrl(url, parameters, headers, ttlInSec);
+        const response = this.http.get(url, parameters, headers).catch(async err => {
+            this.firebase.logError("getUrl(" + url + ") HTTP error: " + stringify(err));
+            await this.errorHelper.presentToast(
+                await this.translate.get("common.comm-error").toPromise(),
+                10000
+            );
+            throw new Error("[HTTP] response: " + err.error);
         });
 
-      return obs ? obs : from([<HTTPResponse>c]);
+        return response;
     }
-  }
 
-  public async postUrl(url: string, body?: any, headers?: any, dataSerializer: "json" | "urlencoded" | "utf8" | "multipart" = "urlencoded"): Promise<HTTPResponse> {
-    const appVersionNumber = await this.appVersion.getVersionNumber();
-    console.log("SZERVERHÍVÁS: " + url);
+    private fetchAndCacheUrl(
+        url: string,
+        parameters?: any,
+        headers?: any,
+        ttlInSec?: number
+    ): Observable<HTTPResponse> {
+        let ttl = ttlInSec || 60 * 60;
+        let obs = this.cache.loadFromDelayedObservable<HTTPResponse>(
+            url,
+            from(this.getUrl(url, parameters, headers)),
+            null,
+            ttl,
+            "all"
+        );
+        console.log("Cache miss: ", url, obs);
 
-    if (headers)
-      headers["User-Agent"] = environment.userAgent.replace("%APP_VERSION_NUMBER%", appVersionNumber);
-    else
-      headers = { "User-Agent": environment.userAgent.replace("%APP_VERSION_NUMBER%", appVersionNumber) };
+        return obs;
+    }
 
-    this.http.setDataSerializer(dataSerializer);
-    await this.firebase.startTrace("http_post_call_time");
-    const response = this.http.post(url, body, headers)
-      .catch(async err => {
-        try {
-          const e = JSON.parse(err.error);
-          if (e && e.error_description && e.error_description != "invalid_username_or_password") {
-            this.firebase.logError("postUrl(" + url + ") HTTP error: " + stringify(err));
-            await this.errorHelper.presentToast("Kommunikációs hiba.", 10000);
-          }
-        } catch (ex) { }
+    public async getUrlWithCache(
+        url: string,
+        parameters?: any,
+        headers?: any,
+        ttlInSec: number = 60 * 60,
+        forceRefresh: boolean = false
+    ): Promise<Observable<HTTPResponse>> {
+        if (forceRefresh) {
+            return this.fetchAndCacheUrl(url, parameters, headers, ttlInSec);
+        } else {
+            let obs: Observable<HTTPResponse>;
+            let c = await this.getItem(url).catch(() => {
+                obs = this.fetchAndCacheUrl(url, parameters, headers, ttlInSec);
+            });
 
-        throw err;
-      });
-    this.firebase.stopTrace("http_post_call_time");
-    return response;
-  }
+            return obs ? obs : from([<HTTPResponse>c]);
+        }
+    }
 
-  public getItem<T>(key: string): Promise<T> {
-    return this.cache.getItem<T>(key);
-  }
+    public async postUrl(
+        url: string,
+        body?: any,
+        headers?: any,
+        dataSerializer: "json" | "urlencoded" | "utf8" | "multipart" = "urlencoded"
+    ): Promise<HTTPResponse> {
+        const appVersionNumber = await this.appVersion.getVersionNumber();
+        console.log("SZERVERHÍVÁS: " + url);
 
-  public saveItem(key: string, data: any, groupKey?: string, ttl?: number): Promise<any> {
-    return this.cache.saveItem(key, data, groupKey, ttl);
-  }
+        if (headers)
+            headers["User-Agent"] = environment.userAgent.replace(
+                "%APP_VERSION_NUMBER%",
+                appVersionNumber
+            );
+        else
+            headers = {
+                "User-Agent": environment.userAgent.replace(
+                    "%APP_VERSION_NUMBER%",
+                    appVersionNumber
+                ),
+            };
 
-  public getSetting<T>(name: string): Promise<T> {
-    return this.getItem<T>("pref__" + name);
-  }
+        this.http.setDataSerializer(dataSerializer);
+        await this.firebase.startTrace("http_post_call_time");
+        const response = this.http.post(url, body, headers).catch(async err => {
+            try {
+                const e = JSON.parse(err.error);
+                if (
+                    e &&
+                    e.error_description &&
+                    e.error_description != "invalid_username_or_password"
+                ) {
+                    this.firebase.logError("postUrl(" + url + ") HTTP error: " + stringify(err));
+                    await this.errorHelper.presentToast(
+                        await this.translate.get("common.comm-error").toPromise(),
+                        10000
+                    );
+                }
+            } catch (ex) {}
 
-  public saveSetting(name: string, value: any): Promise<any> {
-    return this.saveItem("pref__" + name, value, "preference", Number.MAX_VALUE);
-  }
+            throw err;
+        });
+        this.firebase.stopTrace("http_post_call_time");
+        return response;
+    }
 
-  public getOrSetItem(key: string, factory: CacheValueFactory<unknown>, groupKey?: string, ttl?: number): Promise<unknown> {
-    return this.cache.getOrSetItem(key, factory, groupKey, ttl);
-  }
+    public getItem<T>(key: string): Promise<T> {
+        return this.cache.getItem<T>(key);
+    }
 
-  public itemExists(key: string): Promise<string | boolean> {
-    return this.cache.itemExists(key);
-  }
+    public saveItem(key: string, data: any, groupKey?: string, ttl?: number): Promise<any> {
+        return this.cache.saveItem(key, data, groupKey, ttl);
+    }
 
-  public removeItem(key: string): Promise<any> {
-    return this.cache.removeItem(key);
-  }
+    public getSetting<T>(name: string): Promise<T> {
+        return this.getItem<T>("pref__" + name);
+    }
 
-  public clearExpired(ignoreOnlineStatus?: boolean): Promise<any> {
-    return this.cache.clearExpired(ignoreOnlineStatus);
-  }
+    public saveSetting(name: string, value: any): Promise<any> {
+        return this.saveItem("pref__" + name, value, "preference", this.longtermStorageExpiry);
+    }
 
-  public clearAll(): Promise<any> {
-    return this.cache.clearAll();
-  }
+    public getOrSetItem(
+        key: string,
+        factory: CacheValueFactory<unknown>,
+        groupKey?: string,
+        ttl?: number
+    ): Promise<unknown> {
+        return this.cache.getOrSetItem(key, factory, groupKey, ttl);
+    }
 
-  public setOfflineInvalidate(offlineInvalidate: boolean) {
-    this.cache.setOfflineInvalidate(offlineInvalidate);
-  }
+    public itemExists(key: string): Promise<string | boolean> {
+        return this.cache.itemExists(key);
+    }
+
+    public removeItem(key: string): Promise<any> {
+        return this.cache.removeItem(key);
+    }
+
+    public clearExpired(ignoreOnlineStatus?: boolean): Promise<any> {
+        return this.cache.clearExpired(ignoreOnlineStatus);
+    }
+
+    public clearAll(): Promise<any> {
+        return this.cache.clearAll();
+    }
+
+    public setOfflineInvalidate(offlineInvalidate: boolean) {
+        this.cache.setOfflineInvalidate(offlineInvalidate);
+    }
 }

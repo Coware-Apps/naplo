@@ -1,72 +1,78 @@
 <ion-header>
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
-    </ion-buttons>
+    <ion-toolbar color="primary">
+        <ion-buttons slot="start">
+            <ion-menu-button></ion-menu-button>
+        </ion-buttons>
 
-    <ion-title>Értékelés</ion-title>
-  </ion-toolbar>
+        <ion-title translate="eval.title">Értékelés</ion-title>
+    </ion-toolbar>
 
-  <app-offline-warning-bar></app-offline-warning-bar>
+    <app-offline-warning-bar></app-offline-warning-bar>
 </ion-header>
 
 <ion-content>
-  <div *ngIf="loading">
-    <ion-progress-bar type="indeterminate" color="warning"></ion-progress-bar>
-    
-    <ion-list>
-      <ion-item>
-        <ion-label>
-          <h2><ion-skeleton-text width="60%" animated></ion-skeleton-text></h2>
-          <p><ion-skeleton-text width="30%" animated></ion-skeleton-text></p>
-        </ion-label>
-      </ion-item>
-      
-      <ion-item>
-        <ion-label>
-          <h2><ion-skeleton-text width="20%" animated></ion-skeleton-text></h2>
-          <p><ion-skeleton-text width="30%" animated></ion-skeleton-text></p>
-        </ion-label>
-      </ion-item>
-      
-      <ion-item>
-        <ion-label>
-          <h2><ion-skeleton-text width="40%" animated></ion-skeleton-text></h2>
-          <p><ion-skeleton-text width="50%" animated></ion-skeleton-text></p>
-        </ion-label>
-      </ion-item>
-      
-      <ion-item>
-        <ion-label>
-          <h2><ion-skeleton-text width="35%" animated></ion-skeleton-text></h2>
-          <p><ion-skeleton-text width="30%" animated></ion-skeleton-text></p>
-        </ion-label>
-      </ion-item>
-    </ion-list>
-  </div>
+    <div *ngIf="loading">
+        <ion-progress-bar type="indeterminate" color="warning"></ion-progress-bar>
 
-  <div *ngIf="csoportok.length > 0 && !loading">
-    <ion-list>
-      <ion-item *ngFor="let c of csoportok" (click)="onCsoportClick(c)" button="true">
-        <ion-label>
-          <h2>{{c.OsztalyCsoportNev}}</h2>
-          <p>{{c.TantargyNev}}</p>
-        </ion-label>
-      </ion-item>
-    </ion-list>
+        <ion-list>
+            <ion-item>
+                <ion-label>
+                    <h2><ion-skeleton-text width="60%" animated></ion-skeleton-text></h2>
+                    <p><ion-skeleton-text width="30%" animated></ion-skeleton-text></p>
+                </ion-label>
+            </ion-item>
 
-    <ion-item lines="none" class="note">
-      <ion-icon name="information-circle-outline" slot="start"></ion-icon>
-      <ion-note>A lista technikai okokból csak azokat a csoportokat tartalmazza, akikkel az elmúlt {{napToCheck}} napban órád volt.<br>
-      Az itt meg nem jelenő csoportokat az óra naplózása funkción keresztül értékelheted.</ion-note>
-    </ion-item>
-  </div>
+            <ion-item>
+                <ion-label>
+                    <h2><ion-skeleton-text width="20%" animated></ion-skeleton-text></h2>
+                    <p><ion-skeleton-text width="30%" animated></ion-skeleton-text></p>
+                </ion-label>
+            </ion-item>
 
-  <div *ngIf="csoportok.length == 0 && !loading" class="ion-padding-horizontal ion-text-center list-empty-placeholder">
-    <ion-icon slot="icon-only" name="information-circle-outline" style="font-size: 128px;"></ion-icon>
-    <p><strong>A lista üres</strong></p>
-    <p>Technikai okokból csak azokat a csoportok jelennek meg, akikkel az elmúlt {{napToCheck}} napban órád volt.<br>
-      Az itt nem látható csoportokat az óra naplózása funkción keresztül értékelheted.</p>
-  </div>
+            <ion-item>
+                <ion-label>
+                    <h2><ion-skeleton-text width="40%" animated></ion-skeleton-text></h2>
+                    <p><ion-skeleton-text width="50%" animated></ion-skeleton-text></p>
+                </ion-label>
+            </ion-item>
 
+            <ion-item>
+                <ion-label>
+                    <h2><ion-skeleton-text width="35%" animated></ion-skeleton-text></h2>
+                    <p><ion-skeleton-text width="30%" animated></ion-skeleton-text></p>
+                </ion-label>
+            </ion-item>
+        </ion-list>
+    </div>
+
+    <div *ngIf="csoportok.length > 0 && !loading">
+        <ion-list>
+            <ion-item *ngFor="let c of csoportok" (click)="onCsoportClick(c)" button="true">
+                <ion-label>
+                    <h2>{{c.OsztalyCsoportNev}}</h2>
+                    <p>{{c.TantargyNev}}</p>
+                </ion-label>
+            </ion-item>
+        </ion-list>
+
+        <ion-item lines="none" class="note">
+            <ion-icon name="information-circle-outline" slot="start"></ion-icon>
+            <ion-note
+                [innerHTML]="'eval.info-days-limit' | translate:{value: napToCheck}"
+            ></ion-note>
+        </ion-item>
+    </div>
+
+    <div
+        *ngIf="csoportok.length == 0 && !loading"
+        class="ion-padding-horizontal ion-text-center list-empty-placeholder"
+    >
+        <ion-icon
+            slot="icon-only"
+            name="information-circle-outline"
+            style="font-size: 128px;"
+        ></ion-icon>
+        <p><strong translate="eval.list-empty">A lista üres</strong></p>
+        <p [innerHTML]="'eval.info-days-limit-empty' | translate:{value: napToCheck}"></p>
+    </div>
 </ion-content>

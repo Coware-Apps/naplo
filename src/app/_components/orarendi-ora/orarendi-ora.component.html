@@ -1,23 +1,35 @@
 <ion-item [ngClass]="getLessonCssClasses()" button="true" detail="false">
-  <ion-thumbnail slot="start">
-    <ng-container *ngIf="showDate">
-      <div class="datum">{{ datum.toLocaleDateString(config.locale, {month: 'short', day: 'numeric'}) }}</div>
-    </ng-container>
-    <ng-container *ngIf="!showDate">
-      <div class="oraszam">{{lesson.Oraszam}}.</div>
-    </ng-container>
-  </ion-thumbnail>
-  <ion-label>
-    <h2>
-      <span class="targynev">{{lesson.TantargyNev}}</span>
-      <span
-        *ngIf="lesson.HelyettesitoId && this.lesson.HelyettesitoId == this.kreta.currentUser['kreta:institute_user_id']">&nbsp;
-        (<ion-icon name="swap-horizontal-outline"></ion-icon>&nbsp;{{ getMonogram(lesson.OraTulajdonosTanar.Nev) }})</span>
-      <span
-        *ngIf="lesson.HelyettesitoId && this.lesson.HelyettesitoId != this.kreta.currentUser['kreta:institute_user_id']">&nbsp;
-        <ion-icon name="swap-horizontal-outline"></ion-icon></span>
-    </h2>
-    <p>{{lesson.OsztalyCsoportNev}}</p>
-    <p>{{lesson.TeremNev}}</p>
-  </ion-label>
+    <ion-thumbnail slot="start">
+        <ng-container *ngIf="showDate">
+            <div class="datum">
+                {{ datum.toLocaleDateString(config.locale, { month: "short", day: "numeric" }) }}
+            </div>
+        </ng-container>
+        <ng-container *ngIf="!showDate">
+            <div class="oraszam">{{ lesson.Oraszam }}.</div>
+        </ng-container>
+    </ion-thumbnail>
+    <ion-label>
+        <h2>
+            <span class="targynev">{{ lesson.TantargyNev }}</span>
+            <span
+                *ngIf="
+                    lesson.HelyettesitoId &&
+                    this.lesson.HelyettesitoId == this.kreta.currentUser['kreta:institute_user_id']
+                "
+                >&nbsp; (<ion-icon name="swap-horizontal-outline"></ion-icon>&nbsp;{{
+                    getMonogram(lesson.OraTulajdonosTanar.Nev)
+                }})</span
+            >
+            <span
+                *ngIf="
+                    lesson.HelyettesitoId &&
+                    this.lesson.HelyettesitoId != this.kreta.currentUser['kreta:institute_user_id']
+                "
+                >&nbsp; <ion-icon name="swap-horizontal-outline"></ion-icon
+            ></span>
+        </h2>
+        <p>{{ lesson.OsztalyCsoportNev }}</p>
+        <p>{{ lesson.TeremNev }}</p>
+    </ion-label>
 </ion-item>

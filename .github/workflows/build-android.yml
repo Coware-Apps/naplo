@@ -1,68 +1,67 @@
 name: Build and sign Android
 
-on: 
-  push:
-    branches:
-      - master
-  pull_request:
-    branches:
-      - master
+on:
+    push:
+        branches:
+            - master
+    pull_request:
+        branches:
+            - master
 
 jobs:
-  build:
+    build:
+        runs-on: ubuntu-latest
 
-    runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v1
+            - uses: actions/setup-node@v1.1.0
 
-    steps:
-    - uses: actions/checkout@v1
-    - uses: actions/setup-node@v1.1.0
-        
-    - name: NPM install
-      run: npm install
+            - name: NPM install
+              run: npm install
 
-    - name: Install @ionic/cli and cordova
-      run: sudo npm install -g @ionic/cli cordova
-      
-    - name: Get package version
-      run: |
-        v=`node -p "const p = require('./package.json'); p.version;"`
-        echo ::set-env name=PACKAGE_VERSION::$v
-      
-    - name: Ionic build
-      run: ionic cordova build android --prod --release
-    
-    - uses: r0adkll/sign-android-release@v1
-      with:
-        releaseDirectory: platforms/android/app/build/outputs/apk/release
-        signingKeyBase64: ${{ secrets.SIGNING_KEY }}
-        alias: ${{ secrets.SIGNING_ALIAS }}
-        keyStorePassword: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
-        keyPassword: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
-    
-    - name: Upload APK artifact
-      uses: actions/upload-artifact@v1.0.0
-      with:
-        name: naplo-${{ env.PACKAGE_VERSION }}-release-signed.apk
-        path: ${{ env.SIGNED_RELEASE_FILE }}
-        
-    - name: Build AAB
-      uses: eskatos/gradle-command-action@v1
-      with:
-        wrapper-directory: platforms/android
-        gradle-executable: platforms/android/gradlew
-        build-root-directory: platforms/android
-        arguments: bundle
+            - name: Install @ionic/cli and cordova
+              run: sudo npm install -g @ionic/cli cordova
 
-    - uses: r0adkll/sign-android-release@v1
-      with:
-        releaseDirectory: platforms/android/app/build/outputs/bundle/release
-        signingKeyBase64: ${{ secrets.SIGNING_KEY }}
-        alias: ${{ secrets.SIGNING_ALIAS }}
-        keyStorePassword: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
-        keyPassword: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
-        
-    - name: Upload AAB artifact
-      uses: actions/upload-artifact@v1.0.0
-      with:
-        name: naplo-${{ env.PACKAGE_VERSION }}-release-signed.aab
-        path: ${{ env.SIGNED_RELEASE_FILE }}
+            - name: Ionic build
+              run: ionic cordova build android --prod --release
+
+            - name: Get package version
+              run: |
+                  v=`node -p "const p = require('./package.json'); p.version;"`
+                  echo ::set-env name=PACKAGE_VERSION::$v
+
+            - uses: r0adkll/sign-android-release@v1
+              with:
+                  releaseDirectory: platforms/android/app/build/outputs/apk/release
+                  signingKeyBase64: ${{ secrets.SIGNING_KEY }}
+                  alias: ${{ secrets.SIGNING_ALIAS }}
+                  keyStorePassword: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
+                  keyPassword: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
+
+            - name: Upload APK artifact
+              uses: actions/upload-artifact@v1.0.0
+              with:
+                  name: naplo-${{ env.PACKAGE_VERSION }}-release-signed.apk
+                  path: ${{ env.SIGNED_RELEASE_FILE }}
+
+            - name: Build AAB
+              uses: eskatos/gradle-command-action@v1
+              with:
+                  wrapper-directory: platforms/android
+                  gradle-executable: platforms/android/gradlew
+                  build-root-directory: platforms/android
+                  arguments: bundle
+
+            - uses: r0adkll/sign-android-release@v1
+              with:
+                  releaseDirectory: platforms/android/app/build/outputs/bundle/release
+                  signingKeyBase64: ${{ secrets.SIGNING_KEY }}
+                  alias: ${{ secrets.SIGNING_ALIAS }}
+                  keyStorePassword: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
+                  keyPassword: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
+
+            - name: Upload AAB artifact
+              uses: actions/upload-artifact@v1.0.0
+              with:
+                  name: naplo-${{ env.PACKAGE_VERSION }}-release-signed.aab
+                  path: ${{ env.SIGNED_RELEASE_FILE }}

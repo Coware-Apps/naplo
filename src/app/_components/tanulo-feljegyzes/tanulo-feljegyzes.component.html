@@ -1,16 +1,36 @@
-<div class="nev">{{tanulo.Nev}}</div>
+<div class="nev">{{ tanulo.Nev }}</div>
 
 <div class="feljegyzes-row">
-  <ion-button (click)="toggleFeljegyzes('hazifeladathiany')" [fill]="hazifeladathiany ? 'solid' : 'outline'" expand="block" size="large">
-    <ion-icon name="library-outline" size="large"></ion-icon>
-  </ion-button>
-  <ion-button (click)="toggleFeljegyzes('felszereleshiany')" [fill]="felszereleshiany ? 'solid' : 'outline'" expand="block" size="large">
-    <ion-icon name="briefcase-outline" size="large"></ion-icon>
-  </ion-button>
-  <ion-button (click)="toggleFeljegyzes('felmentes')" [fill]="felmentes ? 'solid' : 'outline'" expand="block" size="large">
-    <ion-icon name="medkit-outline" size="large"></ion-icon>
-  </ion-button>
-  <ion-button (click)="toggleFeljegyzes('dicseret')" [fill]="dicseret ? 'solid' : 'outline'" expand="block" size="large">
-    <ion-icon name="medal-outline" size="large"></ion-icon>
-  </ion-button>
+    <ion-button
+        (click)="toggleFeljegyzes('hazifeladathiany')"
+        [fill]="hazifeladathiany ? 'solid' : 'outline'"
+        expand="block"
+        size="large"
+    >
+        <ion-icon name="library-outline" size="large"></ion-icon>
+    </ion-button>
+    <ion-button
+        (click)="toggleFeljegyzes('felszereleshiany')"
+        [fill]="felszereleshiany ? 'solid' : 'outline'"
+        expand="block"
+        size="large"
+    >
+        <ion-icon name="briefcase-outline" size="large"></ion-icon>
+    </ion-button>
+    <ion-button
+        (click)="toggleFeljegyzes('felmentes')"
+        [fill]="felmentes ? 'solid' : 'outline'"
+        expand="block"
+        size="large"
+    >
+        <ion-icon name="medkit-outline" size="large"></ion-icon>
+    </ion-button>
+    <ion-button
+        (click)="toggleFeljegyzes('dicseret')"
+        [fill]="dicseret ? 'solid' : 'outline'"
+        expand="block"
+        size="large"
+    >
+        <ion-icon name="medal-outline" size="large"></ion-icon>
+    </ion-button>
 </div>

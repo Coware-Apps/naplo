@@ -1,4 +1,5 @@
-app-tanulo-jelenlet, app-tanulo-feljegyzes {
+app-tanulo-jelenlet,
+app-tanulo-feljegyzes {
     width: 100%;
     margin: 6px 0;
 }
@@ -8,10 +9,10 @@ app-tanulo-jelenlet, app-tanulo-feljegyzes {
 
     ion-button {
         --padding-end: 0;
-        --color: rgba(0,0,0, 0.6);
+        --color: rgba(0, 0, 0, 0.6);
     }
 }
 
-ion-slide{
-    display:block;
+ion-slide {
+    display: block;
 }

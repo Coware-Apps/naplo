@@ -1,45 +1,58 @@
 <ion-header>
-  <ion-toolbar color="primary">
-    <ion-searchbar placeholder="Intézmények szűrése..." (ionInput)="doFilter($event)" [disabled]="!institutes"></ion-searchbar>
-  </ion-toolbar>
+    <ion-toolbar color="primary">
+        <ion-buttons slot="start">
+            <ion-button (click)="dismiss()">
+                <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-searchbar
+            placeholder="{{'institute-selector.filter'|translate}}"
+            (ionInput)="doFilter($event)"
+            [disabled]="!institutes"
+        ></ion-searchbar>
+    </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-virtual-scroll [items]="filteredInstitutes" *ngIf="filteredInstitutes" approxItemHeight="63px">
-    <ion-item *virtualItem="let i" (click)="onSelectionChange(i.InstituteCode)">
-      <ion-label>
-        <h3>{{i.Name}}</h3>
-        <p>{{i.City}}</p>
-      </ion-label>
-    </ion-item>
-  </ion-virtual-scroll>
+    <ion-virtual-scroll
+        [items]="filteredInstitutes"
+        *ngIf="filteredInstitutes"
+        approxItemHeight="63px"
+    >
+        <ion-item *virtualItem="let i" (click)="onSelectionChange(i.InstituteCode)">
+            <ion-label>
+                <h3>{{i.Name}}</h3>
+                <p>{{i.City}}</p>
+            </ion-label>
+        </ion-item>
+    </ion-virtual-scroll>
 
-  <ion-list *ngIf="!filteredInstitutes">
-    <ion-progress-bar type="indeterminate" color="warning"></ion-progress-bar>
+    <ion-list *ngIf="!filteredInstitutes">
+        <ion-progress-bar type="indeterminate" color="warning"></ion-progress-bar>
 
-    <ion-item>
-      <ion-label><ion-skeleton-text width="80%" animated></ion-skeleton-text></ion-label>
-      <ion-label><ion-skeleton-text width="40%" animated></ion-skeleton-text></ion-label>
-    </ion-item>
-    <ion-item>
-      <ion-label><ion-skeleton-text width="80%" animated></ion-skeleton-text></ion-label>
-      <ion-label><ion-skeleton-text width="40%" animated></ion-skeleton-text></ion-label>
-    </ion-item>
-    <ion-item>
-      <ion-label><ion-skeleton-text width="80%" animated></ion-skeleton-text></ion-label>
-      <ion-label><ion-skeleton-text width="40%" animated></ion-skeleton-text></ion-label>
-    </ion-item>
-    <ion-item>
-      <ion-label><ion-skeleton-text width="80%" animated></ion-skeleton-text></ion-label>
-      <ion-label><ion-skeleton-text width="40%" animated></ion-skeleton-text></ion-label>
-    </ion-item>
-    <ion-item>
-      <ion-label><ion-skeleton-text width="80%" animated></ion-skeleton-text></ion-label>
-      <ion-label><ion-skeleton-text width="40%" animated></ion-skeleton-text></ion-label>
-    </ion-item>
-    <ion-item>
-      <ion-label><ion-skeleton-text width="80%" animated></ion-skeleton-text></ion-label>
-      <ion-label><ion-skeleton-text width="40%" animated></ion-skeleton-text></ion-label>
-    </ion-item>
-  </ion-list>
+        <ion-item>
+            <ion-label><ion-skeleton-text width="80%" animated></ion-skeleton-text></ion-label>
+            <ion-label><ion-skeleton-text width="40%" animated></ion-skeleton-text></ion-label>
+        </ion-item>
+        <ion-item>
+            <ion-label><ion-skeleton-text width="80%" animated></ion-skeleton-text></ion-label>
+            <ion-label><ion-skeleton-text width="40%" animated></ion-skeleton-text></ion-label>
+        </ion-item>
+        <ion-item>
+            <ion-label><ion-skeleton-text width="80%" animated></ion-skeleton-text></ion-label>
+            <ion-label><ion-skeleton-text width="40%" animated></ion-skeleton-text></ion-label>
+        </ion-item>
+        <ion-item>
+            <ion-label><ion-skeleton-text width="80%" animated></ion-skeleton-text></ion-label>
+            <ion-label><ion-skeleton-text width="40%" animated></ion-skeleton-text></ion-label>
+        </ion-item>
+        <ion-item>
+            <ion-label><ion-skeleton-text width="80%" animated></ion-skeleton-text></ion-label>
+            <ion-label><ion-skeleton-text width="40%" animated></ion-skeleton-text></ion-label>
+        </ion-item>
+        <ion-item>
+            <ion-label><ion-skeleton-text width="80%" animated></ion-skeleton-text></ion-label>
+            <ion-label><ion-skeleton-text width="40%" animated></ion-skeleton-text></ion-label>
+        </ion-item>
+    </ion-list>
 </ion-content>
