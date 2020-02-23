@@ -10,14 +10,16 @@
 
     <app-offline-warning-bar></app-offline-warning-bar>
 
-    <ion-toolbar color="secondary" class="ion-padding-start ion-padding-end ion-text-center">
+    <ion-toolbar
+        color="secondary"
+        class="ion-padding-start ion-padding-end ion-text-center timetable-date-toolbar"
+    >
         <ion-icon
             slot="start"
             name="arrow-back-circle-outline"
-            style="font-size: 32px;"
             (click)="changeDate('back')"
         ></ion-icon>
-        <ion-button fill="solid" class="date-titleline" (click)="showDatePicker()">
+        <ion-button fill="outline" class="date-titleline" (click)="showDatePicker()">
             <ion-icon slot="start" name="calendar-outline"></ion-icon>
             <ion-label>
                 {{ datum.toLocaleDateString(config.locale, {month: 'short', day: 'numeric', weekday:
@@ -27,7 +29,6 @@
         <ion-icon
             slot="end"
             name="arrow-forward-circle-outline"
-            style="font-size: 32px;"
             (click)="changeDate('forward')"
         ></ion-icon>
     </ion-toolbar>

@@ -4,9 +4,27 @@
 }
 
 .date-titleline {
-    --background: var(--ion-item-background);
+    --color: var(--ion-color-secondary-contrast);
+    --border-color: var(--ion-color-secondary-contrast);
+
+    &.ios {
+        /* small*/
+        --border-radius: 6px;
+        --padding-top: 0;
+        --padding-start: 0.9em;
+        --padding-end: 0.9em;
+        --padding-bottom: 0;
+        height: 2.1em;
+        font-size: 13px;
+    }
 }
 
 ion-icon {
     vertical-align: text-top;
+}
+
+.timetable-date-toolbar {
+    & > ion-icon {
+        font-size: 32px;
+    }
 }
