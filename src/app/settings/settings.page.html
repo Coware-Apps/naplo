@@ -3,18 +3,18 @@
         <ion-buttons slot="start">
             <ion-menu-button></ion-menu-button>
         </ion-buttons>
-        <ion-title>{{ 'settings.title' | translate }}</ion-title>
+        <ion-title translate="settings.title"></ion-title>
     </ion-toolbar>
 </ion-header>
 
 <ion-content>
     <ion-list>
         <ion-list-header>
-            <ion-label>{{ 'settings.header-appearance' | translate }}</ion-label>
+            <ion-label translate="settings.header-appearance"></ion-label>
         </ion-list-header>
 
         <ion-item lines="inset">
-            <ion-label>{{ 'settings.color-scheme' | translate }}</ion-label>
+            <ion-label translate="settings.color-scheme"></ion-label>
             <ion-select
                 interface="popover"
                 (ionChange)="changeTheme($event)"
@@ -28,7 +28,7 @@
             </ion-select>
         </ion-item>
         <ion-item lines="inset">
-            <ion-label>{{'settings.language' |translate}}</ion-label>
+            <ion-label translate="settings.language"></ion-label>
             <ion-select
                 interface="popover"
                 (ionChange)="changeLanguage($event)"
@@ -50,32 +50,35 @@
 
     <ion-list>
         <ion-list-header>
-            <ion-label>{{ 'settings.header-behaviour' | translate}}</ion-label>
+            <ion-label translate="settings.header-behaviour"></ion-label>
         </ion-list-header>
 
         <ion-item lines="inset">
-            <ion-label>{{'settings.default-evaluation-type'|translate}}</ion-label>
+            <ion-label translate="settings.default-evaluation-type"></ion-label>
             <ion-select
                 interface="popover"
                 (ionChange)="changeErtekelesTipus($event)"
                 [value]="config.defaultErtekelesTipus"
             >
-                <ion-select-option [value]="ErtekelesTipus.Osztalyzat"
-                    >{{'evaluation-types.mark' | translate }}</ion-select-option
-                >
-                <ion-select-option [value]="ErtekelesTipus.Szazalek"
-                    >{{'evaluation-types.percentage' | translate }}</ion-select-option
-                >
-                <ion-select-option [value]="ErtekelesTipus.Szoveg"
-                    >{{'evaluation-types.textual' | translate }}</ion-select-option
-                >
+                <ion-select-option
+                    [value]="ErtekelesTipus.Osztalyzat"
+                    translate="evaluation-types.mark"
+                ></ion-select-option>
+                <ion-select-option
+                    [value]="ErtekelesTipus.Szazalek"
+                    translate="evaluation-types.percentage"
+                ></ion-select-option>
+                <ion-select-option
+                    [value]="ErtekelesTipus.Szoveg"
+                    translate="evaluation-types.textual"
+                ></ion-select-option>
             </ion-select>
         </ion-item>
         <ion-item>
-            <ion-label
-                >{{'settings.detailed-errors'|translate}}<br />
-                <ion-note>Technikai jellegű információk megjelenítése</ion-note></ion-label
-            >
+            <ion-label>
+                <span translate="settings.detailed-errors"></span><br />
+                <ion-note translate="settings.detailed-errors-desc"></ion-note>
+            </ion-label>
             <ion-toggle
                 slot="end"
                 [checked]="config.debugging"
@@ -83,10 +86,10 @@
             ></ion-toggle>
         </ion-item>
         <ion-item>
-            <ion-label
-                >{{'settings.usage-statistics'|translate}}<br />
-                <ion-note>{{'settings.usage-statistics-desc'|translate}}</ion-note></ion-label
-            >
+            <ion-label>
+                <span translate="settings.usage-statistics"></span><br />
+                <ion-note translate="settings.usage-statistics-desc"></ion-note>
+            </ion-label>
             <ion-toggle
                 slot="end"
                 [checked]="config.analytics"
@@ -94,16 +97,16 @@
             ></ion-toggle>
         </ion-item>
         <ion-item>
-            <ion-label
-                >{{'settings.error-reporting'|translate}}<br />
-                <ion-note>{{'settings.error-reporting-desc'|translate}}</ion-note></ion-label
-            >
+            <ion-label>
+                <span translate="settings.error-reporting"></span><br />
+                <ion-note translate="settings.error-reporting-desc"></ion-note>
+            </ion-label>
             <ion-toggle slot="end" checked disabled></ion-toggle>
         </ion-item>
     </ion-list>
 
     <ion-list-header>
-        <ion-label>{{'settings.header-danger-zone'|translate}}</ion-label>
+        <ion-label translate="settings.header-danger-zone"></ion-label>
     </ion-list-header>
 
     <ion-button
@@ -114,23 +117,23 @@
         class="ion-padding-horizontal"
     >
         <ion-icon slot="start" name="log-out-outline"></ion-icon>
-        <ion-label>{{'settings.logout' | translate}}</ion-label>
+        <ion-label translate="settings.logout"></ion-label>
     </ion-button>
 
     <ion-list>
         <ion-list-header>
-            <ion-label>{{'settings.header-about'|translate}}</ion-label>
+            <ion-label translate="settings.header-about"></ion-label>
         </ion-list-header>
 
         <ion-item>
-            <ion-label>{{'settings.version'|translate}}</ion-label>
+            <ion-label translate="settings.version"></ion-label>
             <ion-note slot="end">v{{ appversionnumber }}</ion-note>
         </ion-item>
         <ion-item button type="button" (click)="openLicenses()">
-            <ion-label>{{'settings.os-components'|translate}}</ion-label>
+            <ion-label translate="settings.os-components"></ion-label>
         </ion-item>
         <ion-item button type="button" (click)="openPrivacy()">
-            <ion-label>{{'settings.privacy-policy'|translate}}</ion-label>
+            <ion-label translate="settings.privacy-policy"></ion-label>
         </ion-item>
     </ion-list>
 </ion-content>

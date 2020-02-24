@@ -9,6 +9,13 @@
     ion-button {
         flex: 1;
         height: 3rem;
+        --border-width: 0 0 2px 0;
+        --border-radius: 0;
+        --color: initial;
+
+        &.button-outline {
+            --color: var(--ion-color-primary);
+        }
 
         &.ios {
             height: 2.5rem;

@@ -15,6 +15,7 @@ import { LoggingModalPage } from "../logging-modal/logging-modal.page";
 import { takeUntil } from "rxjs/operators";
 import { componentDestroyed } from "@w11k/ngx-componentdestroyed";
 import { stringify } from "flatted/esm";
+import { TranslateService } from "@ngx-translate/core";
 
 @Component({
     selector: "app-timetable",
@@ -32,7 +33,8 @@ export class TimetablePage implements OnInit, OnDestroy {
         public modalController: ModalController,
         private networkStatus: NetworkStatusService,
         private cd: ChangeDetectorRef,
-        private firebase: FirebaseService
+        private firebase: FirebaseService,
+        private translate: TranslateService
     ) {}
 
     public orarend: Lesson[];
@@ -103,20 +105,22 @@ export class TimetablePage implements OnInit, OnDestroy {
 
         if (this.networkStatus.getCurrentNetworkStatus() === ConnectionStatus.Offline)
             return await this.error.presentToast(
-                "Nincs internetkapcsolat, ezért az óra most nem naplózható!"
+                await this.translate.get("timetable.error-offline").toPromise()
             );
         if (this.dateHelper.isInFuture(l.KezdeteUtc))
-            return await this.error.presentToast("Jövőbeni óra nem naplózható!");
+            return await this.error.presentToast(
+                await this.translate.get("timetable.error-in-future").toPromise()
+            );
         if (l.IsElmaradt)
             return await this.error.presentToast(
-                "Az elmaradt órák nem adminisztrálhatók a mobilalkalmazásban."
+                await this.translate.get("timetable.error-cancelled").toPromise()
             );
         if (
             l.HelyettesitoId &&
             l.HelyettesitoId != this.kreta.currentUser["kreta:institute_user_id"]
         )
             return await this.error.presentToast(
-                "Ezt az órát helyettesítik, ezért nem naplózható!"
+                await this.translate.get("timetable.error-substituted").toPromise()
             );
 
         const modal = await this.modalController.create({
