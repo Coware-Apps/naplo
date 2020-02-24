@@ -1,9 +1,9 @@
 {
     "config_ios": {
-        "CFBundleName": "Napló+",
-        "CFBundleDisplayName": "Napló+"
+        "CFBundleName": "Gradebook+",
+        "CFBundleDisplayName": "Gradebook+"
     },
     "config_android": {
-        "app_name": "Napló+"
+        "app_name": "Gradebook+"
     }
 }

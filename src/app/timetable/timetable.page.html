@@ -3,9 +3,7 @@
         <ion-buttons slot="start">
             <ion-menu-button></ion-menu-button>
         </ion-buttons>
-        <ion-title>
-            {{ 'timetable.title' | translate }}
-        </ion-title>
+        <ion-title translate="timetable.title"></ion-title>
     </ion-toolbar>
 
     <app-offline-warning-bar></app-offline-warning-bar>
@@ -49,7 +47,7 @@
     <ng-container *ngIf="!loading">
         <div *ngIf="orarend?.length == 0" class="ion-text-center list-empty-placeholder">
             <ion-icon slot="icon-only" name="sunny-outline" style="font-size: 128px;"></ion-icon>
-            <p>{{'timetable.no-lesson-today' | translate}}</p>
+            <p translate="timetable.no-lesson-today"></p>
         </div>
 
         <ion-list id="ion-list-orarend" *ngIf="orarend">

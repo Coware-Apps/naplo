@@ -39,7 +39,11 @@
     },
     "timetable": {
         "title": "Óra naplózása",
-        "no-lesson-today": "Ezen a napon nincs órád"
+        "no-lesson-today": "Ezen a napon nincs órád",
+        "error-offline": "Nincs internetkapcsolat, ezért az óra most nem naplózható!",
+        "error-in-future": "Jövőbeni óra nem naplózható!",
+        "error-cancelled": "Az elmaradt órák nem adminisztrálhatók a mobilalkalmazásban.",
+        "error-substituted": "Ezt az órát helyettesítik, ezért nem naplózható!"
     },
     "logging": {
         "title": "Óra naplózása",
@@ -86,6 +90,7 @@
         "header-behaviour": "Működés",
         "default-evaluation-type": "Alapértelmezett értékelés típus",
         "detailed-errors": "Részletes hibaüzenetek",
+        "detailed-errors-desc": "Technikai jellegű információk megjelenítése",
         "usage-statistics": "Névtelen használati statisztikák",
         "usage-statistics-desc": "Ezzel segíted az alkalmazás fejlesztését",
         "error-reporting": "Hibejelentések küldése",
