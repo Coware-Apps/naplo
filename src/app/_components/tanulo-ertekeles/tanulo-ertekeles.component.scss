@@ -11,6 +11,18 @@
         height: 3rem;
     }
 
+    &.osztalyzat {
+        ion-button {
+            --border-width: 0 0 2px 0;
+            --border-radius: 0;
+            --color: var(--ion-color-medium);
+
+            &.button-outline {
+                --color: var(--ion-color-primary);
+            }
+        }
+    }
+
     &.szazalek {
         justify-content: center;
 

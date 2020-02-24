@@ -9,14 +9,14 @@
     <ion-button
         (click)="changed('Jelenlét')"
         expand="block"
-        [fill]="jelenletAllapot == 'Jelenlét' ? 'solid' : 'outline'"
+        [fill]="jelenletAllapot == 'Jelenlét' ? 'outline' : 'clear'"
     >
         {{ "presence-states.present" | translate }}
     </ion-button>
     <ion-button
         (click)="changed('Késés')"
         expand="block"
-        [fill]="jelenletAllapot == 'Késés' ? 'solid' : 'outline'"
+        [fill]="jelenletAllapot == 'Késés' ? 'outline' : 'clear'"
     >
         {{ "presence-states.late" | translate }}
         {{ keses > 0 ? ("logging.lateness-min" | translate: { value: keses }) : "" }}
@@ -24,7 +24,7 @@
     <ion-button
         (click)="changed('Hiányzás')"
         expand="block"
-        [fill]="jelenletAllapot == 'Hiányzás' ? 'solid' : 'outline'"
+        [fill]="jelenletAllapot == 'Hiányzás' ? 'outline' : 'clear'"
     >
         {{ "presence-states.absent" | translate }}
     </ion-button>
