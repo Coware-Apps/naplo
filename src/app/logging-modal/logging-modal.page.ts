@@ -40,6 +40,7 @@ import { takeUntil } from "rxjs/operators";
 import { componentDestroyed } from "@w11k/ngx-componentdestroyed";
 import { CurriculumModalPage } from "../curriculum-modal/curriculum-modal.page";
 import { TopicOptionsComponent } from "./topic-options/topic-options.component";
+import { TranslateService } from "@ngx-translate/core";
 
 @Component({
     selector: "app-logging-modal",
@@ -90,7 +91,8 @@ export class LoggingModalPage implements OnInit, OnDestroy {
         private cd: ChangeDetectorRef,
         private firebase: FirebaseService,
         private popoverController: PopoverController,
-        private alertController: AlertController
+        private alertController: AlertController,
+        private translate: TranslateService
     ) {}
 
     async ngOnInit() {
@@ -177,12 +179,14 @@ export class LoggingModalPage implements OnInit, OnDestroy {
     public async save() {
         // ellenőrzés
         if (this.tema.trim().length <= 0) {
-            await this.error.presentAlert("Az óra témáját kötelező kitölteni!");
+            await this.error.presentAlert(
+                await this.translate.get("logging.required-topic").toPromise()
+            );
             return;
         }
         if (this.hfHatarido && this.hfSzoveg.trim().length <= 0) {
             await this.error.presentAlert(
-                "A házi feladat leírását kötelező megadni, ha ki lett választva határidő!"
+                await this.translate.get("logging.required-homework-desc").toPromise()
             );
             return;
         }
@@ -212,7 +216,7 @@ export class LoggingModalPage implements OnInit, OnDestroy {
         if (!(await this.ertekeles.isValid())) return;
 
         const loading = await this.loadingController.create({
-            message: "Mentés...",
+            message: await this.translate.get("logging.saving").toPromise(),
         });
         await loading.present();
 
@@ -260,7 +264,7 @@ export class LoggingModalPage implements OnInit, OnDestroy {
         ];
 
         const loading = await this.loadingController.create({
-            message: "Mentés...",
+            message: await this.translate.get("logging.saving").toPromise(),
         });
         await loading.present();
 
@@ -326,17 +330,16 @@ export class LoggingModalPage implements OnInit, OnDestroy {
         if (!data) return;
         if (data.result == "cancelled-class") {
             const alert = await this.alertController.create({
-                header: "Elmaradtnak jelölöd az órát?",
-                message:
-                    "A megadott értékelések, feljegyzések, házi feladatok nem kerülnek mentésre.",
+                header: await this.translate.get("logging.cancelled-alert-title").toPromise(),
+                message: await this.translate.get("logging.cancelled-alert-desc").toPromise(),
                 buttons: [
                     {
-                        text: "Mégsem",
+                        text: await this.translate.get("common.cancel").toPromise(),
                         role: "cancel",
                         cssClass: "secondary",
                     },
                     {
-                        text: "Igen",
+                        text: await this.translate.get("common.yes").toPromise(),
                         handler: () => {
                             this.saveCancelled();
                         },

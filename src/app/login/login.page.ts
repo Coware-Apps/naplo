@@ -25,6 +25,7 @@ import {
     KretaMissingRoleException,
     KretaInvalidPasswordException,
 } from "../_models/kreta-exceptions";
+import { TranslateService } from "@ngx-translate/core";
 
 @Component({
     selector: "app-login",
@@ -53,7 +54,8 @@ export class LoginPage implements OnInit, OnDestroy {
         private firebase: FirebaseService,
         private iab: InAppBrowser,
         private market: Market,
-        private alertController: AlertController
+        private alertController: AlertController,
+        private translate: TranslateService
     ) {}
 
     ngOnInit() {
@@ -110,16 +112,15 @@ export class LoginPage implements OnInit, OnDestroy {
             } else if (e instanceof KretaMissingRoleException) {
                 this.firebase.logEvent("login_missing_role", {});
                 const alert = await this.alertController.create({
-                    header: "Jogosultság szükséges",
-                    message:
-                        "A bejelentkezéshez 'Tanár' szerepkör szükséges.<br>Diákoknak és szülőknek az Arisztokréta alkalmazást ajánljuk. Megnyitja az áruházban?",
+                    header: await this.translate.get("login.permission-needed").toPromise(),
+                    message: await this.translate.get("login.teacher-role-needed").toPromise(),
                     buttons: [
                         {
-                            text: "Nem",
+                            text: await this.translate.get("common.no").toPromise(),
                             role: "cancel",
                         },
                         {
-                            text: "Igen",
+                            text: await this.translate.get("common.yes").toPromise(),
                             handler: async () => {
                                 this.firebase.logEvent("login_ariszo_opened");
                                 await this.market.open("hu.coware.ellenorzo");
@@ -136,9 +137,7 @@ export class LoginPage implements OnInit, OnDestroy {
             } else {
                 this.firebase.logError("login error with invalid msg: " + e);
                 await this.error.presentAlert(
-                    "A KRÉTA szerver érvénytelen választ adott. Valószínűleg karbantartás alatt van. (" +
-                        e +
-                        ")"
+                    (await this.translate.get("kreta.api-error").toPromise()) + " (" + e + ")"
                 );
             }
         } finally {
@@ -150,7 +149,7 @@ export class LoginPage implements OnInit, OnDestroy {
     async showInstituteModal() {
         if (this.networkStatus.getCurrentNetworkStatus() === ConnectionStatus.Offline)
             return await this.error.presentAlert(
-                "Nincs internetkapcsolat, ezért az intézménylistát most nem lehet letölteni."
+                await this.translate.get("login.no-internet-institute-list").toPromise()
             );
 
         const modal = await this.modalController.create({
@@ -163,7 +162,7 @@ export class LoginPage implements OnInit, OnDestroy {
 
     openPrivacy() {
         this.firebase.logEvent("login_privacypolicy_opened", {});
-        this.safariViewController.isAvailable().then((available: boolean) => {
+        this.safariViewController.isAvailable().then(async (available: boolean) => {
             if (available) {
                 this.safariViewController
                     .show({
@@ -187,7 +186,7 @@ export class LoginPage implements OnInit, OnDestroy {
 
                 this.iab.create("https://coware-apps.github.io/naplo/privacy", "_blank", {
                     location: "yes",
-                    closebuttoncaption: "Vissza",
+                    closebuttoncaption: await this.translate.get("common.back").toPromise(),
                     closebuttoncolor: "#ffffff",
                     toolbarcolor: "#3880ff",
                     zoom: "no",
