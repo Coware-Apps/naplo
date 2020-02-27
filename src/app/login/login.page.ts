@@ -81,7 +81,9 @@ export class LoginPage implements OnInit, OnDestroy {
     async doLogin() {
         await this.firebase.startTrace("login_time");
         this.loading = true;
-        const loading = await this.loadingController.create({ message: "Bejelentkezés" });
+        const loading = await this.loadingController.create({
+            message: await this.translate.get("login.logging-in").toPromise(),
+        });
         await loading.present();
 
         try {
@@ -108,7 +110,9 @@ export class LoginPage implements OnInit, OnDestroy {
 
             if (e instanceof KretaInvalidPasswordException) {
                 this.firebase.logEvent("login_bad_credentials", {});
-                return await this.error.presentAlert("A felhasználónév vagy jelszó hibás.");
+                return await this.error.presentAlert(
+                    await this.translate.get("login.bad-credentials").toPromise()
+                );
             } else if (e instanceof KretaMissingRoleException) {
                 this.firebase.logEvent("login_missing_role", {});
                 const alert = await this.alertController.create({
@@ -122,7 +126,7 @@ export class LoginPage implements OnInit, OnDestroy {
                         {
                             text: await this.translate.get("common.yes").toPromise(),
                             handler: async () => {
-                                this.firebase.logEvent("login_ariszo_opened");
+                                await this.firebase.logEvent("login_ariszto_opened");
                                 await this.market.open("hu.coware.ellenorzo");
                             },
                         },

@@ -35,7 +35,9 @@
         "username": "Username",
         "password": "Password",
         "login": "Log in",
+        "logging-in": "Logging in...",
         "pp-and-tos": "Privacy policy and terms of service",
+        "bad-credentials": "Wrong username or password",
         "permission-needed": "Permission needed",
         "teacher-role-needed": "You need to have 'Teacher' role to be able to log in.<br>For students and their parents, we recommend the Arisztokreta app. Do you want to open it in the store?",
         "no-internet-institute-list": "The institute list can't be loaded, because there's no internet connection."

@@ -35,7 +35,9 @@
         "username": "Felhasználónév",
         "password": "Jelszó",
         "login": "Bejelentkezés",
+        "logging-in": "Bejelentkezés...",
         "pp-and-tos": "Adatvédelmi nyilatkozat és felhasználási feltételek",
+        "bad-credentials": "Hibás felhasználónév vagy jelszó.",
         "permission-needed": "Jogosultság szükséges",
         "teacher-role-needed": "A bejelentkezéshez 'Tanár' szerepkör szükséges.<br>Diákoknak és szülőknek az Arisztokréta alkalmazást ajánljuk. Megnyitod az áruházban?",
         "no-internet-institute-list": "Nincs internetkapcsolat, ezért az intézménylistát most nem lehet letölteni."
