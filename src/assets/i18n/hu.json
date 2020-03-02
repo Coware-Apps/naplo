@@ -6,7 +6,10 @@
         "save": "Mentés",
         "error": "Hiba",
         "ok": "OK",
-        "comm-error": "Kommunikációs hiba"
+        "comm-error": "Kommunikációs hiba",
+        "yes": "Igen",
+        "no": "Nem",
+        "back": "Vissza"
     },
     "evaluation-types": {
         "mark": "Osztályzat",
@@ -27,12 +30,17 @@
         "cant-update": "Nincs internet, az adatok nem frissülnek"
     },
     "login": {
-        "instruction": "Válassza ki intézményét, majd adja meg a KRÉTA-rendszerben használt felhasználónevét és jelszavát!",
+        "instruction": "Válaszd ki az intézményed, majd add meg a KRÉTA-rendszerben használt felhasználóneved és jelszavad!",
         "institution": "Intézmény",
         "username": "Felhasználónév",
         "password": "Jelszó",
         "login": "Bejelentkezés",
-        "pp-and-tos": "Adatvédelmi nyilatkozat és felhasználási feltételek"
+        "logging-in": "Bejelentkezés...",
+        "pp-and-tos": "Adatvédelmi nyilatkozat és felhasználási feltételek",
+        "bad-credentials": "Hibás felhasználónév vagy jelszó.",
+        "permission-needed": "Jogosultság szükséges",
+        "teacher-role-needed": "A bejelentkezéshez 'Tanár' szerepkör szükséges.<br>Diákoknak és szülőknek az Arisztokréta alkalmazást ajánljuk. Megnyitod az áruházban?",
+        "no-internet-institute-list": "Nincs internetkapcsolat, ezért az intézménylistát most nem lehet letölteni."
     },
     "institute-selector": {
         "filter": "Intézmények szűrése..."
@@ -58,7 +66,12 @@
         "tab-eval": "Értékelés",
         "options-curriculum": "Tanmenet",
         "options-cancelled": "Elmaradt óra",
-        "lateness-min": "({{value}} p.)"
+        "lateness-min": "({{value}} p.)",
+        "required-topic": "Az óra témáját kötelező kitölteni!",
+        "required-homework-desc": "A házi feladat leírását kötelező megadni, ha ki lett választva határidő!",
+        "saving": "Mentés...",
+        "cancelled-alert-title": "Elmaradtnak jelölöd az órát?",
+        "cancelled-alert-desc": "A megadott értékelések, feljegyzések, házi feladatok nem kerülnek mentésre."
     },
     "curriculum": {
         "title": "Tanmenet",

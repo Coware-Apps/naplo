@@ -23,6 +23,5 @@ import { TranslateModule } from "@ngx-translate/core";
         TranslateModule,
     ],
     declarations: [LoggingModalPage, TopicOptionsComponent],
-    entryComponents: [TopicOptionsComponent],
 })
 export class LoggingModalPageModule {}

@@ -108,8 +108,8 @@
                     [min]="this.dateHelper.getTodayString()"
                     [max]="this.dateHelper.getMonthFromToday(3)"
                     [(ngModel)]="hfHatarido"
-                    cancelText="Mégse"
-                    doneText="Kész"
+                    cancelText="{{ 'common.cancel' | translate }}"
+                    doneText="{{ 'common.done' | translate }}"
                 >
                 </ion-datetime>
             </ion-item>

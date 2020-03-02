@@ -2,11 +2,14 @@
     "app.name": "Gradebook+",
     "common": {
         "cancel": "Cancel",
-        "done": "Dome",
+        "done": "Done",
         "save": "Save",
         "error": "Error",
         "ok": "OK",
-        "comm-error": "Communication error"
+        "comm-error": "Communication error",
+        "yes": "Yes",
+        "no": "No",
+        "back": "Back"
     },
     "evaluation-types": {
         "mark": "Mark",
@@ -32,7 +35,12 @@
         "username": "Username",
         "password": "Password",
         "login": "Log in",
-        "pp-and-tos": "Privacy policy and terms of service"
+        "logging-in": "Logging in...",
+        "pp-and-tos": "Privacy policy and terms of service",
+        "bad-credentials": "Wrong username or password",
+        "permission-needed": "Permission needed",
+        "teacher-role-needed": "You need to have 'Teacher' role to be able to log in.<br>For students and their parents, we recommend the Arisztokreta app. Do you want to open it in the store?",
+        "no-internet-institute-list": "The institute list can't be loaded, because there's no internet connection."
     },
     "institute-selector": {
         "filter": "Filter institutions..."
@@ -57,12 +65,17 @@
         "tab-eval": "Evaluation",
         "options-curriculum": "Curriculum",
         "options-cancelled": "Cancelled lesson",
-        "lateness-min": "({{value}} min.)"
+        "lateness-min": "({{value}} min.)",
+        "required-topic": "Please enter the topic of the lesson",
+        "required-homework-desc": "You must provide a description for the homework",
+        "saving": "Saving...",
+        "cancelled-alert-title": "Are you sure?",
+        "cancelled-alert-desc": "The evaluations, memos, and homeworks you entered will not be saved if you continue."
     },
     "curriculum": {
         "title": "Curriculum",
         "list-empty": "The list is empty",
-        "list-empty-desc": "Looks like you haven't uploaded a curriculum for this group. You can upload one on the web based KRETA."
+        "list-empty-desc": "Looks like you haven't uploaded a curriculum for this group. You can upload one using the web based KRETA."
     },
     "eval": {
         "title": "Evaluation",

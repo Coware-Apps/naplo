@@ -2,6 +2,7 @@ import { Component, OnInit, Input, OnChanges } from "@angular/core";
 import { PickerController } from "@ionic/angular";
 import { Tanulo, Mulasztas, JavasoltJelenletTemplate, KretaEnum } from "src/app/_models";
 import { KretaService } from "src/app/_services";
+import { TranslateService } from "@ngx-translate/core";
 
 @Component({
     selector: "app-tanulo-jelenlet",
@@ -20,7 +21,11 @@ export class TanuloJelenletComponent implements OnInit, OnChanges {
     public magantanulo: boolean = false;
     private mulasztasKodok: KretaEnum[];
 
-    constructor(private picker: PickerController, private kreta: KretaService) {}
+    constructor(
+        private picker: PickerController,
+        private kreta: KretaService,
+        private translate: TranslateService
+    ) {}
 
     async ngOnInit() {
         for (let i = 1; i < 45; i++) {
@@ -82,7 +87,7 @@ export class TanuloJelenletComponent implements OnInit, OnChanges {
         const picker = await this.picker.create({
             buttons: [
                 {
-                    text: "Kész",
+                    text: await this.translate.get("common.done").toPromise(),
                     handler: value => {
                         const v = value.pick.value;
                         this.keses = this.percek.findIndex(i => i.value == v) + 1;

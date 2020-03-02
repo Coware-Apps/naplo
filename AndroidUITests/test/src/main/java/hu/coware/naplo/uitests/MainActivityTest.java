@@ -1,7 +1,5 @@
 package hu.coware.naplo.uitests;
 
-import android.util.Log;
-
 import androidx.test.espresso.Espresso;
 import androidx.test.espresso.web.webdriver.DriverAtoms;
 import androidx.test.espresso.web.webdriver.Locator;
