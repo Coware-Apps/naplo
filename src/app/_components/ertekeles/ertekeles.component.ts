@@ -18,6 +18,7 @@ import { TanuloErtekelesComponent } from "../tanulo-ertekeles/tanulo-ertekeles.c
 import { KretaService, ConfigService } from "src/app/_services";
 import { DateHelper, ErrorHelper } from "src/app/_helpers";
 import { PickerController } from "@ionic/angular";
+import { TranslateService } from "@ngx-translate/core";
 
 @Component({
     selector: "app-ertekeles",
@@ -48,7 +49,8 @@ export class ErtekelesComponent implements OnInit, OnChanges {
         public dateHelper: DateHelper,
         private picker: PickerController,
         private error: ErrorHelper,
-        private config: ConfigService
+        private config: ConfigService,
+        private translate: TranslateService
     ) {}
 
     async ngOnInit() {
@@ -76,7 +78,7 @@ export class ErtekelesComponent implements OnInit, OnChanges {
         const picker = await this.picker.create({
             buttons: [
                 {
-                    text: "Kész",
+                    text: await this.translate.get("common.done").toPromise(),
                     handler: value => {
                         const v = value.ertekelesMod.value;
                         this.ertekelesMod = this.ertekelesModLista.find(i => i.Id == v);
