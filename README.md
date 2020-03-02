@@ -8,6 +8,9 @@ Ez egy **nem hivatalos _tanári_** napló alkalmazás, ami kompatibilis a magyar
 _Az alkalmazást nem az eKréta Informatikai Zrt. fejlesztette, ezért az esetleges problémákkal, kérdésekkel kapcsolatban ne az ő ügyfélszolgálatukat keresd!_
 
 #### Miben különbözik ez az alkalmazás a hivatalostól?
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/5fff271baedf47ecabb5c9a5bd921dd6)](https://app.codacy.com/gh/Coware-Apps/naplo?utm_source=github.com&utm_medium=referral&utm_content=Coware-Apps/naplo&utm_campaign=Badge_Grade_Settings)
+
 Az elsődleges cél, hogy gyorsabb, megbízhatóbb, használhatóbb legyen.
 
 A főbb funkciók:
