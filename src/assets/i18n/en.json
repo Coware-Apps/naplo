@@ -75,7 +75,7 @@
     "curriculum": {
         "title": "Curriculum",
         "list-empty": "The list is empty",
-        "list-empty-desc": "Looks like you haven't uploaded a curriculum for this group. You can upload one on the web based KRETA."
+        "list-empty-desc": "Looks like you haven't uploaded a curriculum for this group. You can upload one using the web based KRETA."
     },
     "eval": {
         "title": "Evaluation",
