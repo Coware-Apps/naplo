@@ -17,7 +17,7 @@
     <ion-virtual-scroll
         [items]="filteredInstitutes"
         *ngIf="filteredInstitutes"
-        approxItemHeight="63px"
+        approxItemHeight="63"
     >
         <ion-item *virtualItem="let i" (click)="onSelectionChange(i.InstituteCode)">
             <ion-label>
