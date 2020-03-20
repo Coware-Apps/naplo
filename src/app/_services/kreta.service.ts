@@ -118,6 +118,15 @@ export class KretaService {
                 const data = JSON.parse(response.data);
 
                 if (data && data.access_token) {
+                    this.currentUser = this.jwtHelper.decodeToken(data.access_token);
+
+                    console.log("[LOGIN] Roles we have: ", this.currentUser.role);
+                    if (this.currentUser.role.indexOf("Tanar") === -1) {
+                        console.log("[LOGIN] Missing role: 'Tanar' in ", this.currentUser.role);
+
+                        throw new KretaMissingRoleException();
+                    }
+
                     await Promise.all([
                         this.data.saveItem(
                             "access_token",
@@ -132,11 +141,6 @@ export class KretaService {
                             this.longtermStorageExpiry
                         ),
                     ]);
-
-                    this.currentUser = this.jwtHelper.decodeToken(data.access_token);
-
-                    if (this.currentUser.role.indexOf("Tanar") === -1)
-                        throw new KretaMissingRoleException();
 
                     Promise.all([
                         this.getNaploEnum("MulasztasTipusEnum"),
