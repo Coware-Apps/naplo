@@ -97,6 +97,7 @@ export class EvaluationPage implements OnInit, OnDestroy {
 
         const modal = await this.modalController.create({
             component: EvaluationModalPage,
+            backdropDismiss: false,
             componentProps: { tanitottCsoport: c },
         });
         await modal.present();

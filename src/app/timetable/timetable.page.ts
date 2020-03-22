@@ -126,6 +126,7 @@ export class TimetablePage implements OnInit, OnDestroy {
         const modal = await this.modalController.create({
             component: LoggingModalPage,
             componentProps: { lesson: l },
+            backdropDismiss: false,
         });
         await modal.present();
 
@@ -140,6 +141,15 @@ export class TimetablePage implements OnInit, OnDestroy {
             .show({
                 date: this.datum,
                 mode: "date",
+                locale: this.config.locale,
+
+                // android
+                okText: this.translate.instant("common.done"),
+                cancelText: this.translate.instant("common.cancel"),
+                // ios
+                doneButtonLabel: this.translate.instant("common.done"),
+                cancelButtonLabel: this.translate.instant("common.cancel"),
+
                 androidTheme: this.datePicker.ANDROID_THEMES.THEME_DEVICE_DEFAULT_DARK,
             })
             .then(

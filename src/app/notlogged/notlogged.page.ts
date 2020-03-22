@@ -99,6 +99,7 @@ export class NotloggedPage implements OnInit, OnDestroy {
 
         const modal = await this.modalController.create({
             component: LoggingModalPage,
+            backdropDismiss: false,
             componentProps: { lesson: c },
         });
         await modal.present();
