@@ -44,8 +44,7 @@ ion-list-header.ios {
 
 /* tablet modal magasságok */
 @media only screen and (min-height: 600px) and (min-width: 768px) and (orientation: landscape) {
-    .sc-ion-modal-md-h,
-    .sc-ion-modal-ios-h {
+    .sc-ion-modal-md-h {
         --min-height: 95%;
     }
 }
