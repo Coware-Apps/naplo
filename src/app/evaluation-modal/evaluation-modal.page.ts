@@ -6,9 +6,10 @@ import {
     ConnectionStatus,
     FirebaseService,
 } from "../_services";
-import { ModalController, LoadingController } from "@ionic/angular";
+import { ModalController, LoadingController, AlertController, Platform } from "@ionic/angular";
 import { ErtekelesComponent } from "../_components";
 import { OnDestroyMixin, untilComponentDestroyed } from "@w11k/ngx-componentdestroyed";
+import { TranslateService } from "@ngx-translate/core";
 
 @Component({
     selector: "app-evaluation-modal",
@@ -28,7 +29,10 @@ export class EvaluationModalPage extends OnDestroyMixin implements OnInit {
         public loadingController: LoadingController,
         private networkStatus: NetworkStatusService,
         private cd: ChangeDetectorRef,
-        private firebase: FirebaseService
+        private firebase: FirebaseService,
+        private alertController: AlertController,
+        private translate: TranslateService,
+        private platform: Platform
     ) {
         super();
     }
@@ -50,6 +54,8 @@ export class EvaluationModalPage extends OnDestroyMixin implements OnInit {
                 this.currentlyOffline = status === ConnectionStatus.Offline;
                 this.cd.detectChanges();
             });
+
+        this.platform.backButton.pipe(untilComponentDestroyed(this)).subscribe(x => this.dismiss());
     }
 
     async save() {
@@ -65,7 +71,23 @@ export class EvaluationModalPage extends OnDestroyMixin implements OnInit {
         if (ertekelesSaveResult) this.dismiss();
     }
 
-    dismiss() {
-        this.modalController.dismiss();
+    public async dismiss() {
+        const alert = await this.alertController.create({
+            header: await this.translate.get("common.are-you-sure").toPromise(),
+            message: await this.translate.get("common.data-will-be-lost").toPromise(),
+            buttons: [
+                {
+                    text: await this.translate.get("common.cancel").toPromise(),
+                    role: "cancel",
+                    cssClass: "secondary",
+                },
+                {
+                    text: await this.translate.get("common.exit").toPromise(),
+                    handler: () => this.modalController.dismiss(),
+                },
+            ],
+        });
+
+        await alert.present();
     }
 }
