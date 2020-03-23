@@ -123,6 +123,4 @@ export class OsComponentsPage extends OnDestroyMixin implements OnInit {
     dismiss() {
         this.modalController.dismiss();
     }
-
-    ngOnDestroy(): void {}
 }

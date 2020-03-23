@@ -25,6 +25,4 @@ export class OfflineWarningBarComponent extends OnDestroyMixin implements OnInit
                 this.cd.detectChanges();
             });
     }
-
-    ngOnDestroy(): void {}
 }
