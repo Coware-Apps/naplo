@@ -138,7 +138,7 @@ export class TimetablePage extends OnDestroyMixin implements OnInit {
         if (data && data.success) this.doRefresh();
     }
 
-    public showDatePicker() {
+    public async showDatePicker() {
         this.firebase.logEvent("timetable_datepicker_shown", {});
 
         this.datePicker
@@ -148,11 +148,11 @@ export class TimetablePage extends OnDestroyMixin implements OnInit {
                 locale: this.config.locale,
 
                 // android
-                okText: this.translate.instant("common.done"),
-                cancelText: this.translate.instant("common.cancel"),
+                okText: await this.translate.get("common.done").toPromise(),
+                cancelText: await this.translate.get("common.cancel").toPromise(),
                 // ios
-                doneButtonLabel: this.translate.instant("common.done"),
-                cancelButtonLabel: this.translate.instant("common.cancel"),
+                doneButtonLabel: await this.translate.get("common.done").toPromise(),
+                cancelButtonLabel: await this.translate.get("common.cancel").toPromise(),
 
                 androidTheme: this.datePicker.ANDROID_THEMES.THEME_DEVICE_DEFAULT_DARK,
             })
