@@ -26,7 +26,7 @@ export class DataService {
 
     public async getUrl(url: string, parameters?: any, headers?: any): Promise<HTTPResponse> {
         const appVersionNumber = await this.appVersion.getVersionNumber();
-        console.log("SZERVERHÍVÁS: " + url);
+        console.debug("SZERVERHÍVÁS: " + url);
 
         if (headers)
             headers["User-Agent"] = environment.userAgent.replace(
@@ -67,7 +67,7 @@ export class DataService {
             ttl,
             "all"
         );
-        console.log("Cache miss: ", url, obs);
+        console.debug("Cache miss: ", url, obs);
 
         return obs;
     }
