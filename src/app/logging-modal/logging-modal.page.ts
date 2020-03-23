@@ -55,6 +55,7 @@ export class LoggingModalPage extends OnDestroyMixin implements OnInit {
     public evesOraSorszam: number = 0;
     public activeTabIndex: number = 0;
     public currentlyOffline: boolean;
+    private backButtonSub: Subscription;
 
     // mulasztások tab
     public tema: string;
@@ -162,7 +163,9 @@ export class LoggingModalPage extends OnDestroyMixin implements OnInit {
                 this.cd.detectChanges();
             });
 
-        this.platform.backButton.pipe(untilComponentDestroyed(this)).subscribe(x => this.dismiss());
+        this.backButtonSub = this.platform.backButton
+            .pipe(untilComponentDestroyed(this))
+            .subscribe(x => this.dismiss());
     }
 
     private loadingDone(key: string) {
@@ -316,8 +319,16 @@ export class LoggingModalPage extends OnDestroyMixin implements OnInit {
             },
         });
 
+        // modal in modal, back button handling
+        this.backButtonSub.unsubscribe();
+
         await modal.present();
         const { data } = await modal.onWillDismiss();
+
+        this.backButtonSub = this.platform.backButton
+            .pipe(untilComponentDestroyed(this))
+            .subscribe(x => this.dismiss());
+
         if (data && data.tanmenetElem) this.tema = data.tanmenetElem.Tema;
     }
 

@@ -68,7 +68,7 @@ export class EvaluationModalPage extends OnDestroyMixin implements OnInit {
         this.firebase.stopTrace("evaluation_modal_post_time");
         await loading.dismiss();
 
-        if (ertekelesSaveResult) this.dismiss();
+        if (ertekelesSaveResult) this.modalController.dismiss();
     }
 
     public async dismiss() {
