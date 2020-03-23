@@ -44,7 +44,7 @@ export function createTranslateLoader(http: HttpClient) {
     declarations: [AppComponent],
     imports: [
         BrowserModule,
-        IonicModule.forRoot(),
+        IonicModule.forRoot({ swipeBackEnabled: false }),
         IonicStorageModule.forRoot({
             driverOrder: ["sqlite", "indexeddb", "localstorage", "websql"],
         }),
