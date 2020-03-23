@@ -9,7 +9,10 @@
         "comm-error": "Kommunikációs hiba",
         "yes": "Igen",
         "no": "Nem",
-        "back": "Vissza"
+        "back": "Vissza",
+        "exit": "Kilépés",
+        "are-you-sure": "Biztosan?",
+        "data-will-be-lost": "A beírt adatok elvesznek."
     },
     "evaluation-types": {
         "mark": "Osztályzat",

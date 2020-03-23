@@ -1,4 +1,4 @@
-import { Component, OnDestroy, ChangeDetectorRef, OnInit } from "@angular/core";
+import { Component, ChangeDetectorRef, OnInit } from "@angular/core";
 import {
     KretaService,
     NetworkStatusService,
@@ -10,15 +10,14 @@ import { TanitottCsoport } from "../_models";
 import { DateHelper, ErrorHelper } from "../_helpers";
 import { ModalController } from "@ionic/angular";
 import { EvaluationModalPage } from "../evaluation-modal/evaluation-modal.page";
-import { takeUntil } from "rxjs/operators";
-import { componentDestroyed } from "@w11k/ngx-componentdestroyed";
+import { OnDestroyMixin, untilComponentDestroyed } from "@w11k/ngx-componentdestroyed";
 
 @Component({
     selector: "app-evaluation",
     templateUrl: "./evaluation.page.html",
     styleUrls: ["./evaluation.page.scss"],
 })
-export class EvaluationPage implements OnInit, OnDestroy {
+export class EvaluationPage extends OnDestroyMixin implements OnInit {
     constructor(
         private kreta: KretaService,
         private dateHelper: DateHelper,
@@ -28,7 +27,9 @@ export class EvaluationPage implements OnInit, OnDestroy {
         private cd: ChangeDetectorRef,
         private config: ConfigService,
         private firebase: FirebaseService
-    ) {}
+    ) {
+        super();
+    }
 
     public csoportok: TanitottCsoport[] = [];
     public loading: boolean;
@@ -39,12 +40,11 @@ export class EvaluationPage implements OnInit, OnDestroy {
 
         this.networkStatus
             .onNetworkChangeOnly()
-            .pipe(takeUntil(componentDestroyed(this)))
+            .pipe(untilComponentDestroyed(this))
             .subscribe(x => {
                 if (x === ConnectionStatus.Online) this.ionViewWillEnter();
             });
     }
-    ngOnDestroy(): void {}
 
     async ionViewWillEnter() {
         this.csoportok = []; // refreshkor fontos
@@ -54,7 +54,7 @@ export class EvaluationPage implements OnInit, OnDestroy {
         const map = new Map();
         for (let i = 0; i < this.napToCheck; i++) {
             let d = new Date(this.dateHelper.getDayFromToday(-i));
-            (await this.kreta.getTimetable(d)).pipe(takeUntil(componentDestroyed(this))).subscribe(
+            (await this.kreta.getTimetable(d)).pipe(untilComponentDestroyed(this)).subscribe(
                 x => {
                     x.forEach(ora => {
                         const id = ora.TantargyId + "-" + ora.OsztalyCsoportId;

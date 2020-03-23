@@ -9,7 +9,10 @@
         "comm-error": "Communication error",
         "yes": "Yes",
         "no": "No",
-        "back": "Back"
+        "back": "Back",
+        "exit": "Exit",
+        "are-you-sure": "Are you sure?",
+        "data-will-be-lost": "The data will not be saved"
     },
     "evaluation-types": {
         "mark": "Mark",

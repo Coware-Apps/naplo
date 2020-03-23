@@ -1,11 +1,10 @@
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { ConfigService, FirebaseService, KretaService } from "../_services";
 import { languages } from "../_languages";
 import { themes } from "../../theme/themes";
 import { AppVersion } from "@ionic-native/app-version/ngx";
 import { SafariViewController } from "@ionic-native/safari-view-controller/ngx";
-import { takeUntil } from "rxjs/operators";
-import { componentDestroyed } from "@w11k/ngx-componentdestroyed";
+import { OnDestroyMixin, untilComponentDestroyed } from "@w11k/ngx-componentdestroyed";
 import { ModalController } from "@ionic/angular";
 import { OsComponentsPage } from "./os-components/os-components.page";
 import { InAppBrowser } from "@ionic-native/in-app-browser/ngx";
@@ -16,7 +15,7 @@ import { ErtekelesTipus } from "../_models";
     templateUrl: "./settings.page.html",
     styleUrls: ["./settings.page.scss"],
 })
-export class SettingsPage implements OnInit, OnDestroy {
+export class SettingsPage extends OnDestroyMixin implements OnInit {
     public languages = languages;
     public themes = themes;
 
@@ -31,13 +30,13 @@ export class SettingsPage implements OnInit, OnDestroy {
         private firebase: FirebaseService,
         private iab: InAppBrowser,
         private kreta: KretaService
-    ) {}
+    ) {
+        super();
+    }
 
     ngOnInit(): void {
         this.firebase.setScreenName("settings");
     }
-
-    ngOnDestroy() {}
 
     async ionViewWillEnter() {
         this.appversionnumber = await this.appVersion.getVersionNumber();
@@ -87,7 +86,7 @@ export class SettingsPage implements OnInit, OnDestroy {
                         toolbarColor: "#3880ff",
                         controlTintColor: "#ffffff",
                     })
-                    .pipe(takeUntil(componentDestroyed(this)))
+                    .pipe(untilComponentDestroyed(this))
                     .subscribe(
                         (result: any) => {},
                         (error: any) => {

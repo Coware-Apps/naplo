@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from "@angular/core";
+import { Component, OnInit, ChangeDetectorRef } from "@angular/core";
 import {
     KretaService,
     ConfigService,
@@ -13,7 +13,11 @@ import { DatePicker } from "@ionic-native/date-picker/ngx";
 import { ModalController } from "@ionic/angular";
 import { LoggingModalPage } from "../logging-modal/logging-modal.page";
 import { takeUntil } from "rxjs/operators";
-import { componentDestroyed } from "@w11k/ngx-componentdestroyed";
+import {
+    componentDestroyed,
+    untilComponentDestroyed,
+    OnDestroyMixin,
+} from "@w11k/ngx-componentdestroyed";
 import { stringify } from "flatted/esm";
 import { TranslateService } from "@ngx-translate/core";
 
@@ -22,7 +26,7 @@ import { TranslateService } from "@ngx-translate/core";
     templateUrl: "./timetable.page.html",
     styleUrls: ["./timetable.page.scss"],
 })
-export class TimetablePage implements OnInit, OnDestroy {
+export class TimetablePage extends OnDestroyMixin implements OnInit {
     constructor(
         private kreta: KretaService,
         private route: ActivatedRoute,
@@ -35,7 +39,9 @@ export class TimetablePage implements OnInit, OnDestroy {
         private cd: ChangeDetectorRef,
         private firebase: FirebaseService,
         private translate: TranslateService
-    ) {}
+    ) {
+        super();
+    }
 
     public orarend: Lesson[];
     public datum: Date;
@@ -49,13 +55,11 @@ export class TimetablePage implements OnInit, OnDestroy {
 
         this.networkStatus
             .onNetworkChangeOnly()
-            .pipe(takeUntil(componentDestroyed(this)))
+            .pipe(untilComponentDestroyed(this))
             .subscribe(x => {
                 if (x === ConnectionStatus.Online) this.loadTimetable();
             });
     }
-
-    ngOnDestroy() {}
 
     ionViewWillEnter() {
         this.loadTimetable();

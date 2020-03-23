@@ -17,8 +17,6 @@ import { ErrorHelper } from "../_helpers";
 import { InstituteSelectorModalPage } from "./institute-selector-modal/institute-selector-modal.page";
 import { SafariViewController } from "@ionic-native/safari-view-controller/ngx";
 import { StatusBar } from "@ionic-native/status-bar/ngx";
-import { takeUntil } from "rxjs/operators";
-import { componentDestroyed } from "@w11k/ngx-componentdestroyed";
 import { InAppBrowser } from "@ionic-native/in-app-browser/ngx";
 import { Market } from "@ionic-native/market/ngx";
 import {
@@ -26,13 +24,14 @@ import {
     KretaInvalidPasswordException,
 } from "../_models/kreta-exceptions";
 import { TranslateService } from "@ngx-translate/core";
+import { OnDestroyMixin, untilComponentDestroyed } from "@w11k/ngx-componentdestroyed";
 
 @Component({
     selector: "app-login",
     templateUrl: "./login.page.html",
     styleUrls: ["./login.page.scss"],
 })
-export class LoginPage implements OnInit, OnDestroy {
+export class LoginPage extends OnDestroyMixin implements OnInit {
     public username: string;
     public password: string;
     public instituteName: string;
@@ -56,14 +55,14 @@ export class LoginPage implements OnInit, OnDestroy {
         private market: Market,
         private alertController: AlertController,
         private translate: TranslateService
-    ) {}
+    ) {
+        super();
+    }
 
     ngOnInit() {
         this.returnUrl = this.route.snapshot.queryParams["returnUrl"] || "/";
         this.firebase.setScreenName("login");
     }
-
-    ngOnDestroy(): void {}
 
     async ionViewWillEnter() {
         this.config.applyTheme("light", false);
@@ -103,7 +102,7 @@ export class LoginPage implements OnInit, OnDestroy {
 
                 this.loading = false;
                 this.firebase.stopTrace("login_time");
-                await this.router.navigate([this.returnUrl]);
+                await this.router.navigate([this.returnUrl], { replaceUrl: true });
             }
         } catch (e) {
             console.log("Hiba a felhasználóneves bejelentkezés során: ", e.message);
@@ -175,7 +174,7 @@ export class LoginPage implements OnInit, OnDestroy {
                         toolbarColor: "#3880ff",
                         controlTintColor: "#ffffff",
                     })
-                    .pipe(takeUntil(componentDestroyed(this)))
+                    .pipe(untilComponentDestroyed(this))
                     .subscribe(
                         (result: any) => {},
                         (error: any) => {

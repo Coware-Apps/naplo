@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, OnDestroy, ChangeDetectorRef } from "@angular/core";
+import { Component, OnInit, Input, ViewChild, ChangeDetectorRef } from "@angular/core";
 import { TanitottCsoport, OsztalyTanuloi } from "../_models";
 import {
     KretaService,
@@ -8,15 +8,14 @@ import {
 } from "../_services";
 import { ModalController, LoadingController } from "@ionic/angular";
 import { ErtekelesComponent } from "../_components";
-import { takeUntil } from "rxjs/operators";
-import { componentDestroyed } from "@w11k/ngx-componentdestroyed";
+import { OnDestroyMixin, untilComponentDestroyed } from "@w11k/ngx-componentdestroyed";
 
 @Component({
     selector: "app-evaluation-modal",
     templateUrl: "./evaluation-modal.page.html",
     styleUrls: ["./evaluation-modal.page.scss"],
 })
-export class EvaluationModalPage implements OnInit, OnDestroy {
+export class EvaluationModalPage extends OnDestroyMixin implements OnInit {
     @Input() public tanitottCsoport: TanitottCsoport;
     public osztalyTanuloi: OsztalyTanuloi;
     @ViewChild("ertekeles", { static: true }) private ertekeles: ErtekelesComponent;
@@ -30,27 +29,28 @@ export class EvaluationModalPage implements OnInit, OnDestroy {
         private networkStatus: NetworkStatusService,
         private cd: ChangeDetectorRef,
         private firebase: FirebaseService
-    ) {}
+    ) {
+        super();
+    }
 
     async ngOnInit() {
         this.firebase.setScreenName("evaluation_modal");
         await this.firebase.startTrace("evaluation_modal_load_time");
 
         (await this.kreta.getOsztalyTanuloi(this.tanitottCsoport.OsztalyCsoportId))
-            .pipe(takeUntil(componentDestroyed(this)))
+            .pipe(untilComponentDestroyed(this))
             .subscribe(x => (this.osztalyTanuloi = x));
 
         this.firebase.stopTrace("evaluation_modal_load_time");
 
         this.networkStatus
             .onNetworkChange()
-            .pipe(takeUntil(componentDestroyed(this)))
+            .pipe(untilComponentDestroyed(this))
             .subscribe(status => {
                 this.currentlyOffline = status === ConnectionStatus.Offline;
                 this.cd.detectChanges();
             });
     }
-    ngOnDestroy(): void {}
 
     async save() {
         if (!(await this.ertekeles.isValid())) return;

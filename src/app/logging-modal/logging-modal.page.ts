@@ -5,7 +5,6 @@ import {
     ViewChildren,
     QueryList,
     Input,
-    OnDestroy,
     ChangeDetectorRef,
 } from "@angular/core";
 import {
@@ -22,6 +21,7 @@ import {
     IonContent,
     PopoverController,
     AlertController,
+    Platform,
 } from "@ionic/angular";
 import {
     ErtekelesComponent,
@@ -36,18 +36,18 @@ import {
     FirebaseService,
 } from "../_services";
 import { ErrorHelper, DateHelper } from "../_helpers";
-import { takeUntil } from "rxjs/operators";
-import { componentDestroyed } from "@w11k/ngx-componentdestroyed";
+import { OnDestroyMixin, untilComponentDestroyed } from "@w11k/ngx-componentdestroyed";
 import { CurriculumModalPage } from "../curriculum-modal/curriculum-modal.page";
 import { TopicOptionsComponent } from "./topic-options/topic-options.component";
 import { TranslateService } from "@ngx-translate/core";
+import { Subscription } from "rxjs";
 
 @Component({
     selector: "app-logging-modal",
     templateUrl: "./logging-modal.page.html",
     styleUrls: ["./logging-modal.page.scss"],
 })
-export class LoggingModalPage implements OnInit, OnDestroy {
+export class LoggingModalPage extends OnDestroyMixin implements OnInit {
     @Input() lesson: Lesson;
 
     public loading: string[];
@@ -69,14 +69,14 @@ export class LoggingModalPage implements OnInit, OnDestroy {
     // feljegyzések tab
     public feljegyzesek: Feljegyzes[];
 
-    @ViewChild("slides", { static: true }) slides: IonSlides;
+    @ViewChild("slides", { static: true })
+    private slides: IonSlides;
     @ViewChild("ertekeles", { static: true })
     private ertekeles: ErtekelesComponent;
-    @ViewChild(IonContent, { static: true }) content: IonContent;
-
+    @ViewChild(IonContent, { static: true })
+    private content: IonContent;
     @ViewChildren(TanuloJelenletComponent)
     private jelenletComponents: QueryList<TanuloJelenletComponent>;
-
     @ViewChildren(TanuloFeljegyzesComponent)
     private feljegyzesComponents: QueryList<TanuloFeljegyzesComponent>;
 
@@ -92,8 +92,11 @@ export class LoggingModalPage implements OnInit, OnDestroy {
         private firebase: FirebaseService,
         private popoverController: PopoverController,
         private alertController: AlertController,
-        private translate: TranslateService
-    ) {}
+        private translate: TranslateService,
+        private platform: Platform
+    ) {
+        super();
+    }
 
     async ngOnInit() {
         this.loading = ["osztalyTanuloi", "javasoltJelenlet"];
@@ -117,7 +120,7 @@ export class LoggingModalPage implements OnInit, OnDestroy {
             await this.firebase.startTrace("logging_modal_load_time");
 
             (await this.kreta.getOsztalyTanuloi(this.lesson.OsztalyCsoportId))
-                .pipe(takeUntil(componentDestroyed(this)))
+                .pipe(untilComponentDestroyed(this))
                 .subscribe(x => {
                     this.osztalyTanuloi = x;
                     this.loadingDone("osztalyTanuloi");
@@ -126,7 +129,7 @@ export class LoggingModalPage implements OnInit, OnDestroy {
             if (this.lesson.Allapot.Nev == "Naplozott") {
                 this.loading.push("mulasztas");
                 (await this.kreta.getMulasztas(this.lesson.TanitasiOraId))
-                    .pipe(takeUntil(componentDestroyed(this)))
+                    .pipe(untilComponentDestroyed(this))
                     .subscribe(x => {
                         this.mulasztasok = x;
                         this.loadingDone("mulasztas");
@@ -134,7 +137,7 @@ export class LoggingModalPage implements OnInit, OnDestroy {
 
                 this.loading.push("feljegyzesek");
                 (await this.kreta.getFeljegyzes(this.lesson.TanitasiOraId))
-                    .pipe(takeUntil(componentDestroyed(this)))
+                    .pipe(untilComponentDestroyed(this))
                     .subscribe(x => {
                         this.feljegyzesek = x;
                         this.loadingDone("feljegyzesek");
@@ -142,7 +145,7 @@ export class LoggingModalPage implements OnInit, OnDestroy {
             }
 
             (await this.kreta.getJavasoltJelenlet(this.lesson))
-                .pipe(takeUntil(componentDestroyed(this)))
+                .pipe(untilComponentDestroyed(this))
                 .subscribe(x => {
                     this.javasoltJelenlet = x;
                     this.loadingDone("javasoltJelenlet");
@@ -153,14 +156,14 @@ export class LoggingModalPage implements OnInit, OnDestroy {
 
         this.networkStatus
             .onNetworkChange()
-            .pipe(takeUntil(componentDestroyed(this)))
+            .pipe(untilComponentDestroyed(this))
             .subscribe(status => {
                 this.currentlyOffline = status === ConnectionStatus.Offline;
                 this.cd.detectChanges();
             });
-    }
 
-    ngOnDestroy(): void {}
+        this.platform.backButton.pipe(untilComponentDestroyed(this)).subscribe(x => this.dismiss());
+    }
 
     private loadingDone(key: string) {
         var index = this.loading.indexOf(key);
@@ -352,7 +355,23 @@ export class LoggingModalPage implements OnInit, OnDestroy {
         if (data.result == "curriculum") this.openTanmenet();
     }
 
-    public dismiss() {
-        this.modalController.dismiss();
+    public async dismiss() {
+        const alert = await this.alertController.create({
+            header: await this.translate.get("common.are-you-sure").toPromise(),
+            message: await this.translate.get("common.data-will-be-lost").toPromise(),
+            buttons: [
+                {
+                    text: await this.translate.get("common.cancel").toPromise(),
+                    role: "cancel",
+                    cssClass: "secondary",
+                },
+                {
+                    text: await this.translate.get("common.exit").toPromise(),
+                    handler: () => this.modalController.dismiss(),
+                },
+            ],
+        });
+
+        await alert.present();
     }
 }

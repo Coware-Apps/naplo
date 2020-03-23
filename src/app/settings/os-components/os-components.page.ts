@@ -1,8 +1,7 @@
-import { Component, OnInit, OnDestroy } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { ModalController } from "@ionic/angular";
 import { SafariViewController } from "@ionic-native/safari-view-controller/ngx";
-import { takeUntil } from "rxjs/operators";
-import { componentDestroyed } from "@w11k/ngx-componentdestroyed";
+import { OnDestroyMixin, untilComponentDestroyed } from "@w11k/ngx-componentdestroyed";
 import { InAppBrowser } from "@ionic-native/in-app-browser/ngx";
 import { FirebaseService } from "src/app/_services";
 
@@ -11,7 +10,7 @@ import { FirebaseService } from "src/app/_services";
     templateUrl: "./os-components.page.html",
     styleUrls: ["./os-components.page.scss"],
 })
-export class OsComponentsPage implements OnInit, OnDestroy {
+export class OsComponentsPage extends OnDestroyMixin implements OnInit {
     public componentList = [
         { name: "Ionic Framework", url: "https://github.com/ionic-team/ionic" },
         { name: "Angular", url: "https://github.com/angular/angular" },
@@ -76,7 +75,9 @@ export class OsComponentsPage implements OnInit, OnDestroy {
         private safariViewController: SafariViewController,
         private firebase: FirebaseService,
         private iab: InAppBrowser
-    ) {}
+    ) {
+        super();
+    }
 
     ngOnInit() {
         this.componentList = this.componentList.sort((a, b) => a.name.localeCompare(b.name));
@@ -94,7 +95,7 @@ export class OsComponentsPage implements OnInit, OnDestroy {
                         toolbarColor: "#3880ff",
                         controlTintColor: "#ffffff",
                     })
-                    .pipe(takeUntil(componentDestroyed(this)))
+                    .pipe(untilComponentDestroyed(this))
                     .subscribe(
                         (result: any) => {},
                         (error: any) => {

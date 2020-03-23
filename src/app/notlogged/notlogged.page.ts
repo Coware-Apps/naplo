@@ -1,4 +1,4 @@
-import { Component, OnDestroy, ChangeDetectorRef, OnInit } from "@angular/core";
+import { Component, ChangeDetectorRef, OnInit } from "@angular/core";
 import { Lesson } from "../_models";
 import { DateHelper, ErrorHelper } from "../_helpers";
 import {
@@ -11,14 +11,14 @@ import {
 import { ModalController } from "@ionic/angular";
 import { LoggingModalPage } from "../logging-modal/logging-modal.page";
 import { takeUntil } from "rxjs/operators";
-import { componentDestroyed } from "@w11k/ngx-componentdestroyed";
+import { OnDestroyMixin, untilComponentDestroyed } from "@w11k/ngx-componentdestroyed";
 
 @Component({
     selector: "app-notlogged",
     templateUrl: "./notlogged.page.html",
     styleUrls: ["./notlogged.page.scss"],
 })
-export class NotloggedPage implements OnInit, OnDestroy {
+export class NotloggedPage extends OnDestroyMixin implements OnInit {
     public loading: boolean;
     public orak: Lesson[] = [];
 
@@ -33,19 +33,19 @@ export class NotloggedPage implements OnInit, OnDestroy {
         private cd: ChangeDetectorRef,
         private config: ConfigService,
         private firebase: FirebaseService
-    ) {}
+    ) {
+        super();
+    }
 
     ngOnInit(): void {
         this.firebase.setScreenName("not_logged_lessons");
         this.networkStatus
             .onNetworkChangeOnly()
-            .pipe(takeUntil(componentDestroyed(this)))
+            .pipe(untilComponentDestroyed(this))
             .subscribe(x => {
                 if (x === ConnectionStatus.Online) this.loadHianyzoOrak();
             });
     }
-
-    ngOnDestroy() {}
 
     async ionViewWillEnter() {
         this.loading = true;
@@ -60,7 +60,7 @@ export class NotloggedPage implements OnInit, OnDestroy {
         for (let i = 0; i < this.napToCheck; i++) {
             let d = new Date(this.dateHelper.getDayFromToday(-i));
             (await this.kreta.getTimetable(d, forceRefresh))
-                .pipe(takeUntil(componentDestroyed(this)))
+                .pipe(untilComponentDestroyed(this))
                 .subscribe(
                     x => {
                         x.forEach(ora => {
