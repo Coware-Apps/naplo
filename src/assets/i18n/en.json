@@ -89,7 +89,11 @@
         "field-topic": "Subject",
         "field-mode": "Method",
         "average-of": "Average of the entered evaluations:",
-        "textual-placeholder": "Enter your evaluation here..."
+        "textual-placeholder": "Enter your evaluation here...",
+        "date-required": "Please select an evaluation date!",
+        "mode-required": "Please select a method!",
+        "error-saving": "An error occurred during saving",
+        "error-no-connection": "There's no internet, therefore the group cannot be evaluated right now."
     },
     "notlogged": {
         "title": "Not logged lessons",

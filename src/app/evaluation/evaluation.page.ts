@@ -11,6 +11,7 @@ import { DateHelper, ErrorHelper } from "../_helpers";
 import { ModalController } from "@ionic/angular";
 import { EvaluationModalPage } from "../evaluation-modal/evaluation-modal.page";
 import { OnDestroyMixin, untilComponentDestroyed } from "@w11k/ngx-componentdestroyed";
+import { TranslateService } from "@ngx-translate/core";
 
 @Component({
     selector: "app-evaluation",
@@ -26,7 +27,8 @@ export class EvaluationPage extends OnDestroyMixin implements OnInit {
         private errorHelper: ErrorHelper,
         private cd: ChangeDetectorRef,
         private config: ConfigService,
-        private firebase: FirebaseService
+        private firebase: FirebaseService,
+        private translate: TranslateService
     ) {
         super();
     }
@@ -92,7 +94,7 @@ export class EvaluationPage extends OnDestroyMixin implements OnInit {
 
         if (this.networkStatus.getCurrentNetworkStatus() === ConnectionStatus.Offline)
             return await this.errorHelper.presentToast(
-                "Nincs internetkapcsolat, ezért a csoport most nem értékelhető!"
+                await this.translate.get("eval.error-no-connection").toPromise()
             );
 
         const modal = await this.modalController.create({

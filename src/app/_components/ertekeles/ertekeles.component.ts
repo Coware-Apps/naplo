@@ -15,10 +15,11 @@ import {
     ErtekelesTipus,
 } from "src/app/_models";
 import { TanuloErtekelesComponent } from "../tanulo-ertekeles/tanulo-ertekeles.component";
-import { KretaService, ConfigService } from "src/app/_services";
+import { KretaService, ConfigService, FirebaseService } from "src/app/_services";
 import { DateHelper, ErrorHelper } from "src/app/_helpers";
 import { PickerController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
+import { stringify } from "flatted/esm";
 
 @Component({
     selector: "app-ertekeles",
@@ -50,7 +51,8 @@ export class ErtekelesComponent implements OnInit, OnChanges {
         private picker: PickerController,
         private error: ErrorHelper,
         private config: ConfigService,
-        private translate: TranslateService
+        private translate: TranslateService,
+        private firebase: FirebaseService
     ) {}
 
     async ngOnInit() {
@@ -129,15 +131,19 @@ export class ErtekelesComponent implements OnInit, OnChanges {
         // ha nincs egy értékelés se, akkor nem kell kitölteni a mezőket
         if (ertekelesLista.length == 0) return true;
 
-        // értékelési dátuma kötelező
+        // értékelés dátuma kötelező
         if (!this.ertekelesDatum) {
-            await this.error.presentAlert("Az értékelés dátumának kiválasztása kötelező!");
+            await this.error.presentAlert(
+                await this.translate.get("eval.date-required").toPromise()
+            );
             return false;
         }
 
         // értékelési mód kötelező
         if (!this.ertekelesMod) {
-            await this.error.presentAlert("Az értékelés módjának kiválasztása kötelező!");
+            await this.error.presentAlert(
+                await this.translate.get("eval.mode-required").toPromise()
+            );
             return false;
         }
 
@@ -177,9 +183,8 @@ export class ErtekelesComponent implements OnInit, OnChanges {
                     await this.error.presentAlert(
                         hibak,
                         ertekelesResponse[0].Exception.Message,
-                        "Hiba az értékelések mentésekor"
+                        await this.translate.get("eval.error-saving").toPromise()
                     );
-                    console.log(ertekelesResponse);
 
                     return false;
                 }
@@ -187,9 +192,13 @@ export class ErtekelesComponent implements OnInit, OnChanges {
                 if (e.error) {
                     let err = JSON.parse(e.error);
                     await this.error.presentAlert(
-                        "Szerveroldali hiba történt az értékelések mentése során: " + err.Message
+                        (await this.translate.get("eval.error-saving").toPromise()) +
+                            ":<br>" +
+                            err.Message
                     );
-                } else console.log("Unhandled exception: ", e);
+                } else console.error("Unhandled exception: ", e);
+
+                this.firebase.logError("[EVALUATION] save(): " + stringify(e));
 
                 return false;
             }

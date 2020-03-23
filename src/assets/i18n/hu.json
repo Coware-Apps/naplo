@@ -90,7 +90,11 @@
         "field-topic": "Az értékelés témája",
         "field-mode": "Az értékelés módja",
         "average-of": "A beírt értékelések átlaga:",
-        "textual-placeholder": "Ide írj szöveges értékelést..."
+        "textual-placeholder": "Ide írj szöveges értékelést...",
+        "date-required": "Az értékelés dátumának kiválasztása kötelező!",
+        "mode-required": "Az értékelés módjának kiválasztása kötelező!",
+        "error-saving": "Hiba az értékelések mentésekor",
+        "error-no-connection": "Nincs internetkapcsolat, ezért a csoport most nem értékelhető!"
     },
     "notlogged": {
         "title": "Nem naplózott órák",
