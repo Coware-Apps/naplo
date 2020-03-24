@@ -7,11 +7,10 @@ import {
     FirebaseService,
 } from "../_services";
 import { Lesson } from "../_models";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { ErrorHelper, DateHelper } from "../_helpers";
 import { DatePicker } from "@ionic-native/date-picker/ngx";
 import { ModalController } from "@ionic/angular";
-import { LoggingModalPage } from "../logging-modal/logging-modal.page";
 import { takeUntil } from "rxjs/operators";
 import {
     componentDestroyed,
@@ -20,6 +19,7 @@ import {
 } from "@w11k/ngx-componentdestroyed";
 import { stringify } from "flatted/esm";
 import { TranslateService } from "@ngx-translate/core";
+import { Location } from "@angular/common";
 
 @Component({
     selector: "app-timetable",
@@ -38,20 +38,24 @@ export class TimetablePage extends OnDestroyMixin implements OnInit {
         private networkStatus: NetworkStatusService,
         private cd: ChangeDetectorRef,
         private firebase: FirebaseService,
-        private translate: TranslateService
+        private translate: TranslateService,
+        private router: Router,
+        private location: Location
     ) {
         super();
     }
 
     public orarend: Lesson[];
-    public datum: Date;
+    public datum: Date = new Date();
     public loading: boolean;
 
     ngOnInit() {
-        const dateparam = this.route.snapshot.queryParamMap.get("date");
-        this.datum = dateparam ? new Date(dateparam) : new Date();
-        this.datum.setUTCHours(0, 0, 0, 0);
-        this.firebase.setScreenName("timetable");
+        // const dateparam = this.route.snapshot.queryParamMap.get("date");
+        this.route.paramMap.pipe(untilComponentDestroyed(this)).subscribe(params => {
+            this.datum = params.has("date") ? new Date(params.get("date")) : new Date();
+            this.datum.setUTCHours(0, 0, 0, 0);
+            this.loadTimetable();
+        });
 
         this.networkStatus
             .onNetworkChangeOnly()
@@ -62,7 +66,7 @@ export class TimetablePage extends OnDestroyMixin implements OnInit {
     }
 
     ionViewWillEnter() {
-        this.loadTimetable();
+        this.firebase.setScreenName("timetable");
     }
 
     async changeDate(direction: string) {
@@ -70,6 +74,11 @@ export class TimetablePage extends OnDestroyMixin implements OnInit {
         if (direction == "forward") this.datum.setDate(this.datum.getDate() + 1);
         else this.datum.setDate(this.datum.getDate() - 1);
 
+        this.location.go(
+            this.router
+                .createUrlTree([{ date: this.datum.toISOString() }], { relativeTo: this.route })
+                .toString()
+        );
         this.loadTimetable();
     }
 
@@ -127,15 +136,11 @@ export class TimetablePage extends OnDestroyMixin implements OnInit {
                 await this.translate.get("timetable.error-substituted").toPromise()
             );
 
-        const modal = await this.modalController.create({
-            component: LoggingModalPage,
-            componentProps: { lesson: l },
-            backdropDismiss: false,
+        this.router.navigate(["/logging"], {
+            state: {
+                lesson: l,
+            },
         });
-        await modal.present();
-
-        const { data } = await modal.onWillDismiss();
-        if (data && data.success) this.doRefresh();
     }
 
     public async showDatePicker() {

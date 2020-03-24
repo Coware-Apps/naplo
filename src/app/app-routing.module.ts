@@ -30,6 +30,10 @@ const routes: Routes = [
         loadChildren: () => import("./settings/settings.module").then(m => m.SettingsPageModule),
         canActivate: [LoginGuard],
     },
+    {
+        path: "logging",
+        loadChildren: () => import("./logging/logging.module").then(m => m.LoggingPageModule),
+    },
 ];
 
 @NgModule({
