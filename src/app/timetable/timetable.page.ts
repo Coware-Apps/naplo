@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from "@angular/core";
+import { Component, ChangeDetectorRef } from "@angular/core";
 import {
     KretaService,
     ConfigService,
@@ -11,62 +11,59 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { ErrorHelper, DateHelper } from "../_helpers";
 import { DatePicker } from "@ionic-native/date-picker/ngx";
 import { ModalController } from "@ionic/angular";
-import { takeUntil } from "rxjs/operators";
-import {
-    componentDestroyed,
-    untilComponentDestroyed,
-    OnDestroyMixin,
-} from "@w11k/ngx-componentdestroyed";
 import { stringify } from "flatted/esm";
 import { TranslateService } from "@ngx-translate/core";
 import { Location } from "@angular/common";
+import { Subscription } from "rxjs";
 
 @Component({
     selector: "app-timetable",
     templateUrl: "./timetable.page.html",
     styleUrls: ["./timetable.page.scss"],
 })
-export class TimetablePage extends OnDestroyMixin implements OnInit {
+export class TimetablePage {
     constructor(
+        public modalController: ModalController,
+        public config: ConfigService,
         private kreta: KretaService,
         private route: ActivatedRoute,
-        public config: ConfigService,
         private error: ErrorHelper,
         private datePicker: DatePicker,
         private dateHelper: DateHelper,
-        public modalController: ModalController,
         private networkStatus: NetworkStatusService,
         private cd: ChangeDetectorRef,
         private firebase: FirebaseService,
         private translate: TranslateService,
         private router: Router,
         private location: Location
-    ) {
-        super();
-    }
+    ) {}
 
     public orarend: Lesson[];
     public datum: Date = new Date();
     public loading: boolean;
 
-    ngOnInit() {
-        // const dateparam = this.route.snapshot.queryParamMap.get("date");
-        this.route.paramMap.pipe(untilComponentDestroyed(this)).subscribe(params => {
-            this.datum = params.has("date") ? new Date(params.get("date")) : new Date();
+    private subs: Subscription[] = [];
+
+    public ionViewWillEnter() {
+        this.firebase.setScreenName("timetable");
+
+        this.route.queryParams.subscribe(params => {
+            this.datum = params.date ? new Date(params.date) : new Date();
             this.datum.setUTCHours(0, 0, 0, 0);
             this.loadTimetable();
         });
 
-        this.networkStatus
-            .onNetworkChangeOnly()
-            .pipe(untilComponentDestroyed(this))
-            .subscribe(x => {
+        this.subs.push(
+            this.networkStatus.onNetworkChangeOnly().subscribe(x => {
                 if (x === ConnectionStatus.Online) this.loadTimetable();
-            });
+            })
+        );
     }
 
-    ionViewWillEnter() {
-        this.firebase.setScreenName("timetable");
+    public ionViewWillLeave() {
+        this.orarend = undefined;
+        this.datum = undefined;
+        this.subs.forEach(s => s.unsubscribe());
     }
 
     async changeDate(direction: string) {
@@ -74,12 +71,16 @@ export class TimetablePage extends OnDestroyMixin implements OnInit {
         if (direction == "forward") this.datum.setDate(this.datum.getDate() + 1);
         else this.datum.setDate(this.datum.getDate() - 1);
 
+        this.loadTimetable();
+
         this.location.go(
             this.router
-                .createUrlTree([{ date: this.datum.toISOString() }], { relativeTo: this.route })
+                .createUrlTree(["/"], {
+                    queryParams: { date: this.datum.toISOString() },
+                    relativeTo: this.route,
+                })
                 .toString()
         );
-        this.loadTimetable();
     }
 
     async loadTimetable(showLoading: boolean = true, forceRefresh: boolean = false) {
@@ -88,9 +89,8 @@ export class TimetablePage extends OnDestroyMixin implements OnInit {
         this.orarend = undefined;
 
         await this.firebase.startTrace("timetable_day_load_time");
-        (await this.kreta.getTimetable(this.datum, forceRefresh))
-            .pipe(takeUntil(componentDestroyed(this)))
-            .subscribe(
+        this.subs.push(
+            (await this.kreta.getTimetable(this.datum, forceRefresh)).subscribe(
                 x => {
                     this.orarend = x;
                     this.loading = false;
@@ -102,7 +102,8 @@ export class TimetablePage extends OnDestroyMixin implements OnInit {
 
                     this.loading = false;
                 }
-            );
+            )
+        );
     }
 
     public async doRefresh($event?) {

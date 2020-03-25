@@ -1,9 +1,10 @@
 <ion-header>
     <ion-toolbar color="primary">
         <ion-buttons slot="start">
-            <ion-button (click)="dismiss()" fill="clear">
+            <ion-back-button></ion-back-button>
+            <!-- <ion-button (click)="dismiss()" fill="clear">
                 <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
-            </ion-button>
+            </ion-button> -->
         </ion-buttons>
         <ion-title translate="logging.title"></ion-title>
 
@@ -38,7 +39,7 @@
 </ion-header>
 
 <ion-content>
-    <ion-slides (ionSlideWillChange)="onSlideChange()" #slides>
+    <ion-slides (ionSlideWillChange)="onSlideChange()">
         <ion-slide>
             <ion-item id="oratemaja">
                 <ion-label position="stacked" translate="logging.lesson-topic"></ion-label>
