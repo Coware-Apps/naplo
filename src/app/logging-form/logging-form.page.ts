@@ -187,6 +187,8 @@ export class LoggingFormPage implements IDirty {
     }
 
     public makeItDirty() {
+        console.debug("logging form got dirty");
+
         this._isDirty = true;
     }
 

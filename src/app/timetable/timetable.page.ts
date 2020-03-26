@@ -44,6 +44,7 @@ export class TimetablePage implements OnInit {
 
     private subs: Subscription[] = [];
 
+    // debug - live reload miatt van csak param
     public ngOnInit() {
         const paramDate = this.route.snapshot.queryParamMap.get("date");
         this.datum = paramDate ? new Date(paramDate) : new Date();

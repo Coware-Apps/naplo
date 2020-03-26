@@ -7,7 +7,7 @@
         [(ngModel)]="ertekelesDatum"
         cancelText="{{ 'common.cancel' | translate }}"
         doneText="{{ 'common.done' | translate }}"
-        (ionChange)="onSelectionChange.emit($event)"
+        (ionFocus)="onSelectionChange.emit($event)"
     >
     </ion-datetime>
 </ion-item>
@@ -17,7 +17,7 @@
     <ion-input
         type="text"
         [(ngModel)]="ertekelesTema"
-        (ionChange)="onSelectionChange.emit($event)"
+        (ionInput)="onSelectionChange.emit($event)"
     ></ion-input>
 </ion-item>
 
@@ -27,7 +27,7 @@
         type="text"
         [value]="ertekelesMod?.Nev"
         (click)="presentErtekelesModPicker()"
-        (ionChange)="onSelectionChange.emit($event)"
+        (ionInput)="onSelectionChange.emit($event)"
         readonly
     ></ion-input>
 </ion-item>

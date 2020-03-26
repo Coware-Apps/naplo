@@ -115,7 +115,7 @@
                     [(ngModel)]="hfHatarido"
                     cancelText="{{ 'common.cancel' | translate }}"
                     doneText="{{ 'common.done' | translate }}"
-                    (ngModelChange)="makeItDirty()"
+                    (ionFocus)="makeItDirty()"
                 >
                 </ion-datetime>
             </ion-item>
