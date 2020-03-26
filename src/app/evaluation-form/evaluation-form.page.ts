@@ -42,18 +42,20 @@ export class EvaluationFormPage implements IDirty {
     async ionViewWillEnter() {
         this.firebase.setScreenName("evaluation_modal");
 
-        this.route.paramMap.pipe(map(() => window.history.state)).subscribe(async state => {
-            this.tanitottCsoport = state.tanitottCsoport;
-            this._isDirty = false;
+        this.subs.push(
+            this.route.paramMap.pipe(map(() => window.history.state)).subscribe(async state => {
+                this.tanitottCsoport = state.tanitottCsoport;
+                this._isDirty = false;
 
-            await this.firebase.startTrace("evaluation_modal_load_time");
-            this.subs.push(
-                (
-                    await this.kreta.getOsztalyTanuloi(this.tanitottCsoport.OsztalyCsoportId)
-                ).subscribe(x => (this.osztalyTanuloi = x))
-            );
-            this.firebase.stopTrace("evaluation_modal_load_time");
-        });
+                await this.firebase.startTrace("evaluation_modal_load_time");
+                this.subs.push(
+                    (
+                        await this.kreta.getOsztalyTanuloi(this.tanitottCsoport.OsztalyCsoportId)
+                    ).subscribe(x => (this.osztalyTanuloi = x))
+                );
+                this.firebase.stopTrace("evaluation_modal_load_time");
+            })
+        );
 
         this.subs.push(
             this.networkStatus.onNetworkChange().subscribe(status => {

@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef } from "@angular/core";
+import { Component, ChangeDetectorRef, OnInit } from "@angular/core";
 import {
     KretaService,
     ConfigService,
@@ -21,7 +21,7 @@ import { Subscription } from "rxjs";
     templateUrl: "./timetable.page.html",
     styleUrls: ["./timetable.page.scss"],
 })
-export class TimetablePage {
+export class TimetablePage implements OnInit {
     constructor(
         public modalController: ModalController,
         public config: ConfigService,
@@ -39,19 +39,20 @@ export class TimetablePage {
     ) {}
 
     public orarend: Lesson[];
-    public datum: Date = new Date();
+    public datum: Date;
     public loading: boolean;
 
     private subs: Subscription[] = [];
 
+    public ngOnInit() {
+        const paramDate = this.route.snapshot.queryParamMap.get("date");
+        this.datum = paramDate ? new Date(paramDate) : new Date();
+        this.datum.setUTCHours(0, 0, 0, 0);
+    }
+
     public ionViewWillEnter() {
         this.firebase.setScreenName("timetable");
-
-        this.route.queryParams.subscribe(params => {
-            this.datum = params.date ? new Date(params.date) : new Date();
-            this.datum.setUTCHours(0, 0, 0, 0);
-            this.loadTimetable();
-        });
+        this.loadTimetable();
 
         this.subs.push(
             this.networkStatus.onNetworkChangeOnly().subscribe(x => {
@@ -77,7 +78,7 @@ export class TimetablePage {
 
         this.location.go(
             this.router
-                .createUrlTree(["/"], {
+                .createUrlTree([], {
                     queryParams: { date: this.datum.toISOString() },
                     relativeTo: this.route,
                 })

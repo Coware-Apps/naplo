@@ -94,70 +94,78 @@ export class LoggingFormPage implements IDirty {
     public async ionViewWillEnter() {
         this.firebase.setScreenName("logging");
 
-        this.route.paramMap.pipe(map(() => window.history.state)).subscribe(async state => {
-            this.lesson = state.lesson;
+        this.subs.push(
+            this.route.paramMap.pipe(map(() => window.history.state)).subscribe(async state => {
+                this.lesson = state.lesson;
 
-            if (!this.lesson) {
-                this.router.navigate(["/timetable"]);
-                throw new Error("No lesson found in the route state, redirecting to timetable...");
-            }
-
-            this._isDirty = false;
-            this.loading = ["osztalyTanuloi", "javasoltJelenlet"];
-
-            if (this.lesson && this.lesson.KezdeteUtc) {
-                this.kezdete = new Date(this.lesson.KezdeteUtc);
-                this.tema = this.lesson.Tema;
-                this.hfHatarido = this.lesson.HazifeladatHataridoUtc
-                    ? new Date(this.lesson.HazifeladatHataridoUtc).toISOString()
-                    : null;
-                this.hfSzoveg = this.lesson.HazifeladatSzovege
-                    ? this.lesson.HazifeladatSzovege.replace(/\<br \/\>/g, "\n")
-                    : null;
-                this.evesOraSorszam =
-                    this.lesson.Allapot.Nev == "Naplozott"
-                        ? this.lesson.EvesOraszam
-                        : this.lesson.EvesOraszam + 1;
-
-                await this.firebase.startTrace("logging_modal_load_time");
-
-                this.subs.push(
-                    (await this.kreta.getOsztalyTanuloi(this.lesson.OsztalyCsoportId)).subscribe(
-                        x => {
-                            this.osztalyTanuloi = x;
-                            this.loadingDone("osztalyTanuloi");
-                        }
-                    )
-                );
-
-                if (this.lesson.Allapot.Nev == "Naplozott") {
-                    this.loading.push("mulasztas");
-                    this.subs.push(
-                        (await this.kreta.getMulasztas(this.lesson.TanitasiOraId)).subscribe(x => {
-                            this.mulasztasok = x;
-                            this.loadingDone("mulasztas");
-                        })
-                    );
-
-                    this.loading.push("feljegyzesek");
-                    this.subs.push(
-                        (await this.kreta.getFeljegyzes(this.lesson.TanitasiOraId)).subscribe(x => {
-                            this.feljegyzesek = x;
-                            this.loadingDone("feljegyzesek");
-                        })
+                if (!this.lesson) {
+                    this.router.navigate(["/timetable"]);
+                    throw new Error(
+                        "No lesson found in the route state, redirecting to timetable..."
                     );
                 }
 
-                this.subs.push(
-                    (await this.kreta.getJavasoltJelenlet(this.lesson)).subscribe(x => {
-                        this.javasoltJelenlet = x;
-                        this.loadingDone("javasoltJelenlet");
-                    })
-                );
+                this._isDirty = false;
+                this.loading = ["osztalyTanuloi", "javasoltJelenlet"];
 
-                this.firebase.stopTrace("logging_modal_load_time");
-            }
-        });
+                if (this.lesson && this.lesson.KezdeteUtc) {
+                    this.kezdete = new Date(this.lesson.KezdeteUtc);
+                    this.tema = this.lesson.Tema;
+                    this.hfHatarido = this.lesson.HazifeladatHataridoUtc
+                        ? new Date(this.lesson.HazifeladatHataridoUtc).toISOString()
+                        : null;
+                    this.hfSzoveg = this.lesson.HazifeladatSzovege
+                        ? this.lesson.HazifeladatSzovege.replace(/\<br \/\>/g, "\n")
+                        : null;
+                    this.evesOraSorszam =
+                        this.lesson.Allapot.Nev == "Naplozott"
+                            ? this.lesson.EvesOraszam
+                            : this.lesson.EvesOraszam + 1;
+
+                    await this.firebase.startTrace("logging_modal_load_time");
+
+                    this.subs.push(
+                        (
+                            await this.kreta.getOsztalyTanuloi(this.lesson.OsztalyCsoportId)
+                        ).subscribe(x => {
+                            this.osztalyTanuloi = x;
+                            this.loadingDone("osztalyTanuloi");
+                        })
+                    );
+
+                    if (this.lesson.Allapot.Nev == "Naplozott") {
+                        this.loading.push("mulasztas");
+                        this.subs.push(
+                            (await this.kreta.getMulasztas(this.lesson.TanitasiOraId)).subscribe(
+                                x => {
+                                    this.mulasztasok = x;
+                                    this.loadingDone("mulasztas");
+                                }
+                            )
+                        );
+
+                        this.loading.push("feljegyzesek");
+                        this.subs.push(
+                            (await this.kreta.getFeljegyzes(this.lesson.TanitasiOraId)).subscribe(
+                                x => {
+                                    this.feljegyzesek = x;
+                                    this.loadingDone("feljegyzesek");
+                                }
+                            )
+                        );
+                    }
+
+                    this.subs.push(
+                        (await this.kreta.getJavasoltJelenlet(this.lesson)).subscribe(x => {
+                            this.javasoltJelenlet = x;
+                            this.loadingDone("javasoltJelenlet");
+                        })
+                    );
+
+                    this.firebase.stopTrace("logging_modal_load_time");
+                }
+            })
+        );
 
         this.subs.push(
             this.networkStatus.onNetworkChange().subscribe(status => {
