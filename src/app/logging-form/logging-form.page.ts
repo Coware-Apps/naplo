@@ -1,12 +1,5 @@
-import {
-    Component,
-    OnInit,
-    ViewChild,
-    ViewChildren,
-    QueryList,
-    Input,
-    ChangeDetectorRef,
-} from "@angular/core";
+import { Component, ViewChild, ViewChildren, QueryList, ChangeDetectorRef } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
 import {
     Lesson,
     OsztalyTanuloi,
@@ -14,11 +7,12 @@ import {
     JavasoltJelenletTemplate,
     Feljegyzes,
 } from "../_models";
+import { Subscription } from "rxjs";
 import {
     IonSlides,
+    IonContent,
     LoadingController,
     ModalController,
-    IonContent,
     PopoverController,
     AlertController,
     Platform,
@@ -32,49 +26,45 @@ import {
     KretaService,
     ConfigService,
     NetworkStatusService,
-    ConnectionStatus,
     FirebaseService,
+    ConnectionStatus,
 } from "../_services";
 import { ErrorHelper, DateHelper } from "../_helpers";
-import { OnDestroyMixin, untilComponentDestroyed } from "@w11k/ngx-componentdestroyed";
-import { CurriculumModalPage } from "../curriculum-modal/curriculum-modal.page";
-import { TopicOptionsComponent } from "../logging/topic-options/topic-options.component";
 import { TranslateService } from "@ngx-translate/core";
-import { Subscription } from "rxjs";
+import { CurriculumModalPage } from "../curriculum-modal/curriculum-modal.page";
+import { TopicOptionsComponent } from "./topic-options/topic-options.component";
+import { map } from "rxjs/operators";
+import { Location } from "@angular/common";
 
 @Component({
-    selector: "app-logging-modal",
-    templateUrl: "./logging-modal.page.html",
-    styleUrls: ["./logging-modal.page.scss"],
+    selector: "app-logging",
+    templateUrl: "./logging-form.page.html",
+    styleUrls: ["./logging-form.page.scss"],
 })
-export class LoggingModalPage extends OnDestroyMixin implements OnInit {
-    @Input() lesson: Lesson;
+export class LoggingFormPage {
+    private subs: Subscription[] = [];
+    public lesson: Lesson;
 
     public loading: string[];
     public kezdete: Date;
     public evesOraSorszam: number = 0;
     public activeTabIndex: number = 0;
     public currentlyOffline: boolean;
-    private backButtonSub: Subscription;
 
-    // mulasztások tab
+    // tabs
     public tema: string;
     public osztalyTanuloi: OsztalyTanuloi;
     public mulasztasok: Mulasztas[];
     public javasoltJelenlet: JavasoltJelenletTemplate;
-
-    // házi feladat tab
     public hfHatarido: string;
     public hfSzoveg: string;
-
-    // feljegyzések tab
     public feljegyzesek: Feljegyzes[];
 
-    @ViewChild("slides", { static: true })
+    @ViewChild(IonSlides, { static: false })
     private slides: IonSlides;
-    @ViewChild("ertekeles", { static: true })
+    @ViewChild(ErtekelesComponent, { static: false })
     private ertekeles: ErtekelesComponent;
-    @ViewChild(IonContent, { static: true })
+    @ViewChild(IonContent, { static: false })
     private content: IonContent;
     @ViewChildren(TanuloJelenletComponent)
     private jelenletComponents: QueryList<TanuloJelenletComponent>;
@@ -94,78 +84,87 @@ export class LoggingModalPage extends OnDestroyMixin implements OnInit {
         private popoverController: PopoverController,
         private alertController: AlertController,
         private translate: TranslateService,
-        private platform: Platform
-    ) {
-        super();
-    }
+        private platform: Platform,
+        private route: ActivatedRoute,
+        private location: Location
+    ) {}
 
-    async ngOnInit() {
-        this.loading = ["osztalyTanuloi", "javasoltJelenlet"];
+    public async ionViewWillEnter() {
+        this.firebase.setScreenName("logging");
 
-        this.firebase.setScreenName("logging_modal");
+        this.route.paramMap.pipe(map(() => window.history.state)).subscribe(async state => {
+            this.lesson = state.lesson;
 
-        if (this.lesson && this.lesson.KezdeteUtc) {
-            this.kezdete = new Date(this.lesson.KezdeteUtc);
-            this.tema = this.lesson.Tema;
-            this.hfHatarido = this.lesson.HazifeladatHataridoUtc
-                ? new Date(this.lesson.HazifeladatHataridoUtc).toISOString()
-                : null;
-            this.hfSzoveg = this.lesson.HazifeladatSzovege
-                ? this.lesson.HazifeladatSzovege.replace(/\<br \/\>/g, "\n")
-                : null;
-            this.evesOraSorszam =
-                this.lesson.Allapot.Nev == "Naplozott"
-                    ? this.lesson.EvesOraszam
-                    : this.lesson.EvesOraszam + 1;
+            this.loading = ["osztalyTanuloi", "javasoltJelenlet"];
 
-            await this.firebase.startTrace("logging_modal_load_time");
+            if (this.lesson && this.lesson.KezdeteUtc) {
+                this.kezdete = new Date(this.lesson.KezdeteUtc);
+                this.tema = this.lesson.Tema;
+                this.hfHatarido = this.lesson.HazifeladatHataridoUtc
+                    ? new Date(this.lesson.HazifeladatHataridoUtc).toISOString()
+                    : null;
+                this.hfSzoveg = this.lesson.HazifeladatSzovege
+                    ? this.lesson.HazifeladatSzovege.replace(/\<br \/\>/g, "\n")
+                    : null;
+                this.evesOraSorszam =
+                    this.lesson.Allapot.Nev == "Naplozott"
+                        ? this.lesson.EvesOraszam
+                        : this.lesson.EvesOraszam + 1;
 
-            (await this.kreta.getOsztalyTanuloi(this.lesson.OsztalyCsoportId))
-                .pipe(untilComponentDestroyed(this))
-                .subscribe(x => {
-                    this.osztalyTanuloi = x;
-                    this.loadingDone("osztalyTanuloi");
-                });
+                await this.firebase.startTrace("logging_modal_load_time");
 
-            if (this.lesson.Allapot.Nev == "Naplozott") {
-                this.loading.push("mulasztas");
-                (await this.kreta.getMulasztas(this.lesson.TanitasiOraId))
-                    .pipe(untilComponentDestroyed(this))
-                    .subscribe(x => {
-                        this.mulasztasok = x;
-                        this.loadingDone("mulasztas");
-                    });
+                this.subs.push(
+                    (await this.kreta.getOsztalyTanuloi(this.lesson.OsztalyCsoportId)).subscribe(
+                        x => {
+                            this.osztalyTanuloi = x;
+                            this.loadingDone("osztalyTanuloi");
+                        }
+                    )
+                );
 
-                this.loading.push("feljegyzesek");
-                (await this.kreta.getFeljegyzes(this.lesson.TanitasiOraId))
-                    .pipe(untilComponentDestroyed(this))
-                    .subscribe(x => {
-                        this.feljegyzesek = x;
-                        this.loadingDone("feljegyzesek");
-                    });
+                if (this.lesson.Allapot.Nev == "Naplozott") {
+                    this.loading.push("mulasztas");
+                    this.subs.push(
+                        (await this.kreta.getMulasztas(this.lesson.TanitasiOraId)).subscribe(x => {
+                            this.mulasztasok = x;
+                            this.loadingDone("mulasztas");
+                        })
+                    );
+
+                    this.loading.push("feljegyzesek");
+                    this.subs.push(
+                        (await this.kreta.getFeljegyzes(this.lesson.TanitasiOraId)).subscribe(x => {
+                            this.feljegyzesek = x;
+                            this.loadingDone("feljegyzesek");
+                        })
+                    );
+                }
+
+                this.subs.push(
+                    (await this.kreta.getJavasoltJelenlet(this.lesson)).subscribe(x => {
+                        this.javasoltJelenlet = x;
+                        this.loadingDone("javasoltJelenlet");
+                    })
+                );
+
+                this.firebase.stopTrace("logging_modal_load_time");
+            } else {
+                console.log("no lesson: ", this.lesson);
             }
+        });
 
-            (await this.kreta.getJavasoltJelenlet(this.lesson))
-                .pipe(untilComponentDestroyed(this))
-                .subscribe(x => {
-                    this.javasoltJelenlet = x;
-                    this.loadingDone("javasoltJelenlet");
-                });
-
-            this.firebase.stopTrace("logging_modal_load_time");
-        }
-
-        this.networkStatus
-            .onNetworkChange()
-            .pipe(untilComponentDestroyed(this))
-            .subscribe(status => {
+        this.subs.push(
+            this.networkStatus.onNetworkChange().subscribe(status => {
                 this.currentlyOffline = status === ConnectionStatus.Offline;
                 this.cd.detectChanges();
-            });
+            })
+        );
 
-        this.backButtonSub = this.platform.backButton
-            .pipe(untilComponentDestroyed(this))
-            .subscribe(x => this.dismiss());
+        this.subs.push(this.platform.backButton.subscribe(x => this.dismiss()));
+    }
+
+    public async ionViewWillLeave() {
+        this.subs.forEach(s => s.unsubscribe());
     }
 
     private loadingDone(key: string) {
@@ -178,8 +177,8 @@ export class LoggingModalPage extends OnDestroyMixin implements OnInit {
         this.activeTabIndex = await this.slides.getActiveIndex();
     }
 
-    public async slideToTab(slide: number) {
-        await this.slides.slideTo(slide);
+    public slideToTab(slide: number) {
+        this.slides.slideTo(slide);
     }
 
     public async save() {
@@ -247,7 +246,7 @@ export class LoggingModalPage extends OnDestroyMixin implements OnInit {
         this.kreta.removeMulasztasFromCache(this.lesson.TanitasiOraId);
         this.kreta.removeFeljegyzesFromCache(this.lesson.TanitasiOraId);
 
-        if (ertekelesSaveResult) this.modalController.dismiss({ success: true });
+        if (ertekelesSaveResult) this.dismiss();
     }
 
     private async saveCancelled() {
@@ -291,7 +290,7 @@ export class LoggingModalPage extends OnDestroyMixin implements OnInit {
 
         // sikeres naplózás
         this.kreta.removeDayFromCache(this.lesson.KezdeteUtc);
-        this.modalController.dismiss({ success: true });
+        this.dismiss();
     }
 
     private getTanuloLista() {
@@ -319,15 +318,8 @@ export class LoggingModalPage extends OnDestroyMixin implements OnInit {
             },
         });
 
-        // modal in modal, back button handling
-        this.backButtonSub.unsubscribe();
-
         await modal.present();
         const { data } = await modal.onWillDismiss();
-
-        this.backButtonSub = this.platform.backButton
-            .pipe(untilComponentDestroyed(this))
-            .subscribe(x => this.dismiss());
 
         if (data && data.tanmenetElem) this.tema = data.tanmenetElem.Tema;
     }
@@ -366,23 +358,25 @@ export class LoggingModalPage extends OnDestroyMixin implements OnInit {
         if (data.result == "curriculum") this.openTanmenet();
     }
 
-    public async dismiss() {
-        const alert = await this.alertController.create({
-            header: await this.translate.get("common.are-you-sure").toPromise(),
-            message: await this.translate.get("common.data-will-be-lost").toPromise(),
-            buttons: [
-                {
-                    text: await this.translate.get("common.cancel").toPromise(),
-                    role: "cancel",
-                    cssClass: "secondary",
-                },
-                {
-                    text: await this.translate.get("common.exit").toPromise(),
-                    handler: () => this.modalController.dismiss(),
-                },
-            ],
-        });
+    public dismiss() {
+        // const alert = await this.alertController.create({
+        //     header: await this.translate.get("common.are-you-sure").toPromise(),
+        //     message: await this.translate.get("common.data-will-be-lost").toPromise(),
+        //     buttons: [
+        //         {
+        //             text: await this.translate.get("common.cancel").toPromise(),
+        //             role: "cancel",
+        //             cssClass: "secondary",
+        //         },
+        //         {
+        //             text: await this.translate.get("common.exit").toPromise(),
+        //             handler: () => this.router.navigate(["/timetable"]),
+        //         },
+        //     ],
+        // });
 
-        await alert.present();
+        // await alert.present();
+
+        this.location.back();
     }
 }

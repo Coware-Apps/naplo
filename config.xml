@@ -3,7 +3,7 @@
     <name>NaploPlusz</name>
     <description>Nem hivatalos, KRÉTA-kompatibilis tanári napló alkalmazás</description>
     <author email="cowareapps@gmail.com" href="https://coware-apps.github.io/">Coware</author>
-    <content src="index.html" />
+    <content original-src="index.html" src="http://localhost:8100" />
     <access origin="*" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />

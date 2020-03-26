@@ -4,9 +4,9 @@ import { FormsModule } from "@angular/forms";
 
 import { IonicModule } from "@ionic/angular";
 
-import { EvaluationModalPageRoutingModule } from "./evaluation-modal-routing.module";
+import { EvaluationFormPageRoutingModule } from "./evaluation-form-routing.module";
 
-import { EvaluationModalPage } from "./evaluation-modal.page";
+import { EvaluationFormPage } from "./evaluation-form.page";
 import { ComponentsModule } from "../_components/components.module";
 import { TranslateModule } from "@ngx-translate/core";
 
@@ -14,11 +14,11 @@ import { TranslateModule } from "@ngx-translate/core";
     imports: [
         CommonModule,
         FormsModule,
-        IonicModule,
         ComponentsModule,
-        EvaluationModalPageRoutingModule,
+        IonicModule,
+        EvaluationFormPageRoutingModule,
         TranslateModule,
     ],
-    declarations: [EvaluationModalPage],
+    declarations: [EvaluationFormPage],
 })
-export class EvaluationModalPageModule {}
+export class EvaluationFormPageModule {}

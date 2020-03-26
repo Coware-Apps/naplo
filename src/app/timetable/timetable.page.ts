@@ -62,7 +62,6 @@ export class TimetablePage {
 
     public ionViewWillLeave() {
         this.orarend = undefined;
-        this.datum = undefined;
         this.subs.forEach(s => s.unsubscribe());
     }
 

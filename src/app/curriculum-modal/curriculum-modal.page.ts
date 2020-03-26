@@ -1,29 +1,29 @@
-import { Component, OnInit, Input } from "@angular/core";
+import { Component, OnInit, Input, OnDestroy } from "@angular/core";
 import { Lesson, Tanmenet, TanmenetElem } from "../_models";
 import { ModalController } from "@ionic/angular";
 import { NetworkStatusService, ConnectionStatus, KretaService } from "../_services";
-import { untilComponentDestroyed, OnDestroyMixin } from "@w11k/ngx-componentdestroyed";
+import { Subscription } from "rxjs";
 
 @Component({
     selector: "app-curriculum-modal",
     templateUrl: "./curriculum-modal.page.html",
     styleUrls: ["./curriculum-modal.page.scss"],
 })
-export class CurriculumModalPage extends OnDestroyMixin implements OnInit {
+export class CurriculumModalPage {
     @Input() public lesson: Lesson;
     public currentlyOffline: boolean;
     public tanmenet: Tanmenet;
     public evesOraSorszam: number = 0;
 
+    private subs: Subscription[] = [];
+
     constructor(
         private modalController: ModalController,
         private networkStatus: NetworkStatusService,
         private kreta: KretaService
-    ) {
-        super();
-    }
+    ) {}
 
-    async ngOnInit() {
+    async ionViewWillEnter() {
         this.evesOraSorszam =
             this.lesson.Allapot.Nev == "Naplozott"
                 ? this.lesson.EvesOraszam
@@ -31,12 +31,15 @@ export class CurriculumModalPage extends OnDestroyMixin implements OnInit {
 
         (await this.kreta.getTanmenet(this.lesson)).subscribe(x => (this.tanmenet = x));
 
-        this.networkStatus
-            .onNetworkChange()
-            .pipe(untilComponentDestroyed(this))
-            .subscribe(status => {
+        this.subs.push(
+            this.networkStatus.onNetworkChange().subscribe(status => {
                 this.currentlyOffline = status === ConnectionStatus.Offline;
-            });
+            })
+        );
+    }
+
+    ionViewWillLeave() {
+        this.subs.forEach(s => s.unsubscribe());
     }
 
     public save(t: TanmenetElem) {

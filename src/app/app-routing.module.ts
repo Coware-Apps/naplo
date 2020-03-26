@@ -32,7 +32,17 @@ const routes: Routes = [
     },
     {
         path: "logging",
-        loadChildren: () => import("./logging/logging.module").then(m => m.LoggingPageModule),
+        loadChildren: () =>
+            import("./logging-form/logging-form.module").then(m => m.LoggingFormPageModule),
+        canActivate: [LoginGuard],
+    },
+    {
+        path: "evaluation-form",
+        loadChildren: () =>
+            import("./evaluation-form/evaluation-form.module").then(
+                m => m.EvaluationFormPageModule
+            ),
+        canActivate: [LoginGuard],
     },
 ];
 
