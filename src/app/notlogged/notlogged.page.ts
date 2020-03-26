@@ -48,7 +48,10 @@ export class NotloggedPage {
     }
 
     ionViewWillLeave() {
-        this.subs.forEach(s => s.unsubscribe());
+        this.subs.forEach((s, index, object) => {
+            s.unsubscribe();
+            object.splice(index, 1);
+        });
     }
 
     async loadHianyzoOrak(forceRefresh: boolean = false, $event?) {

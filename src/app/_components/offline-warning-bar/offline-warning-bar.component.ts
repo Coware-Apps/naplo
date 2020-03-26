@@ -25,6 +25,9 @@ export class OfflineWarningBarComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.subs.forEach(s => s.unsubscribe());
+        this.subs.forEach((s, index, object) => {
+            s.unsubscribe();
+            object.splice(index, 1);
+        });
     }
 }

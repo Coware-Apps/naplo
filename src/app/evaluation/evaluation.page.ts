@@ -89,7 +89,10 @@ export class EvaluationPage {
     }
 
     ionViewWillLeave() {
-        this.subs.forEach(s => s.unsubscribe());
+        this.subs.forEach((s, index, object) => {
+            s.unsubscribe();
+            object.splice(index, 1);
+        });
     }
 
     async onCsoportClick(c: TanitottCsoport) {

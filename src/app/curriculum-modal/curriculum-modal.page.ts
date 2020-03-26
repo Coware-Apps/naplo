@@ -39,7 +39,10 @@ export class CurriculumModalPage {
     }
 
     ionViewWillLeave() {
-        this.subs.forEach(s => s.unsubscribe());
+        this.subs.forEach((s, index, object) => {
+            s.unsubscribe();
+            object.splice(index, 1);
+        });
     }
 
     public save(t: TanmenetElem) {

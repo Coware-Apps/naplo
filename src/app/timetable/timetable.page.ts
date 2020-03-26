@@ -62,7 +62,10 @@ export class TimetablePage {
 
     public ionViewWillLeave() {
         this.orarend = undefined;
-        this.subs.forEach(s => s.unsubscribe());
+        this.subs.forEach((s, index, object) => {
+            s.unsubscribe();
+            object.splice(index, 1);
+        });
     }
 
     async changeDate(direction: string) {
