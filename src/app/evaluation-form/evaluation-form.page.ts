@@ -1,5 +1,5 @@
 import { Component, ViewChild, ChangeDetectorRef } from "@angular/core";
-import { TanitottCsoport, OsztalyTanuloi } from "../_models";
+import { TanitottCsoport, OsztalyTanuloi, IDirty } from "../_models";
 import { ErtekelesComponent } from "../_components";
 import { Subscription } from "rxjs";
 import {
@@ -8,7 +8,7 @@ import {
     FirebaseService,
     ConnectionStatus,
 } from "../_services";
-import { ModalController, LoadingController, Platform } from "@ionic/angular";
+import { LoadingController } from "@ionic/angular";
 import { Location } from "@angular/common";
 import { ActivatedRoute } from "@angular/router";
 import { map } from "rxjs/operators";
@@ -18,23 +18,23 @@ import { map } from "rxjs/operators";
     templateUrl: "./evaluation-form.page.html",
     styleUrls: ["./evaluation-form.page.scss"],
 })
-export class EvaluationFormPage {
-    @ViewChild("ertekeles", { static: true })
+export class EvaluationFormPage implements IDirty {
+    @ViewChild(ErtekelesComponent, { static: true })
     private ertekeles: ErtekelesComponent;
 
     public tanitottCsoport: TanitottCsoport;
     public osztalyTanuloi: OsztalyTanuloi;
     public currentlyOffline: boolean;
+
     private subs: Subscription[] = [];
+    private _isDirty: boolean;
 
     constructor(
         private kreta: KretaService,
-        public modalController: ModalController,
         public loadingController: LoadingController,
         private networkStatus: NetworkStatusService,
         private cd: ChangeDetectorRef,
         private firebase: FirebaseService,
-        private platform: Platform,
         private location: Location,
         private route: ActivatedRoute
     ) {}
@@ -43,9 +43,8 @@ export class EvaluationFormPage {
         this.firebase.setScreenName("evaluation_modal");
 
         this.route.paramMap.pipe(map(() => window.history.state)).subscribe(async state => {
-            console.log("STATE", state);
-
             this.tanitottCsoport = state.tanitottCsoport;
+            this._isDirty = false;
 
             await this.firebase.startTrace("evaluation_modal_load_time");
             this.subs.push(
@@ -62,12 +61,18 @@ export class EvaluationFormPage {
                 this.cd.detectChanges();
             })
         );
-
-        this.subs.push(this.platform.backButton.subscribe(x => this.dismiss()));
     }
 
     ionViewWillLeave() {
         this.subs.forEach(s => s.unsubscribe());
+    }
+
+    isDirty(): boolean {
+        return this._isDirty;
+    }
+
+    public makeItDirty() {
+        this._isDirty = true;
     }
 
     public async save() {
@@ -80,28 +85,9 @@ export class EvaluationFormPage {
         this.firebase.stopTrace("evaluation_modal_post_time");
         await loading.dismiss();
 
-        if (ertekelesSaveResult) this.modalController.dismiss();
-    }
-
-    public async dismiss() {
-        // const alert = await this.alertController.create({
-        //     header: await this.translate.get("common.are-you-sure").toPromise(),
-        //     message: await this.translate.get("common.data-will-be-lost").toPromise(),
-        //     buttons: [
-        //         {
-        //             text: await this.translate.get("common.cancel").toPromise(),
-        //             role: "cancel",
-        //             cssClass: "secondary",
-        //         },
-        //         {
-        //             text: await this.translate.get("common.exit").toPromise(),
-        //             handler: () => this.modalController.dismiss(),
-        //         },
-        //     ],
-        // });
-
-        // await alert.present();
-
-        this.location.back();
+        if (ertekelesSaveResult) {
+            this._isDirty = false;
+            this.location.back();
+        }
     }
 }

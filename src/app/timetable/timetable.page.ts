@@ -136,7 +136,7 @@ export class TimetablePage {
                 await this.translate.get("timetable.error-substituted").toPromise()
             );
 
-        this.router.navigate(["/logging"], {
+        this.router.navigate(["/logging-form"], {
             state: {
                 lesson: l,
             },

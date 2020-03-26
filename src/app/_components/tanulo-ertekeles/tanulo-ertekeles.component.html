@@ -48,6 +48,7 @@
         type="text"
         placeholder="{{ 'eval.textual-placeholder' | translate }}"
         [(ngModel)]="szoveges"
+        (ionInput)="onSelectionChange.emit()"
     ></ion-input>
 </div>
 

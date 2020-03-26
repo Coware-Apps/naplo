@@ -1,11 +1,12 @@
 import { Component, ViewChild, ViewChildren, QueryList, ChangeDetectorRef } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import {
     Lesson,
     OsztalyTanuloi,
     Mulasztas,
     JavasoltJelenletTemplate,
     Feljegyzes,
+    IDirty,
 } from "../_models";
 import { Subscription } from "rxjs";
 import {
@@ -15,7 +16,6 @@ import {
     ModalController,
     PopoverController,
     AlertController,
-    Platform,
 } from "@ionic/angular";
 import {
     ErtekelesComponent,
@@ -41,8 +41,10 @@ import { Location } from "@angular/common";
     templateUrl: "./logging-form.page.html",
     styleUrls: ["./logging-form.page.scss"],
 })
-export class LoggingFormPage {
+export class LoggingFormPage implements IDirty {
     private subs: Subscription[] = [];
+    private _isDirty: boolean;
+
     public lesson: Lesson;
 
     public loading: string[];
@@ -72,11 +74,11 @@ export class LoggingFormPage {
     private feljegyzesComponents: QueryList<TanuloFeljegyzesComponent>;
 
     constructor(
-        private kreta: KretaService,
+        public dateHelper: DateHelper,
         public config: ConfigService,
+        private kreta: KretaService,
         private error: ErrorHelper,
         private loadingController: LoadingController,
-        public dateHelper: DateHelper,
         private modalController: ModalController,
         private networkStatus: NetworkStatusService,
         private cd: ChangeDetectorRef,
@@ -84,8 +86,8 @@ export class LoggingFormPage {
         private popoverController: PopoverController,
         private alertController: AlertController,
         private translate: TranslateService,
-        private platform: Platform,
         private route: ActivatedRoute,
+        private router: Router,
         private location: Location
     ) {}
 
@@ -95,6 +97,12 @@ export class LoggingFormPage {
         this.route.paramMap.pipe(map(() => window.history.state)).subscribe(async state => {
             this.lesson = state.lesson;
 
+            if (!this.lesson) {
+                this.router.navigate(["/timetable"]);
+                throw new Error("No lesson found in the route state, redirecting to timetable...");
+            }
+
+            this._isDirty = false;
             this.loading = ["osztalyTanuloi", "javasoltJelenlet"];
 
             if (this.lesson && this.lesson.KezdeteUtc) {
@@ -148,8 +156,6 @@ export class LoggingFormPage {
                 );
 
                 this.firebase.stopTrace("logging_modal_load_time");
-            } else {
-                console.log("no lesson: ", this.lesson);
             }
         });
 
@@ -159,12 +165,20 @@ export class LoggingFormPage {
                 this.cd.detectChanges();
             })
         );
-
-        this.subs.push(this.platform.backButton.subscribe(x => this.dismiss()));
     }
 
     public async ionViewWillLeave() {
         this.subs.forEach(s => s.unsubscribe());
+    }
+
+    public isDirty(): boolean {
+        return this._isDirty;
+    }
+
+    public makeItDirty() {
+        console.debug("model got dirty");
+
+        this._isDirty = true;
     }
 
     private loadingDone(key: string) {
@@ -246,7 +260,10 @@ export class LoggingFormPage {
         this.kreta.removeMulasztasFromCache(this.lesson.TanitasiOraId);
         this.kreta.removeFeljegyzesFromCache(this.lesson.TanitasiOraId);
 
-        if (ertekelesSaveResult) this.dismiss();
+        if (ertekelesSaveResult) {
+            this._isDirty = false;
+            this.location.back();
+        }
     }
 
     private async saveCancelled() {
@@ -290,7 +307,8 @@ export class LoggingFormPage {
 
         // sikeres naplózás
         this.kreta.removeDayFromCache(this.lesson.KezdeteUtc);
-        this.dismiss();
+        this._isDirty = false;
+        this.location.back();
     }
 
     private getTanuloLista() {
@@ -356,27 +374,5 @@ export class LoggingFormPage {
             await alert.present();
         }
         if (data.result == "curriculum") this.openTanmenet();
-    }
-
-    public dismiss() {
-        // const alert = await this.alertController.create({
-        //     header: await this.translate.get("common.are-you-sure").toPromise(),
-        //     message: await this.translate.get("common.data-will-be-lost").toPromise(),
-        //     buttons: [
-        //         {
-        //             text: await this.translate.get("common.cancel").toPromise(),
-        //             role: "cancel",
-        //             cssClass: "secondary",
-        //         },
-        //         {
-        //             text: await this.translate.get("common.exit").toPromise(),
-        //             handler: () => this.router.navigate(["/timetable"]),
-        //         },
-        //     ],
-        // });
-
-        // await alert.present();
-
-        this.location.back();
     }
 }

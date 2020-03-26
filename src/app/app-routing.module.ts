@@ -31,7 +31,7 @@ const routes: Routes = [
         canActivate: [LoginGuard],
     },
     {
-        path: "logging",
+        path: "logging-form",
         loadChildren: () =>
             import("./logging-form/logging-form.module").then(m => m.LoggingFormPageModule),
         canActivate: [LoginGuard],

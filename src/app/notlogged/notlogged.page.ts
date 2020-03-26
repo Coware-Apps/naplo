@@ -96,15 +96,6 @@ export class NotloggedPage {
                 "Nincs internetkapcsolat, ezért az óra most nem naplózható!"
             );
 
-        // const modal = await this.modalController.create({
-        //     component: LoggingModalPage,
-        //     backdropDismiss: false,
-        //     componentProps: { lesson: l },
-        // });
-        // await modal.present();
-        // const { data } = await modal.onWillDismiss();
-        // if (data && data.success) this.loadHianyzoOrak();
-
-        this.router.navigate(["/logging"], { state: { lesson: l } });
+        this.router.navigate(["/logging-form"], { state: { lesson: l } });
     }
 }

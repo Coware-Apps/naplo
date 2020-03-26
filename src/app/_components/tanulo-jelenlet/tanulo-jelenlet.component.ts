@@ -1,8 +1,9 @@
-import { Component, OnInit, Input, OnChanges } from "@angular/core";
+import { Component, OnInit, Input, OnChanges, Output } from "@angular/core";
 import { PickerController } from "@ionic/angular";
 import { Tanulo, Mulasztas, JavasoltJelenletTemplate, KretaEnum } from "src/app/_models";
 import { KretaService } from "src/app/_services";
 import { TranslateService } from "@ngx-translate/core";
+import { EventEmitter } from "@angular/core";
 
 @Component({
     selector: "app-tanulo-jelenlet",
@@ -13,6 +14,7 @@ export class TanuloJelenletComponent implements OnInit, OnChanges {
     @Input() tanulo: Tanulo;
     @Input() mulasztasok: Mulasztas[];
     @Input() javasoltJelenlet: JavasoltJelenletTemplate;
+    @Output() onSelectionChange = new EventEmitter<string>();
 
     public jelenletAllapot: string = "Jelenlét";
     public keses: number;
@@ -80,6 +82,7 @@ export class TanuloJelenletComponent implements OnInit, OnChanges {
             if (!data) return;
         } else this.keses = null;
 
+        this.onSelectionChange.emit(value);
         this.jelenletAllapot = value;
     }
 
