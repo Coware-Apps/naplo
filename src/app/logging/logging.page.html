@@ -39,7 +39,7 @@
 </ion-header>
 
 <ion-content>
-    <ion-slides (ionSlideWillChange)="onSlideChange()">
+    <ion-slides (ionSlideWillChange)="onSlideChange()" *ngIf="didInit">
         <ion-slide>
             <ion-item id="oratemaja">
                 <ion-label position="stacked" translate="logging.lesson-topic"></ion-label>

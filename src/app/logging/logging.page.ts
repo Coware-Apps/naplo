@@ -4,7 +4,7 @@ import {
     ViewChildren,
     QueryList,
     ChangeDetectorRef,
-    OnDestroy,
+    AfterViewInit,
 } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import {
@@ -48,9 +48,10 @@ import { Location } from "@angular/common";
     templateUrl: "./logging.page.html",
     styleUrls: ["./logging.page.scss"],
 })
-export class LoggingPage implements OnDestroy {
+export class LoggingPage implements AfterViewInit {
     private subs: Subscription[] = [];
     public lesson: Lesson;
+    public didInit: boolean = false;
 
     public loading: string[];
     public kezdete: Date;
@@ -67,7 +68,7 @@ export class LoggingPage implements OnDestroy {
     public hfSzoveg: string;
     public feljegyzesek: Feljegyzes[];
 
-    @ViewChild(IonSlides, { static: false })
+    @ViewChild(IonSlides)
     private slides: IonSlides;
     @ViewChild(ErtekelesComponent)
     private ertekeles: ErtekelesComponent;
@@ -168,6 +169,12 @@ export class LoggingPage implements OnDestroy {
         );
 
         this.subs.push(this.platform.backButton.subscribe(x => this.dismiss()));
+    }
+
+    public ngAfterViewInit() {
+        // Angular9 with Ivy breaks ion-slides
+        // workaround
+        this.didInit = true;
     }
 
     public async ionViewWillLeave() {
@@ -385,9 +392,5 @@ export class LoggingPage implements OnDestroy {
         // await alert.present();
 
         this.location.back();
-    }
-
-    ngOnDestroy() {
-        console.log("LOGGING PAGE DESTROYED");
     }
 }
