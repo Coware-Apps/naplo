@@ -16,6 +16,7 @@ import {
     ModalController,
     PopoverController,
     AlertController,
+    MenuController,
 } from "@ionic/angular";
 import {
     ErtekelesComponent,
@@ -80,6 +81,7 @@ export class LoggingFormPage implements IDirty {
         private error: ErrorHelper,
         private loadingController: LoadingController,
         private modalController: ModalController,
+        private menuController: MenuController,
         private networkStatus: NetworkStatusService,
         private cd: ChangeDetectorRef,
         private firebase: FirebaseService,
@@ -93,6 +95,7 @@ export class LoggingFormPage implements IDirty {
 
     public async ionViewWillEnter() {
         this.firebase.setScreenName("logging");
+        this.menuController.swipeGesture(false);
 
         this.subs.push(
             this.route.paramMap.pipe(map(() => window.history.state)).subscribe(async state => {
@@ -181,7 +184,7 @@ export class LoggingFormPage implements IDirty {
             object.splice(index, 1);
         });
         this.config.swipeGestureEnabled = true;
-        console.debug("swipe enabled");
+        this.menuController.swipeGesture(true);
     }
 
     public isDirty(): boolean {
@@ -189,7 +192,6 @@ export class LoggingFormPage implements IDirty {
     }
 
     public makeItDirty() {
-        console.debug("swipe disabled");
         this.config.swipeGestureEnabled = false;
         this._isDirty = true;
     }
