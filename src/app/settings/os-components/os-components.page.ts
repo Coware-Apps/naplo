@@ -1,5 +1,5 @@
 import { Component } from "@angular/core";
-import { ModalController } from "@ionic/angular";
+import { ModalController, Platform } from "@ionic/angular";
 import { SafariViewController } from "@ionic-native/safari-view-controller/ngx";
 import { InAppBrowser } from "@ionic-native/in-app-browser/ngx";
 import { FirebaseService } from "src/app/_services";
@@ -73,7 +73,8 @@ export class OsComponentsPage {
     private subs: Subscription[] = [];
 
     constructor(
-        public modalController: ModalController,
+        public platform: Platform,
+        private modalController: ModalController,
         private safariViewController: SafariViewController,
         private firebase: FirebaseService,
         private iab: InAppBrowser
