@@ -72,6 +72,7 @@ export class EvaluationFormPage implements IDirty {
             s.unsubscribe();
             object.splice(index, 1);
         });
+        this.config.swipeGestureEnabled = true;
     }
 
     isDirty(): boolean {
@@ -79,6 +80,7 @@ export class EvaluationFormPage implements IDirty {
     }
 
     public makeItDirty() {
+        this.config.swipeGestureEnabled = false;
         this._isDirty = true;
     }
 
