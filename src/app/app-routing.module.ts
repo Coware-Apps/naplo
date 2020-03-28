@@ -30,6 +30,20 @@ const routes: Routes = [
         loadChildren: () => import("./settings/settings.module").then(m => m.SettingsPageModule),
         canActivate: [LoginGuard],
     },
+    {
+        path: "logging-form",
+        loadChildren: () =>
+            import("./logging-form/logging-form.module").then(m => m.LoggingFormPageModule),
+        canActivate: [LoginGuard],
+    },
+    {
+        path: "evaluation-form",
+        loadChildren: () =>
+            import("./evaluation-form/evaluation-form.module").then(
+                m => m.EvaluationFormPageModule
+            ),
+        canActivate: [LoginGuard],
+    },
 ];
 
 @NgModule({

@@ -9,7 +9,10 @@
         "comm-error": "Kommunikációs hiba",
         "yes": "Igen",
         "no": "Nem",
-        "back": "Vissza"
+        "back": "Vissza",
+        "exit": "Kilépés",
+        "are-you-sure": "Biztosan?",
+        "data-will-be-lost": "A beírt adatok elvesznek."
     },
     "evaluation-types": {
         "mark": "Osztályzat",
@@ -67,6 +70,7 @@
         "options-curriculum": "Tanmenet",
         "options-cancelled": "Elmaradt óra",
         "lateness-min": "({{value}} p.)",
+        "lateness-min-long": "perc",
         "required-topic": "Az óra témáját kötelező kitölteni!",
         "required-homework-desc": "A házi feladat leírását kötelező megadni, ha ki lett választva határidő!",
         "saving": "Mentés...",
@@ -87,7 +91,11 @@
         "field-topic": "Az értékelés témája",
         "field-mode": "Az értékelés módja",
         "average-of": "A beírt értékelések átlaga:",
-        "textual-placeholder": "Ide írj szöveges értékelést..."
+        "textual-placeholder": "Ide írj szöveges értékelést...",
+        "date-required": "Az értékelés dátumának kiválasztása kötelező!",
+        "mode-required": "Az értékelés módjának kiválasztása kötelező!",
+        "error-saving": "Hiba az értékelések mentésekor",
+        "error-no-connection": "Nincs internetkapcsolat, ezért a csoport most nem értékelhető!"
     },
     "notlogged": {
         "title": "Nem naplózott órák",

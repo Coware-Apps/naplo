@@ -8,10 +8,6 @@ const routes: Routes = [
         path: "",
         component: TimetablePage,
     },
-    {
-        path: ":date",
-        component: TimetablePage,
-    },
 ];
 
 @NgModule({

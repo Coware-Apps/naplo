@@ -2,19 +2,20 @@ import { Component, OnInit, Input, OnDestroy } from "@angular/core";
 import { Lesson, Tanmenet, TanmenetElem } from "../_models";
 import { ModalController } from "@ionic/angular";
 import { NetworkStatusService, ConnectionStatus, KretaService } from "../_services";
-import { takeUntil } from "rxjs/operators";
-import { componentDestroyed } from "@w11k/ngx-componentdestroyed";
+import { Subscription } from "rxjs";
 
 @Component({
     selector: "app-curriculum-modal",
     templateUrl: "./curriculum-modal.page.html",
     styleUrls: ["./curriculum-modal.page.scss"],
 })
-export class CurriculumModalPage implements OnInit, OnDestroy {
+export class CurriculumModalPage {
     @Input() public lesson: Lesson;
     public currentlyOffline: boolean;
     public tanmenet: Tanmenet;
     public evesOraSorszam: number = 0;
+
+    private subs: Subscription[] = [];
 
     constructor(
         private modalController: ModalController,
@@ -22,7 +23,7 @@ export class CurriculumModalPage implements OnInit, OnDestroy {
         private kreta: KretaService
     ) {}
 
-    async ngOnInit() {
+    async ionViewWillEnter() {
         this.evesOraSorszam =
             this.lesson.Allapot.Nev == "Naplozott"
                 ? this.lesson.EvesOraszam
@@ -30,21 +31,25 @@ export class CurriculumModalPage implements OnInit, OnDestroy {
 
         (await this.kreta.getTanmenet(this.lesson)).subscribe(x => (this.tanmenet = x));
 
-        this.networkStatus
-            .onNetworkChange()
-            .pipe(takeUntil(componentDestroyed(this)))
-            .subscribe(status => {
+        this.subs.push(
+            this.networkStatus.onNetworkChange().subscribe(status => {
                 this.currentlyOffline = status === ConnectionStatus.Offline;
-            });
+            })
+        );
     }
 
-    ngOnDestroy() {}
+    ionViewWillLeave() {
+        this.subs.forEach((s, index, object) => {
+            s.unsubscribe();
+            object.splice(index, 1);
+        });
+    }
 
-    save(t: TanmenetElem) {
+    public save(t: TanmenetElem) {
         this.modalController.dismiss({ tanmenetElem: t });
     }
 
-    dismiss() {
+    public async dismiss() {
         this.modalController.dismiss();
     }
 }

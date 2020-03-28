@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from "@angular/core";
+import { Component, ChangeDetectorRef, OnInit } from "@angular/core";
 import {
     KretaService,
     ConfigService,
@@ -7,58 +7,67 @@ import {
     FirebaseService,
 } from "../_services";
 import { Lesson } from "../_models";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { ErrorHelper, DateHelper } from "../_helpers";
 import { DatePicker } from "@ionic-native/date-picker/ngx";
 import { ModalController } from "@ionic/angular";
-import { LoggingModalPage } from "../logging-modal/logging-modal.page";
-import { takeUntil } from "rxjs/operators";
-import { componentDestroyed } from "@w11k/ngx-componentdestroyed";
 import { stringify } from "flatted/esm";
 import { TranslateService } from "@ngx-translate/core";
+import { Location } from "@angular/common";
+import { Subscription } from "rxjs";
 
 @Component({
     selector: "app-timetable",
     templateUrl: "./timetable.page.html",
     styleUrls: ["./timetable.page.scss"],
 })
-export class TimetablePage implements OnInit, OnDestroy {
+export class TimetablePage implements OnInit {
     constructor(
+        public modalController: ModalController,
+        public config: ConfigService,
         private kreta: KretaService,
         private route: ActivatedRoute,
-        public config: ConfigService,
         private error: ErrorHelper,
         private datePicker: DatePicker,
         private dateHelper: DateHelper,
-        public modalController: ModalController,
         private networkStatus: NetworkStatusService,
         private cd: ChangeDetectorRef,
         private firebase: FirebaseService,
-        private translate: TranslateService
+        private translate: TranslateService,
+        private router: Router,
+        private location: Location
     ) {}
 
     public orarend: Lesson[];
     public datum: Date;
     public loading: boolean;
 
-    ngOnInit() {
-        const dateparam = this.route.snapshot.queryParamMap.get("date");
-        this.datum = dateparam ? new Date(dateparam) : new Date();
-        this.datum.setUTCHours(0, 0, 0, 0);
-        this.firebase.setScreenName("timetable");
+    private subs: Subscription[] = [];
 
-        this.networkStatus
-            .onNetworkChangeOnly()
-            .pipe(takeUntil(componentDestroyed(this)))
-            .subscribe(x => {
-                if (x === ConnectionStatus.Online) this.loadTimetable();
-            });
+    // debug - live reload miatt van csak param
+    public ngOnInit() {
+        const paramDate = this.route.snapshot.queryParamMap.get("date");
+        this.datum = paramDate ? new Date(paramDate) : new Date();
+        this.datum.setUTCHours(0, 0, 0, 0);
     }
 
-    ngOnDestroy() {}
-
-    ionViewWillEnter() {
+    public ionViewWillEnter() {
+        this.firebase.setScreenName("timetable");
         this.loadTimetable();
+
+        this.subs.push(
+            this.networkStatus.onNetworkChangeOnly().subscribe(x => {
+                if (x === ConnectionStatus.Online) this.loadTimetable();
+            })
+        );
+    }
+
+    public ionViewWillLeave() {
+        this.orarend = undefined;
+        this.subs.forEach((s, index, object) => {
+            s.unsubscribe();
+            object.splice(index, 1);
+        });
     }
 
     async changeDate(direction: string) {
@@ -67,6 +76,15 @@ export class TimetablePage implements OnInit, OnDestroy {
         else this.datum.setDate(this.datum.getDate() - 1);
 
         this.loadTimetable();
+
+        this.location.go(
+            this.router
+                .createUrlTree([], {
+                    queryParams: { date: this.datum.toISOString() },
+                    relativeTo: this.route,
+                })
+                .toString()
+        );
     }
 
     async loadTimetable(showLoading: boolean = true, forceRefresh: boolean = false) {
@@ -75,9 +93,8 @@ export class TimetablePage implements OnInit, OnDestroy {
         this.orarend = undefined;
 
         await this.firebase.startTrace("timetable_day_load_time");
-        (await this.kreta.getTimetable(this.datum, forceRefresh))
-            .pipe(takeUntil(componentDestroyed(this)))
-            .subscribe(
+        this.subs.push(
+            (await this.kreta.getTimetable(this.datum, forceRefresh)).subscribe(
                 x => {
                     this.orarend = x;
                     this.loading = false;
@@ -89,7 +106,8 @@ export class TimetablePage implements OnInit, OnDestroy {
 
                     this.loading = false;
                 }
-            );
+            )
+        );
     }
 
     public async doRefresh($event?) {
@@ -123,18 +141,14 @@ export class TimetablePage implements OnInit, OnDestroy {
                 await this.translate.get("timetable.error-substituted").toPromise()
             );
 
-        const modal = await this.modalController.create({
-            component: LoggingModalPage,
-            componentProps: { lesson: l },
-            backdropDismiss: false,
+        this.router.navigate(["/logging-form"], {
+            state: {
+                lesson: l,
+            },
         });
-        await modal.present();
-
-        const { data } = await modal.onWillDismiss();
-        if (data && data.success) this.doRefresh();
     }
 
-    public showDatePicker() {
+    public async showDatePicker() {
         this.firebase.logEvent("timetable_datepicker_shown", {});
 
         this.datePicker
@@ -144,11 +158,11 @@ export class TimetablePage implements OnInit, OnDestroy {
                 locale: this.config.locale,
 
                 // android
-                okText: this.translate.instant("common.done"),
-                cancelText: this.translate.instant("common.cancel"),
+                okText: await this.translate.get("common.done").toPromise(),
+                cancelText: await this.translate.get("common.cancel").toPromise(),
                 // ios
-                doneButtonLabel: this.translate.instant("common.done"),
-                cancelButtonLabel: this.translate.instant("common.cancel"),
+                doneButtonLabel: await this.translate.get("common.done").toPromise(),
+                cancelButtonLabel: await this.translate.get("common.cancel").toPromise(),
 
                 androidTheme: this.datePicker.ANDROID_THEMES.THEME_DEVICE_DEFAULT_DARK,
             })

@@ -1,4 +1,4 @@
-import { Component, OnDestroy, ChangeDetectorRef, OnInit } from "@angular/core";
+import { Component, ChangeDetectorRef } from "@angular/core";
 import { Lesson } from "../_models";
 import { DateHelper, ErrorHelper } from "../_helpers";
 import {
@@ -8,48 +8,50 @@ import {
     ConfigService,
     FirebaseService,
 } from "../_services";
-import { ModalController } from "@ionic/angular";
-import { LoggingModalPage } from "../logging-modal/logging-modal.page";
-import { takeUntil } from "rxjs/operators";
-import { componentDestroyed } from "@w11k/ngx-componentdestroyed";
+import { Subscription } from "rxjs";
+import { Router } from "@angular/router";
 
 @Component({
     selector: "app-notlogged",
     templateUrl: "./notlogged.page.html",
     styleUrls: ["./notlogged.page.scss"],
 })
-export class NotloggedPage implements OnInit, OnDestroy {
+export class NotloggedPage {
     public loading: boolean;
     public orak: Lesson[] = [];
 
     public napToCheck = 10;
+    private subs: Subscription[] = [];
 
     constructor(
         private dateHelper: DateHelper,
         private kreta: KretaService,
-        public modalController: ModalController,
         private errorHelper: ErrorHelper,
         private networkStatus: NetworkStatusService,
         private cd: ChangeDetectorRef,
         private config: ConfigService,
-        private firebase: FirebaseService
+        private firebase: FirebaseService,
+        private router: Router
     ) {}
 
-    ngOnInit(): void {
-        this.firebase.setScreenName("not_logged_lessons");
-        this.networkStatus
-            .onNetworkChangeOnly()
-            .pipe(takeUntil(componentDestroyed(this)))
-            .subscribe(x => {
-                if (x === ConnectionStatus.Online) this.loadHianyzoOrak();
-            });
-    }
-
-    ngOnDestroy() {}
-
     async ionViewWillEnter() {
+        this.firebase.setScreenName("not_logged_lessons");
+
         this.loading = true;
         this.loadHianyzoOrak();
+
+        this.subs.push(
+            this.networkStatus.onNetworkChangeOnly().subscribe(x => {
+                if (x === ConnectionStatus.Online) this.loadHianyzoOrak();
+            })
+        );
+    }
+
+    ionViewWillLeave() {
+        this.subs.forEach((s, index, object) => {
+            s.unsubscribe();
+            object.splice(index, 1);
+        });
     }
 
     async loadHianyzoOrak(forceRefresh: boolean = false, $event?) {
@@ -59,9 +61,8 @@ export class NotloggedPage implements OnInit, OnDestroy {
         let map = new Map();
         for (let i = 0; i < this.napToCheck; i++) {
             let d = new Date(this.dateHelper.getDayFromToday(-i));
-            (await this.kreta.getTimetable(d, forceRefresh))
-                .pipe(takeUntil(componentDestroyed(this)))
-                .subscribe(
+            this.subs.push(
+                (await this.kreta.getTimetable(d, forceRefresh)).subscribe(
                     x => {
                         x.forEach(ora => {
                             if (
@@ -85,11 +86,12 @@ export class NotloggedPage implements OnInit, OnDestroy {
                     e => {
                         if (this.config.debugging) this.errorHelper.presentAlert(e);
                     }
-                );
+                )
+            );
         }
     }
 
-    async onLessonClick(c: Lesson) {
+    async onLessonClick(l: Lesson) {
         this.firebase.logEvent("notlogged_lesson_clicked", {});
 
         if (this.networkStatus.getCurrentNetworkStatus() === ConnectionStatus.Offline)
@@ -97,13 +99,6 @@ export class NotloggedPage implements OnInit, OnDestroy {
                 "Nincs internetkapcsolat, ezért az óra most nem naplózható!"
             );
 
-        const modal = await this.modalController.create({
-            component: LoggingModalPage,
-            backdropDismiss: false,
-            componentProps: { lesson: c },
-        });
-        await modal.present();
-        const { data } = await modal.onWillDismiss();
-        if (data && data.success) this.loadHianyzoOrak();
+        this.router.navigate(["/logging-form"], { state: { lesson: l } });
     }
 }

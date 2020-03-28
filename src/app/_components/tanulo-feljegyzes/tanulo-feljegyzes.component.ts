@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from "@angular/core";
+import { Component, OnInit, Input, EventEmitter, Output } from "@angular/core";
 import { Tanulo, KretaEnum, Feljegyzes } from "src/app/_models";
 import { KretaService } from "src/app/_services";
 
@@ -9,7 +9,6 @@ import { KretaService } from "src/app/_services";
 })
 export class TanuloFeljegyzesComponent implements OnInit {
     @Input() tanulo: Tanulo;
-
     @Input() set allapot(value: Feljegyzes[]) {
         if (value) {
             let f = value.find(x => x.TanuloId == this.tanulo.Id);
@@ -24,6 +23,7 @@ export class TanuloFeljegyzesComponent implements OnInit {
             }
         }
     }
+    @Output() onSelectionChange = new EventEmitter<any>();
 
     public hazifeladathiany: boolean;
     public felszereleshiany: boolean;
@@ -42,6 +42,8 @@ export class TanuloFeljegyzesComponent implements OnInit {
         if (tipus == "felszereleshiany") this.felszereleshiany = !this.felszereleshiany;
         if (tipus == "felmentes") this.felmentes = !this.felmentes;
         if (tipus == "dicseret") this.dicseret = !this.dicseret;
+
+        this.onSelectionChange.emit();
     }
 
     public getJsonOutput(): KretaEnum[] {

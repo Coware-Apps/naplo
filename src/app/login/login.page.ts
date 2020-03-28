@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from "@angular/core";
+import { Component } from "@angular/core";
 import {
     KretaService,
     ConfigService,
@@ -17,8 +17,6 @@ import { ErrorHelper } from "../_helpers";
 import { InstituteSelectorModalPage } from "./institute-selector-modal/institute-selector-modal.page";
 import { SafariViewController } from "@ionic-native/safari-view-controller/ngx";
 import { StatusBar } from "@ionic-native/status-bar/ngx";
-import { takeUntil } from "rxjs/operators";
-import { componentDestroyed } from "@w11k/ngx-componentdestroyed";
 import { InAppBrowser } from "@ionic-native/in-app-browser/ngx";
 import { Market } from "@ionic-native/market/ngx";
 import {
@@ -26,18 +24,21 @@ import {
     KretaInvalidPasswordException,
 } from "../_models/kreta-exceptions";
 import { TranslateService } from "@ngx-translate/core";
+import { Subscription } from "rxjs";
 
 @Component({
     selector: "app-login",
     templateUrl: "./login.page.html",
     styleUrls: ["./login.page.scss"],
 })
-export class LoginPage implements OnInit, OnDestroy {
+export class LoginPage {
     public username: string;
     public password: string;
     public instituteName: string;
     private returnUrl: string;
     public loading: boolean;
+
+    private subs: Subscription[] = [];
 
     constructor(
         private kreta: KretaService,
@@ -58,24 +59,27 @@ export class LoginPage implements OnInit, OnDestroy {
         private translate: TranslateService
     ) {}
 
-    ngOnInit() {
-        this.returnUrl = this.route.snapshot.queryParams["returnUrl"] || "/";
-        this.firebase.setScreenName("login");
-    }
-
-    ngOnDestroy(): void {}
-
     async ionViewWillEnter() {
         this.config.applyTheme("light", false);
         this.statusBar.styleDefault();
         this.statusBar.backgroundColorByHexString("#FDEC5D"); // sárga
         this.menuController.enable(false);
 
+        this.returnUrl = this.route.snapshot.queryParams["returnUrl"] || "/";
+        this.firebase.setScreenName("login");
+
         if (await this.kreta.isAuthenticated()) {
             console.log("A login page lett megnyitva, de be vagyunk jelentkezve. Átirányítás...");
             await this.router.navigate(["/timetable"]);
             return;
         }
+    }
+
+    ionViewWillLeave() {
+        this.subs.forEach((s, index, object) => {
+            s.unsubscribe();
+            object.splice(index, 1);
+        });
     }
 
     async doLogin() {
@@ -103,7 +107,7 @@ export class LoginPage implements OnInit, OnDestroy {
 
                 this.loading = false;
                 this.firebase.stopTrace("login_time");
-                await this.router.navigate([this.returnUrl]);
+                await this.router.navigate([this.returnUrl], { replaceUrl: true });
             }
         } catch (e) {
             console.log("Hiba a felhasználóneves bejelentkezés során: ", e.message);
@@ -168,23 +172,24 @@ export class LoginPage implements OnInit, OnDestroy {
         this.firebase.logEvent("login_privacypolicy_opened", {});
         this.safariViewController.isAvailable().then(async (available: boolean) => {
             if (available) {
-                this.safariViewController
-                    .show({
-                        url: "https://coware-apps.github.io/naplo/privacy",
-                        barColor: "#3880ff",
-                        toolbarColor: "#3880ff",
-                        controlTintColor: "#ffffff",
-                    })
-                    .pipe(takeUntil(componentDestroyed(this)))
-                    .subscribe(
-                        (result: any) => {},
-                        (error: any) => {
-                            console.error(error);
-                            this.firebase.logError(
-                                "login privacypolicy subscription error: " + error
-                            );
-                        }
-                    );
+                this.subs.push(
+                    this.safariViewController
+                        .show({
+                            url: "https://coware-apps.github.io/naplo/privacy",
+                            barColor: "#3880ff",
+                            toolbarColor: "#3880ff",
+                            controlTintColor: "#ffffff",
+                        })
+                        .subscribe(
+                            (result: any) => {},
+                            (error: any) => {
+                                console.error(error);
+                                this.firebase.logError(
+                                    "login privacypolicy subscription error: " + error
+                                );
+                            }
+                        )
+                );
             } else {
                 console.log("browser tab not supported");
 

@@ -70,7 +70,7 @@ export class KretaService {
         try {
             // ha van érvényes access_token elmentve, visszaadjuk azt
             const access_token = await this.data.getItem<string>("access_token").catch(() => {
-                console.log("[LOGIN] Nincs valid AT");
+                console.debug("[LOGIN] Nincs valid AT");
                 return null;
             });
 
@@ -82,7 +82,7 @@ export class KretaService {
             });
 
             if (refresh_token) {
-                console.log("[LOGIN] Van valid RT, megújítás...");
+                console.debug("[LOGIN] Van valid RT, megújítás...");
                 return await this.loginWithRefreshToken(refresh_token);
             }
         } catch (error) {
@@ -120,9 +120,9 @@ export class KretaService {
                 if (data && data.access_token) {
                     this.currentUser = this.jwtHelper.decodeToken(data.access_token);
 
-                    console.log("[LOGIN] Roles we have: ", this.currentUser.role);
+                    console.debug("[LOGIN] Roles we have: ", this.currentUser.role);
                     if (this.currentUser.role.indexOf("Tanar") === -1) {
-                        console.log("[LOGIN] Missing role: 'Tanar' in ", this.currentUser.role);
+                        console.debug("[LOGIN] Missing role: 'Tanar' in ", this.currentUser.role);
 
                         throw new KretaMissingRoleException();
                     }
@@ -214,7 +214,7 @@ export class KretaService {
                         ),
                     ]);
 
-                    console.log("[LOGIN] AT sikeresen megújítva RT-el");
+                    console.debug("[LOGIN] AT sikeresen megújítva RT-el");
                     this.currentUser = this.jwtHelper.decodeToken(data.access_token);
                     this.firebase.stopTrace("token_refresh_time");
 
@@ -224,7 +224,10 @@ export class KretaService {
         } catch (error) {
             if (error instanceof SyntaxError) {
                 await this.error.presentAlert(
-                    (await this.translate.get("common.comm-error").toPromise()) + " (" + error + ")"
+                    (await this.translate.get("common.comm-error").toPromise()) +
+                        " <br>(" +
+                        error +
+                        ")"
                 );
             } else {
                 this.firebase.logError("loginWithRefreshToken(): " + stringify(error));

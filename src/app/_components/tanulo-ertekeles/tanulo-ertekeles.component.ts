@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from "@angular/core";
+import { Component, OnInit, Input, Output, EventEmitter } from "@angular/core";
 import { Tanulo, KretaTanuloErtekeles, KretaEnum, ErtekelesTipus } from "src/app/_models";
 import { KretaService } from "src/app/_services";
 
@@ -10,6 +10,8 @@ import { KretaService } from "src/app/_services";
 export class TanuloErtekelesComponent implements OnInit {
     @Input() tanulo: Tanulo;
     @Input() tipus: ErtekelesTipus;
+    @Output() onSelectionChange = new EventEmitter<any>();
+
     public jegy: number = 0;
     public szazalek: number;
     public szoveges: string;
@@ -27,15 +29,20 @@ export class TanuloErtekelesComponent implements OnInit {
     setJegy(newJegy: number): void {
         if (this.jegy == newJegy) this.jegy = 0;
         else this.jegy = newJegy;
+
+        this.onSelectionChange.emit();
     }
 
     changeSzazalek(diff: number) {
         let sz = typeof this.szazalek == "number" ? this.szazalek : 0;
         if (sz + diff <= 100 && sz + diff >= 0) this.szazalek = sz + diff;
+
+        this.onSelectionChange.emit();
     }
 
     deleteSzazalek() {
         this.szazalek = null;
+        this.onSelectionChange.emit();
     }
 
     public getJsonOutput(): KretaTanuloErtekeles {

@@ -9,7 +9,10 @@
         "comm-error": "Communication error",
         "yes": "Yes",
         "no": "No",
-        "back": "Back"
+        "back": "Back",
+        "exit": "Exit",
+        "are-you-sure": "Are you sure?",
+        "data-will-be-lost": "The data will not be saved"
     },
     "evaluation-types": {
         "mark": "Mark",
@@ -66,6 +69,7 @@
         "options-curriculum": "Curriculum",
         "options-cancelled": "Cancelled lesson",
         "lateness-min": "({{value}} min.)",
+        "lateness-min-long": "min.",
         "required-topic": "Please enter the topic of the lesson",
         "required-homework-desc": "You must provide a description for the homework",
         "saving": "Saving...",
@@ -86,7 +90,11 @@
         "field-topic": "Subject",
         "field-mode": "Method",
         "average-of": "Average of the entered evaluations:",
-        "textual-placeholder": "Enter your evaluation here..."
+        "textual-placeholder": "Enter your evaluation here...",
+        "date-required": "Please select an evaluation date!",
+        "mode-required": "Please select a method!",
+        "error-saving": "An error occurred during saving",
+        "error-no-connection": "There's no internet, therefore the group cannot be evaluated right now."
     },
     "notlogged": {
         "title": "Not logged lessons",

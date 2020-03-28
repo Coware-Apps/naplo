@@ -4,24 +4,25 @@ import { FormsModule } from "@angular/forms";
 
 import { IonicModule } from "@ionic/angular";
 
-import { LoggingModalPageRoutingModule } from "./logging-modal-routing.module";
+import { LoggingFormPageRoutingModule } from "./logging-form-routing.module";
 
-import { LoggingModalPage } from "./logging-modal.page";
-import { ComponentsModule } from "../_components/components.module";
+import { LoggingFormPage } from "./logging-form.page";
 import { CurriculumModalPageModule } from "../curriculum-modal/curriculum-modal.module";
-import { TopicOptionsComponent } from "./topic-options/topic-options.component";
 import { TranslateModule } from "@ngx-translate/core";
+import { ComponentsModule } from "../_components/components.module";
+import { TopicOptionsComponent } from "./topic-options/topic-options.component";
 
 @NgModule({
     imports: [
         CommonModule,
         FormsModule,
         IonicModule,
+        LoggingFormPageRoutingModule,
         ComponentsModule,
-        LoggingModalPageRoutingModule,
         CurriculumModalPageModule,
         TranslateModule,
     ],
-    declarations: [LoggingModalPage, TopicOptionsComponent],
+    declarations: [LoggingFormPage, TopicOptionsComponent],
+    entryComponents: [TopicOptionsComponent],
 })
-export class LoggingModalPageModule {}
+export class LoggingFormPageModule {}

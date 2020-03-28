@@ -1,18 +1,19 @@
-import { Component, OnInit, OnDestroy } from "@angular/core";
+import { Component } from "@angular/core";
 import { KretaService, FirebaseService } from "../../_services";
 import { Institute } from "../../_models";
 import { ModalController } from "@ionic/angular";
-import { takeUntil } from "rxjs/operators";
-import { componentDestroyed } from "@w11k/ngx-componentdestroyed";
+import { Subscription } from "rxjs";
 
 @Component({
     selector: "app-institute-selector-modal",
     templateUrl: "./institute-selector-modal.page.html",
     styleUrls: ["./institute-selector-modal.page.scss"],
 })
-export class InstituteSelectorModalPage implements OnInit, OnDestroy {
+export class InstituteSelectorModalPage {
     public institutes: Institute[];
     public filteredInstitutes: Institute[];
+
+    private subs: Subscription[] = [];
 
     constructor(
         private kreta: KretaService,
@@ -20,18 +21,25 @@ export class InstituteSelectorModalPage implements OnInit, OnDestroy {
         private firebase: FirebaseService
     ) {}
 
-    async ngOnInit() {
+    async ionViewWillEnter() {
         this.firebase.setScreenName("institute_selector_modal");
         await this.firebase.startTrace("institute_list_loading_time");
-        (await this.kreta.getInstituteList())
-            .pipe(takeUntil(componentDestroyed(this)))
-            .subscribe(x => {
+
+        this.subs.push(
+            (await this.kreta.getInstituteList()).subscribe(x => {
                 this.institutes = x;
                 this.filteredInstitutes = x;
                 this.firebase.stopTrace("institute_list_loading_time");
-            });
+            })
+        );
     }
-    ngOnDestroy(): void {}
+
+    ionViewWillLeave() {
+        this.subs.forEach((s, index, object) => {
+            s.unsubscribe();
+            object.splice(index, 1);
+        });
+    }
 
     doFilter($event) {
         if (this.institutes)

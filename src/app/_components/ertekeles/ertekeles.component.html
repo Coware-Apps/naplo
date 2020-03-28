@@ -7,13 +7,18 @@
         [(ngModel)]="ertekelesDatum"
         cancelText="{{ 'common.cancel' | translate }}"
         doneText="{{ 'common.done' | translate }}"
+        (ionFocus)="onSelectionChange.emit($event)"
     >
     </ion-datetime>
 </ion-item>
 
 <ion-item>
     <ion-label position="stacked" translate="eval.field-topic"></ion-label>
-    <ion-input type="text" [(ngModel)]="ertekelesTema"></ion-input>
+    <ion-input
+        type="text"
+        [(ngModel)]="ertekelesTema"
+        (ionInput)="onSelectionChange.emit($event)"
+    ></ion-input>
 </ion-item>
 
 <ion-item>
@@ -22,6 +27,7 @@
         type="text"
         [value]="ertekelesMod?.Nev"
         (click)="presentErtekelesModPicker()"
+        (ionInput)="onSelectionChange.emit($event)"
         readonly
     ></ion-input>
 </ion-item>
@@ -46,6 +52,7 @@
             [tanulo]="t"
             (click)="updateAtlag()"
             [tipus]="ertekelesTipus"
+            (onSelectionChange)="onSelectionChange.emit($event)"
         ></app-tanulo-ertekeles>
     </ion-item>
 </ion-list>
