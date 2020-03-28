@@ -7,6 +7,7 @@ import {
     NetworkStatusService,
     FirebaseService,
     ConnectionStatus,
+    ConfigService,
 } from "../_services";
 import { LoadingController } from "@ionic/angular";
 import { Location } from "@angular/common";
@@ -30,8 +31,9 @@ export class EvaluationFormPage implements IDirty {
     private _isDirty: boolean;
 
     constructor(
+        public config: ConfigService,
         private kreta: KretaService,
-        public loadingController: LoadingController,
+        private loadingController: LoadingController,
         private networkStatus: NetworkStatusService,
         private cd: ChangeDetectorRef,
         private firebase: FirebaseService,

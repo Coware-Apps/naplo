@@ -148,4 +148,8 @@ export class ConfigService {
             `@angular/common/locales/${locale}.js`
         ).then(module => registerLocaleData(module.default));
     }
+
+    public getBackButtonText(): string | null {
+        return this.platform.is("ios") ? this.translate.instant("common.back") : null;
+    }
 }
