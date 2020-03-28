@@ -65,10 +65,10 @@ export class ConfigService {
     // https://github.com/ionic-team/ionic/issues/17600
     private _swipeGestureEnabled = true;
     public get swipeGestureEnabled(): boolean {
-        return this._swipeGestureEnabled;
+        return this.platform.is("ios") ? this._swipeGestureEnabled : false;
     }
     public set swipeGestureEnabled(v: boolean) {
-        if (this.platform.is("ios")) this._swipeGestureEnabled = v;
+        this._swipeGestureEnabled = v;
     }
 
     constructor(
