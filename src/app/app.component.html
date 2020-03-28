@@ -31,6 +31,9 @@
                 </ion-item>
             </ion-footer>
         </ion-menu>
-        <ion-router-outlet id="main-content"></ion-router-outlet>
+        <ion-router-outlet
+            id="main-content"
+            [swipeGesture]="config.swipeGestureEnabled"
+        ></ion-router-outlet>
     </ion-split-pane>
 </ion-app>

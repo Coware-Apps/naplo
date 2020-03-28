@@ -180,6 +180,8 @@ export class LoggingFormPage implements IDirty {
             s.unsubscribe();
             object.splice(index, 1);
         });
+        this.config.swipeGestureEnabled = true;
+        console.debug("swipe enabled");
     }
 
     public isDirty(): boolean {
@@ -187,8 +189,8 @@ export class LoggingFormPage implements IDirty {
     }
 
     public makeItDirty() {
-        console.debug("logging form got dirty");
-
+        console.debug("swipe disabled");
+        this.config.swipeGestureEnabled = false;
         this._isDirty = true;
     }
 

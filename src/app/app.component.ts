@@ -3,7 +3,7 @@ import { Component } from "@angular/core";
 import { Platform } from "@ionic/angular";
 import { SplashScreen } from "@ionic-native/splash-screen/ngx";
 import { CacheService } from "ionic-cache";
-import { KretaService } from "./_services";
+import { KretaService, ConfigService } from "./_services";
 
 @Component({
     selector: "app-root",
@@ -26,7 +26,8 @@ export class AppComponent {
         private platform: Platform,
         private splashScreen: SplashScreen,
         private cache: CacheService,
-        public kreta: KretaService
+        public kreta: KretaService,
+        public config: ConfigService
     ) {
         this.initializeApp();
         this.cache.setDefaultTTL(15 * 60); // 15 min
