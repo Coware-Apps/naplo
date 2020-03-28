@@ -1,7 +1,12 @@
-import { Component, OnInit, Input, OnDestroy } from "@angular/core";
-import { Lesson, Tanmenet, TanmenetElem } from "../_models";
-import { ModalController } from "@ionic/angular";
-import { NetworkStatusService, ConnectionStatus, KretaService } from "../_services";
+import { Component, Input } from "@angular/core";
+import { Lesson, Tanmenet, TanmenetElem } from "../../_models";
+import { ModalController, Platform } from "@ionic/angular";
+import {
+    NetworkStatusService,
+    ConnectionStatus,
+    KretaService,
+    ConfigService,
+} from "../../_services";
 import { Subscription } from "rxjs";
 
 @Component({
@@ -18,6 +23,8 @@ export class CurriculumModalPage {
     private subs: Subscription[] = [];
 
     constructor(
+        public config: ConfigService,
+        public platform: Platform,
         private modalController: ModalController,
         private networkStatus: NetworkStatusService,
         private kreta: KretaService

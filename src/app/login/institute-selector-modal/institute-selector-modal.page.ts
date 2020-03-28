@@ -1,7 +1,7 @@
 import { Component } from "@angular/core";
 import { KretaService, FirebaseService } from "../../_services";
 import { Institute } from "../../_models";
-import { ModalController } from "@ionic/angular";
+import { ModalController, Platform } from "@ionic/angular";
 import { Subscription } from "rxjs";
 
 @Component({
@@ -16,6 +16,7 @@ export class InstituteSelectorModalPage {
     private subs: Subscription[] = [];
 
     constructor(
+        public platform: Platform,
         private kreta: KretaService,
         private modalController: ModalController,
         private firebase: FirebaseService

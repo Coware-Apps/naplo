@@ -1,15 +1,20 @@
 <ion-header>
     <ion-toolbar color="primary">
-        <ion-buttons slot="start">
+        <ion-buttons slot="start" *ngIf="platform.is('android')">
             <ion-button (click)="dismiss()">
                 <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
             </ion-button>
         </ion-buttons>
+
         <ion-searchbar
-            placeholder="{{'institute-selector.filter'|translate}}"
+            [placeholder]="'institute-selector.filter'|translate"
             (ionInput)="doFilter($event)"
             [disabled]="!institutes"
         ></ion-searchbar>
+
+        <ion-buttons slot="end" *ngIf="platform.is('ios')">
+            <ion-button (click)="dismiss()" fill="clear" translate="common.close"></ion-button>
+        </ion-buttons>
     </ion-toolbar>
 </ion-header>
 

@@ -9,7 +9,7 @@ import {
     ConnectionStatus,
     ConfigService,
 } from "../_services";
-import { LoadingController } from "@ionic/angular";
+import { LoadingController, MenuController } from "@ionic/angular";
 import { Location } from "@angular/common";
 import { ActivatedRoute } from "@angular/router";
 import { map } from "rxjs/operators";
@@ -34,6 +34,7 @@ export class EvaluationFormPage implements IDirty {
         public config: ConfigService,
         private kreta: KretaService,
         private loadingController: LoadingController,
+        private menuController: MenuController,
         private networkStatus: NetworkStatusService,
         private cd: ChangeDetectorRef,
         private firebase: FirebaseService,
@@ -43,6 +44,7 @@ export class EvaluationFormPage implements IDirty {
 
     async ionViewWillEnter() {
         this.firebase.setScreenName("evaluation_modal");
+        this.menuController.swipeGesture(false);
 
         this.subs.push(
             this.route.paramMap.pipe(map(() => window.history.state)).subscribe(async state => {
@@ -73,6 +75,7 @@ export class EvaluationFormPage implements IDirty {
             object.splice(index, 1);
         });
         this.config.swipeGestureEnabled = true;
+        this.menuController.swipeGesture(true);
     }
 
     isDirty(): boolean {

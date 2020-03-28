@@ -1,12 +1,16 @@
 <ion-header>
     <ion-toolbar color="primary">
-        <ion-buttons slot="start">
-            <ion-button (click)="dismiss()" fill="clear">
+        <ion-buttons slot="start" *ngIf="platform.is('android')">
+            <ion-button (click)="dismiss()">
                 <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
             </ion-button>
         </ion-buttons>
 
-        <ion-title translate="os-components.title"></ion-title>
+        <ion-title translate="curriculum.title"></ion-title>
+
+        <ion-buttons slot="end" *ngIf="platform.is('ios')">
+            <ion-button (click)="dismiss()" fill="clear" translate="common.close"></ion-button>
+        </ion-buttons>
     </ion-toolbar>
 </ion-header>
 

@@ -9,9 +9,11 @@
         <ion-title translate="logging.title"></ion-title>
 
         <ion-buttons slot="end">
-            <ion-button (click)="save()" [disabled]="currentlyOffline">
-                <ion-label translate="common.save"></ion-label>
-            </ion-button>
+            <ion-button
+                (click)="save()"
+                [disabled]="currentlyOffline"
+                translate="common.save"
+            ></ion-button>
         </ion-buttons>
     </ion-toolbar>
 
