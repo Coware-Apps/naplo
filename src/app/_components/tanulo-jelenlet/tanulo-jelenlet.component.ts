@@ -30,8 +30,9 @@ export class TanuloJelenletComponent implements OnInit, OnChanges {
     ) {}
 
     async ngOnInit() {
+        const minuteStr = await this.translate.get("logging.lateness-min-long").toPromise();
         for (let i = 1; i < 45; i++) {
-            this.percek.push({ value: i, text: i + " perc" });
+            this.percek.push({ value: i, text: i + " " + minuteStr });
         }
 
         this.mulasztasKodok = await this.kreta.getNaploEnum("MulasztasTipusEnum");
