@@ -15,12 +15,12 @@
     },
     "private": true,
     "dependencies": {
-        "@angular/common": "~8.2.13",
-        "@angular/core": "~8.2.13",
-        "@angular/forms": "~8.2.13",
-        "@angular/platform-browser": "~8.2.13",
-        "@angular/platform-browser-dynamic": "~8.2.13",
-        "@angular/router": "~8.2.13",
+        "@angular/common": "^8.2.14",
+        "@angular/core": "^8.2.14",
+        "@angular/forms": "^8.2.14",
+        "@angular/platform-browser": "^8.2.14",
+        "@angular/platform-browser-dynamic": "^8.2.14",
+        "@angular/router": "^8.2.14",
         "@ionic-native/app-version": "^5.22.0",
         "@ionic-native/core": "^5.22.0",
         "@ionic-native/date-picker": "^5.22.0",
@@ -66,8 +66,8 @@
         "@angular-devkit/core": "^8.3.23",
         "@angular-devkit/schematics": "^8.3.23",
         "@angular/cli": "^8.3.23",
-        "@angular/compiler": "8.2.13",
-        "@angular/compiler-cli": "8.2.13",
+        "@angular/compiler": "^8.2.14",
+        "@angular/compiler-cli": "^8.2.14",
         "@angular/language-service": "^8.2.14",
         "@ionic/angular-toolkit": "^2.2.0",
         "@ionic/app-scripts": "^3.2.4",
@@ -94,7 +94,8 @@
         "tslint": "~5.15.0",
         "tslint-config-prettier": "^1.18.0",
         "tslint-plugin-prettier": "^2.1.0",
-        "typescript": "~3.4.3"
+        "typescript": "~3.4.3",
+        "@babel/compat-data": "7.8.0"
     },
     "cordova": {
         "plugins": {
