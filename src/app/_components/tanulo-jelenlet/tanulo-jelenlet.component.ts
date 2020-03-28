@@ -31,7 +31,7 @@ export class TanuloJelenletComponent implements OnInit, OnChanges {
 
     async ngOnInit() {
         for (let i = 1; i < 45; i++) {
-            this.percek.push({ value: i, text: i.toString() });
+            this.percek.push({ value: i, text: i + " perc" });
         }
 
         this.mulasztasKodok = await this.kreta.getNaploEnum("MulasztasTipusEnum");
