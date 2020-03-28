@@ -7,10 +7,11 @@ import { IonicModule } from "@ionic/angular";
 import { LoggingFormPageRoutingModule } from "./logging-form-routing.module";
 
 import { LoggingFormPage } from "./logging-form.page";
-import { CurriculumModalPageModule } from "../curriculum-modal/curriculum-modal.module";
+import { CurriculumModalPageModule } from "./curriculum-modal/curriculum-modal.module";
 import { TranslateModule } from "@ngx-translate/core";
 import { ComponentsModule } from "../_components/components.module";
 import { TopicOptionsComponent } from "./topic-options/topic-options.component";
+import { CurriculumModalPage } from "./curriculum-modal/curriculum-modal.page";
 
 @NgModule({
     imports: [
@@ -23,6 +24,6 @@ import { TopicOptionsComponent } from "./topic-options/topic-options.component";
         TranslateModule,
     ],
     declarations: [LoggingFormPage, TopicOptionsComponent],
-    entryComponents: [TopicOptionsComponent],
+    entryComponents: [TopicOptionsComponent, CurriculumModalPage],
 })
 export class LoggingFormPageModule {}

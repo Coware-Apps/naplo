@@ -32,7 +32,7 @@ import {
 } from "../_services";
 import { ErrorHelper, DateHelper } from "../_helpers";
 import { TranslateService } from "@ngx-translate/core";
-import { CurriculumModalPage } from "../curriculum-modal/curriculum-modal.page";
+import { CurriculumModalPage } from "./curriculum-modal/curriculum-modal.page";
 import { TopicOptionsComponent } from "./topic-options/topic-options.component";
 import { map } from "rxjs/operators";
 import { Location } from "@angular/common";

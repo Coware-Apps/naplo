@@ -1,7 +1,12 @@
-import { Component, OnInit, Input, OnDestroy } from "@angular/core";
-import { Lesson, Tanmenet, TanmenetElem } from "../_models";
+import { Component, Input } from "@angular/core";
+import { Lesson, Tanmenet, TanmenetElem } from "../../_models";
 import { ModalController, Platform } from "@ionic/angular";
-import { NetworkStatusService, ConnectionStatus, KretaService, ConfigService } from "../_services";
+import {
+    NetworkStatusService,
+    ConnectionStatus,
+    KretaService,
+    ConfigService,
+} from "../../_services";
 import { Subscription } from "rxjs";
 
 @Component({

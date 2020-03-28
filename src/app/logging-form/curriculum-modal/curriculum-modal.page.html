@@ -8,7 +8,7 @@
 
         <ion-title translate="curriculum.title"></ion-title>
 
-        <ion-buttons slot="end">
+        <ion-buttons slot="end" *ngIf="platform.is('ios')">
             <ion-button (click)="dismiss()" fill="clear" translate="common.close"></ion-button>
         </ion-buttons>
     </ion-toolbar>
