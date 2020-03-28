@@ -6,6 +6,8 @@ import {
     Input,
     OnChanges,
     SimpleChanges,
+    Output,
+    EventEmitter,
 } from "@angular/core";
 import {
     KretaEnum,
@@ -29,6 +31,7 @@ import { stringify } from "flatted/esm";
 export class ErtekelesComponent implements OnInit, OnChanges {
     @Input() lesson: Lesson;
     @Input() osztalyTanuloi: OsztalyTanuloi;
+    @Output() onSelectionChange = new EventEmitter<any>();
 
     // értékelések tab
     public ertekelesDatum: string;

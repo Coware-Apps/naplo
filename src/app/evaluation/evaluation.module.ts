@@ -7,7 +7,6 @@ import { IonicModule } from "@ionic/angular";
 import { EvaluationPageRoutingModule } from "./evaluation-routing.module";
 
 import { EvaluationPage } from "./evaluation.page";
-import { EvaluationModalPageModule } from "../evaluation-modal/evaluation-modal.module";
 import { ComponentsModule } from "../_components/components.module";
 import { TranslateModule } from "@ngx-translate/core";
 
@@ -17,7 +16,6 @@ import { TranslateModule } from "@ngx-translate/core";
         FormsModule,
         IonicModule,
         EvaluationPageRoutingModule,
-        EvaluationModalPageModule,
         ComponentsModule,
         TranslateModule,
     ],

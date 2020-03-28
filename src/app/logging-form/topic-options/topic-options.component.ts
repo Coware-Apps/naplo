@@ -6,10 +6,8 @@ import { PopoverController } from "@ionic/angular";
     templateUrl: "./topic-options.component.html",
     styleUrls: ["./topic-options.component.scss"],
 })
-export class TopicOptionsComponent implements OnInit {
+export class TopicOptionsComponent {
     constructor(private popoverController: PopoverController) {}
-
-    ngOnInit() {}
 
     public choose(result: string) {
         this.popoverController.dismiss({

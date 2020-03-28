@@ -1,9 +1,10 @@
 <ion-header>
     <ion-toolbar color="primary">
         <ion-buttons slot="start">
-            <ion-button (click)="dismiss()" fill="clear">
-                <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
-            </ion-button>
+            <ion-back-button
+                [text]="config.getBackButtonText()"
+                defaultHref="/evaluation"
+            ></ion-back-button>
         </ion-buttons>
 
         <ion-title translate="eval.title"></ion-title>
@@ -16,12 +17,12 @@
     </ion-toolbar>
 
     <app-offline-warning-bar
-        warningMessage="{{'offline.cant-save'|translate}}"
+        [warningMessage]="'offline.cant-save'|translate"
     ></app-offline-warning-bar>
 
     <ion-toolbar color="secondary" class="ion-text-center">
-        {{tanitottCsoport.OsztalyCsoportNev}}<br />
-        {{tanitottCsoport.TantargyNev}}
+        {{tanitottCsoport?.OsztalyCsoportNev}}<br />
+        {{tanitottCsoport?.TantargyNev}}
     </ion-toolbar>
 </ion-header>
 
@@ -29,7 +30,7 @@
     <app-ertekeles
         [lesson]="tanitottCsoport"
         [osztalyTanuloi]="osztalyTanuloi"
-        #ertekeles
+        (onSelectionChange)="makeItDirty()"
     ></app-ertekeles>
 
     <div *ngIf="!osztalyTanuloi">

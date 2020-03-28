@@ -1,27 +1,21 @@
-import {
-    Component,
-    OnInit,
-    ViewChild,
-    ViewChildren,
-    QueryList,
-    Input,
-    ChangeDetectorRef,
-} from "@angular/core";
+import { Component, ViewChild, ViewChildren, QueryList, ChangeDetectorRef } from "@angular/core";
+import { ActivatedRoute, Router } from "@angular/router";
 import {
     Lesson,
     OsztalyTanuloi,
     Mulasztas,
     JavasoltJelenletTemplate,
     Feljegyzes,
+    IDirty,
 } from "../_models";
+import { Subscription } from "rxjs";
 import {
     IonSlides,
+    IonContent,
     LoadingController,
     ModalController,
-    IonContent,
     PopoverController,
     AlertController,
-    Platform,
 } from "@ionic/angular";
 import {
     ErtekelesComponent,
@@ -32,49 +26,47 @@ import {
     KretaService,
     ConfigService,
     NetworkStatusService,
-    ConnectionStatus,
     FirebaseService,
+    ConnectionStatus,
 } from "../_services";
 import { ErrorHelper, DateHelper } from "../_helpers";
-import { OnDestroyMixin, untilComponentDestroyed } from "@w11k/ngx-componentdestroyed";
+import { TranslateService } from "@ngx-translate/core";
 import { CurriculumModalPage } from "../curriculum-modal/curriculum-modal.page";
 import { TopicOptionsComponent } from "./topic-options/topic-options.component";
-import { TranslateService } from "@ngx-translate/core";
-import { Subscription } from "rxjs";
+import { map } from "rxjs/operators";
+import { Location } from "@angular/common";
 
 @Component({
-    selector: "app-logging-modal",
-    templateUrl: "./logging-modal.page.html",
-    styleUrls: ["./logging-modal.page.scss"],
+    selector: "app-logging",
+    templateUrl: "./logging-form.page.html",
+    styleUrls: ["./logging-form.page.scss"],
 })
-export class LoggingModalPage extends OnDestroyMixin implements OnInit {
-    @Input() lesson: Lesson;
+export class LoggingFormPage implements IDirty {
+    private subs: Subscription[] = [];
+    private _isDirty: boolean;
+
+    public lesson: Lesson;
 
     public loading: string[];
     public kezdete: Date;
     public evesOraSorszam: number = 0;
     public activeTabIndex: number = 0;
     public currentlyOffline: boolean;
-    private backButtonSub: Subscription;
 
-    // mulasztások tab
+    // tabs
     public tema: string;
     public osztalyTanuloi: OsztalyTanuloi;
     public mulasztasok: Mulasztas[];
     public javasoltJelenlet: JavasoltJelenletTemplate;
-
-    // házi feladat tab
     public hfHatarido: string;
     public hfSzoveg: string;
-
-    // feljegyzések tab
     public feljegyzesek: Feljegyzes[];
 
-    @ViewChild("slides", { static: true })
+    @ViewChild(IonSlides, { static: false })
     private slides: IonSlides;
-    @ViewChild("ertekeles", { static: true })
+    @ViewChild(ErtekelesComponent, { static: false })
     private ertekeles: ErtekelesComponent;
-    @ViewChild(IonContent, { static: true })
+    @ViewChild(IonContent, { static: false })
     private content: IonContent;
     @ViewChildren(TanuloJelenletComponent)
     private jelenletComponents: QueryList<TanuloJelenletComponent>;
@@ -82,11 +74,11 @@ export class LoggingModalPage extends OnDestroyMixin implements OnInit {
     private feljegyzesComponents: QueryList<TanuloFeljegyzesComponent>;
 
     constructor(
-        private kreta: KretaService,
+        public dateHelper: DateHelper,
         public config: ConfigService,
+        private kreta: KretaService,
         private error: ErrorHelper,
         private loadingController: LoadingController,
-        public dateHelper: DateHelper,
         private modalController: ModalController,
         private networkStatus: NetworkStatusService,
         private cd: ChangeDetectorRef,
@@ -94,78 +86,112 @@ export class LoggingModalPage extends OnDestroyMixin implements OnInit {
         private popoverController: PopoverController,
         private alertController: AlertController,
         private translate: TranslateService,
-        private platform: Platform
-    ) {
-        super();
-    }
+        private route: ActivatedRoute,
+        private router: Router,
+        private location: Location
+    ) {}
 
-    async ngOnInit() {
-        this.loading = ["osztalyTanuloi", "javasoltJelenlet"];
+    public async ionViewWillEnter() {
+        this.firebase.setScreenName("logging");
 
-        this.firebase.setScreenName("logging_modal");
+        this.subs.push(
+            this.route.paramMap.pipe(map(() => window.history.state)).subscribe(async state => {
+                this.lesson = state.lesson;
 
-        if (this.lesson && this.lesson.KezdeteUtc) {
-            this.kezdete = new Date(this.lesson.KezdeteUtc);
-            this.tema = this.lesson.Tema;
-            this.hfHatarido = this.lesson.HazifeladatHataridoUtc
-                ? new Date(this.lesson.HazifeladatHataridoUtc).toISOString()
-                : null;
-            this.hfSzoveg = this.lesson.HazifeladatSzovege
-                ? this.lesson.HazifeladatSzovege.replace(/\<br \/\>/g, "\n")
-                : null;
-            this.evesOraSorszam =
-                this.lesson.Allapot.Nev == "Naplozott"
-                    ? this.lesson.EvesOraszam
-                    : this.lesson.EvesOraszam + 1;
+                if (!this.lesson) {
+                    this.router.navigate(["/timetable"]);
+                    throw new Error(
+                        "No lesson found in the route state, redirecting to timetable..."
+                    );
+                }
 
-            await this.firebase.startTrace("logging_modal_load_time");
+                this._isDirty = false;
+                this.loading = ["osztalyTanuloi", "javasoltJelenlet"];
 
-            (await this.kreta.getOsztalyTanuloi(this.lesson.OsztalyCsoportId))
-                .pipe(untilComponentDestroyed(this))
-                .subscribe(x => {
-                    this.osztalyTanuloi = x;
-                    this.loadingDone("osztalyTanuloi");
-                });
+                if (this.lesson && this.lesson.KezdeteUtc) {
+                    this.kezdete = new Date(this.lesson.KezdeteUtc);
+                    this.tema = this.lesson.Tema;
+                    this.hfHatarido = this.lesson.HazifeladatHataridoUtc
+                        ? new Date(this.lesson.HazifeladatHataridoUtc).toISOString()
+                        : null;
+                    this.hfSzoveg = this.lesson.HazifeladatSzovege
+                        ? this.lesson.HazifeladatSzovege.replace(/\<br \/\>/g, "\n")
+                        : null;
+                    this.evesOraSorszam =
+                        this.lesson.Allapot.Nev == "Naplozott"
+                            ? this.lesson.EvesOraszam
+                            : this.lesson.EvesOraszam + 1;
 
-            if (this.lesson.Allapot.Nev == "Naplozott") {
-                this.loading.push("mulasztas");
-                (await this.kreta.getMulasztas(this.lesson.TanitasiOraId))
-                    .pipe(untilComponentDestroyed(this))
-                    .subscribe(x => {
-                        this.mulasztasok = x;
-                        this.loadingDone("mulasztas");
-                    });
+                    await this.firebase.startTrace("logging_modal_load_time");
 
-                this.loading.push("feljegyzesek");
-                (await this.kreta.getFeljegyzes(this.lesson.TanitasiOraId))
-                    .pipe(untilComponentDestroyed(this))
-                    .subscribe(x => {
-                        this.feljegyzesek = x;
-                        this.loadingDone("feljegyzesek");
-                    });
-            }
+                    this.subs.push(
+                        (
+                            await this.kreta.getOsztalyTanuloi(this.lesson.OsztalyCsoportId)
+                        ).subscribe(x => {
+                            this.osztalyTanuloi = x;
+                            this.loadingDone("osztalyTanuloi");
+                        })
+                    );
 
-            (await this.kreta.getJavasoltJelenlet(this.lesson))
-                .pipe(untilComponentDestroyed(this))
-                .subscribe(x => {
-                    this.javasoltJelenlet = x;
-                    this.loadingDone("javasoltJelenlet");
-                });
+                    if (this.lesson.Allapot.Nev == "Naplozott") {
+                        this.loading.push("mulasztas");
+                        this.subs.push(
+                            (await this.kreta.getMulasztas(this.lesson.TanitasiOraId)).subscribe(
+                                x => {
+                                    this.mulasztasok = x;
+                                    this.loadingDone("mulasztas");
+                                }
+                            )
+                        );
 
-            this.firebase.stopTrace("logging_modal_load_time");
-        }
+                        this.loading.push("feljegyzesek");
+                        this.subs.push(
+                            (await this.kreta.getFeljegyzes(this.lesson.TanitasiOraId)).subscribe(
+                                x => {
+                                    this.feljegyzesek = x;
+                                    this.loadingDone("feljegyzesek");
+                                }
+                            )
+                        );
+                    }
 
-        this.networkStatus
-            .onNetworkChange()
-            .pipe(untilComponentDestroyed(this))
-            .subscribe(status => {
+                    this.subs.push(
+                        (await this.kreta.getJavasoltJelenlet(this.lesson)).subscribe(x => {
+                            this.javasoltJelenlet = x;
+                            this.loadingDone("javasoltJelenlet");
+                        })
+                    );
+
+                    this.firebase.stopTrace("logging_modal_load_time");
+                }
+            })
+        );
+
+        this.subs.push(
+            this.networkStatus.onNetworkChange().subscribe(status => {
                 this.currentlyOffline = status === ConnectionStatus.Offline;
                 this.cd.detectChanges();
-            });
+            })
+        );
+    }
 
-        this.backButtonSub = this.platform.backButton
-            .pipe(untilComponentDestroyed(this))
-            .subscribe(x => this.dismiss());
+    public async ionViewWillLeave() {
+        this.subs.forEach((s, index, object) => {
+            s.unsubscribe();
+            object.splice(index, 1);
+        });
+        this.config.swipeGestureEnabled = true;
+        console.debug("swipe enabled");
+    }
+
+    public isDirty(): boolean {
+        return this._isDirty;
+    }
+
+    public makeItDirty() {
+        console.debug("swipe disabled");
+        this.config.swipeGestureEnabled = false;
+        this._isDirty = true;
     }
 
     private loadingDone(key: string) {
@@ -178,8 +204,8 @@ export class LoggingModalPage extends OnDestroyMixin implements OnInit {
         this.activeTabIndex = await this.slides.getActiveIndex();
     }
 
-    public async slideToTab(slide: number) {
-        await this.slides.slideTo(slide);
+    public slideToTab(slide: number) {
+        this.slides.slideTo(slide);
     }
 
     public async save() {
@@ -247,7 +273,10 @@ export class LoggingModalPage extends OnDestroyMixin implements OnInit {
         this.kreta.removeMulasztasFromCache(this.lesson.TanitasiOraId);
         this.kreta.removeFeljegyzesFromCache(this.lesson.TanitasiOraId);
 
-        if (ertekelesSaveResult) this.modalController.dismiss({ success: true });
+        if (ertekelesSaveResult) {
+            this._isDirty = false;
+            this.location.back();
+        }
     }
 
     private async saveCancelled() {
@@ -291,7 +320,8 @@ export class LoggingModalPage extends OnDestroyMixin implements OnInit {
 
         // sikeres naplózás
         this.kreta.removeDayFromCache(this.lesson.KezdeteUtc);
-        this.modalController.dismiss({ success: true });
+        this._isDirty = false;
+        this.location.back();
     }
 
     private getTanuloLista() {
@@ -319,15 +349,8 @@ export class LoggingModalPage extends OnDestroyMixin implements OnInit {
             },
         });
 
-        // modal in modal, back button handling
-        this.backButtonSub.unsubscribe();
-
         await modal.present();
         const { data } = await modal.onWillDismiss();
-
-        this.backButtonSub = this.platform.backButton
-            .pipe(untilComponentDestroyed(this))
-            .subscribe(x => this.dismiss());
 
         if (data && data.tanmenetElem) this.tema = data.tanmenetElem.Tema;
     }
@@ -364,25 +387,5 @@ export class LoggingModalPage extends OnDestroyMixin implements OnInit {
             await alert.present();
         }
         if (data.result == "curriculum") this.openTanmenet();
-    }
-
-    public async dismiss() {
-        const alert = await this.alertController.create({
-            header: await this.translate.get("common.are-you-sure").toPromise(),
-            message: await this.translate.get("common.data-will-be-lost").toPromise(),
-            buttons: [
-                {
-                    text: await this.translate.get("common.cancel").toPromise(),
-                    role: "cancel",
-                    cssClass: "secondary",
-                },
-                {
-                    text: await this.translate.get("common.exit").toPromise(),
-                    handler: () => this.modalController.dismiss(),
-                },
-            ],
-        });
-
-        await alert.present();
     }
 }

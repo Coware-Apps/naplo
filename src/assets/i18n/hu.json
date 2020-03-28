@@ -70,6 +70,7 @@
         "options-curriculum": "Tanmenet",
         "options-cancelled": "Elmaradt óra",
         "lateness-min": "({{value}} p.)",
+        "lateness-min-long": "perc",
         "required-topic": "Az óra témáját kötelező kitölteni!",
         "required-homework-desc": "A házi feladat leírását kötelező megadni, ha ki lett választva határidő!",
         "saving": "Mentés...",

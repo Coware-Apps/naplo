@@ -1,9 +1,10 @@
 <ion-header>
     <ion-toolbar color="primary">
         <ion-buttons slot="start">
-            <ion-button (click)="dismiss()" fill="clear">
-                <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
-            </ion-button>
+            <ion-back-button
+                [text]="config.getBackButtonText()"
+                defaultHref="/timetable"
+            ></ion-back-button>
         </ion-buttons>
         <ion-title translate="logging.title"></ion-title>
 
@@ -15,13 +16,13 @@
     </ion-toolbar>
 
     <app-offline-warning-bar
-        warningMessage="{{'offline.cant-save'|translate}}"
+        [warningMessage]="'offline.cant-save'|translate"
     ></app-offline-warning-bar>
 
     <ion-progress-bar
         type="indeterminate"
         color="warning"
-        *ngIf="loading.length > 0"
+        *ngIf="loading?.length > 0"
     ></ion-progress-bar>
 
     <ion-toolbar color="secondary" class="ion-text-center">
@@ -38,11 +39,16 @@
 </ion-header>
 
 <ion-content>
-    <ion-slides (ionSlideWillChange)="onSlideChange()" #slides>
+    <ion-slides (ionSlideWillChange)="onSlideChange()">
         <ion-slide>
             <ion-item id="oratemaja">
                 <ion-label position="stacked" translate="logging.lesson-topic"></ion-label>
-                <ion-textarea [(ngModel)]="tema" required wrap="soft"></ion-textarea>
+                <ion-textarea
+                    [(ngModel)]="tema"
+                    required
+                    wrap="soft"
+                    (ionInput)="makeItDirty()"
+                ></ion-textarea>
                 <ion-button
                     (click)="openTopicOptionsPopover($event)"
                     size="large"
@@ -67,11 +73,12 @@
                         [tanulo]="t"
                         [mulasztasok]="mulasztasok"
                         [javasoltJelenlet]="javasoltJelenlet"
+                        (onSelectionChange)="makeItDirty()"
                     ></app-tanulo-jelenlet>
                 </ion-item>
             </ion-list>
 
-            <div *ngIf="loading.length > 0">
+            <div *ngIf="loading?.length > 0">
                 <ion-list
                     *ngFor="let i of [].constructor(5)"
                     class="ion-no-padding ion-no-margin"
@@ -95,6 +102,7 @@
                     <app-tanulo-feljegyzes
                         [tanulo]="t"
                         [allapot]="feljegyzesek"
+                        (onSelectionChange)="makeItDirty()"
                     ></app-tanulo-feljegyzes>
                 </ion-item>
             </ion-list>
@@ -110,13 +118,19 @@
                     [(ngModel)]="hfHatarido"
                     cancelText="{{ 'common.cancel' | translate }}"
                     doneText="{{ 'common.done' | translate }}"
+                    (ionFocus)="makeItDirty()"
                 >
                 </ion-datetime>
             </ion-item>
 
             <ion-item>
                 <ion-label position="stacked" translate="logging.homework-desc"></ion-label>
-                <ion-textarea [(ngModel)]="hfSzoveg" id="hfSzoveg" rows="10"></ion-textarea>
+                <ion-textarea
+                    [(ngModel)]="hfSzoveg"
+                    id="hfSzoveg"
+                    rows="10"
+                    (ionInput)="makeItDirty()"
+                ></ion-textarea>
             </ion-item>
         </ion-slide>
 
@@ -124,7 +138,7 @@
             <app-ertekeles
                 [lesson]="lesson"
                 [osztalyTanuloi]="osztalyTanuloi"
-                #ertekeles
+                (onSelectionChange)="makeItDirty()"
             ></app-ertekeles>
         </ion-slide>
     </ion-slides>

@@ -69,6 +69,7 @@
         "options-curriculum": "Curriculum",
         "options-cancelled": "Cancelled lesson",
         "lateness-min": "({{value}} min.)",
+        "lateness-min-long": "min.",
         "required-topic": "Please enter the topic of the lesson",
         "required-homework-desc": "You must provide a description for the homework",
         "saving": "Saving...",

@@ -8,6 +8,7 @@ import { Institute, ErtekelesTipus } from "../_models";
 import { environment } from "src/environments/environment";
 import { FirebaseService } from "./firebase.service";
 import { TranslateService } from "@ngx-translate/core";
+import { Platform } from "@ionic/angular";
 
 @Injectable({
     providedIn: "root",
@@ -61,6 +62,15 @@ export class ConfigService {
 
     private renderer: Renderer2;
 
+    // https://github.com/ionic-team/ionic/issues/17600
+    private _swipeGestureEnabled = true;
+    public get swipeGestureEnabled(): boolean {
+        return this.platform.is("ios") ? this._swipeGestureEnabled : false;
+    }
+    public set swipeGestureEnabled(v: boolean) {
+        this._swipeGestureEnabled = v;
+    }
+
     constructor(
         private globalization: Globalization,
         private data: DataService,
@@ -68,6 +78,7 @@ export class ConfigService {
         private rendererFactory: RendererFactory2,
         private firebase: FirebaseService,
         private translate: TranslateService,
+        private platform: Platform,
         @Inject(DOCUMENT) private document: Document
     ) {
         this.renderer = this.rendererFactory.createRenderer(null, null);
@@ -136,5 +147,9 @@ export class ConfigService {
             /* webpackInclude: /(hu|de)\.js$/ */
             `@angular/common/locales/${locale}.js`
         ).then(module => registerLocaleData(module.default));
+    }
+
+    public getBackButtonText(): string | null {
+        return this.platform.is("ios") ? this.translate.instant("common.back") : null;
     }
 }

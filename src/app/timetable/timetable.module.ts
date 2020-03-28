@@ -8,7 +8,6 @@ import { TimetablePageRoutingModule } from "./timetable-routing.module";
 
 import { TimetablePage } from "./timetable.page";
 import { DatePicker } from "@ionic-native/date-picker/ngx";
-import { LoggingModalPageModule } from "../logging-modal/logging-modal.module";
 import { ComponentsModule } from "../_components/components.module";
 import { TranslateModule } from "@ngx-translate/core";
 
@@ -18,7 +17,6 @@ import { TranslateModule } from "@ngx-translate/core";
         FormsModule,
         IonicModule,
         TimetablePageRoutingModule,
-        LoggingModalPageModule,
         ComponentsModule,
         TranslateModule,
     ],

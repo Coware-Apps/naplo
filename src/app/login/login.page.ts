@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from "@angular/core";
+import { Component } from "@angular/core";
 import {
     KretaService,
     ConfigService,
@@ -24,19 +24,21 @@ import {
     KretaInvalidPasswordException,
 } from "../_models/kreta-exceptions";
 import { TranslateService } from "@ngx-translate/core";
-import { OnDestroyMixin, untilComponentDestroyed } from "@w11k/ngx-componentdestroyed";
+import { Subscription } from "rxjs";
 
 @Component({
     selector: "app-login",
     templateUrl: "./login.page.html",
     styleUrls: ["./login.page.scss"],
 })
-export class LoginPage extends OnDestroyMixin implements OnInit {
+export class LoginPage {
     public username: string;
     public password: string;
     public instituteName: string;
     private returnUrl: string;
     public loading: boolean;
+
+    private subs: Subscription[] = [];
 
     constructor(
         private kreta: KretaService,
@@ -55,14 +57,7 @@ export class LoginPage extends OnDestroyMixin implements OnInit {
         private market: Market,
         private alertController: AlertController,
         private translate: TranslateService
-    ) {
-        super();
-    }
-
-    ngOnInit() {
-        this.returnUrl = this.route.snapshot.queryParams["returnUrl"] || "/";
-        this.firebase.setScreenName("login");
-    }
+    ) {}
 
     async ionViewWillEnter() {
         this.config.applyTheme("light", false);
@@ -70,11 +65,21 @@ export class LoginPage extends OnDestroyMixin implements OnInit {
         this.statusBar.backgroundColorByHexString("#FDEC5D"); // sárga
         this.menuController.enable(false);
 
+        this.returnUrl = this.route.snapshot.queryParams["returnUrl"] || "/";
+        this.firebase.setScreenName("login");
+
         if (await this.kreta.isAuthenticated()) {
             console.log("A login page lett megnyitva, de be vagyunk jelentkezve. Átirányítás...");
             await this.router.navigate(["/timetable"]);
             return;
         }
+    }
+
+    ionViewWillLeave() {
+        this.subs.forEach((s, index, object) => {
+            s.unsubscribe();
+            object.splice(index, 1);
+        });
     }
 
     async doLogin() {
@@ -167,23 +172,24 @@ export class LoginPage extends OnDestroyMixin implements OnInit {
         this.firebase.logEvent("login_privacypolicy_opened", {});
         this.safariViewController.isAvailable().then(async (available: boolean) => {
             if (available) {
-                this.safariViewController
-                    .show({
-                        url: "https://coware-apps.github.io/naplo/privacy",
-                        barColor: "#3880ff",
-                        toolbarColor: "#3880ff",
-                        controlTintColor: "#ffffff",
-                    })
-                    .pipe(untilComponentDestroyed(this))
-                    .subscribe(
-                        (result: any) => {},
-                        (error: any) => {
-                            console.error(error);
-                            this.firebase.logError(
-                                "login privacypolicy subscription error: " + error
-                            );
-                        }
-                    );
+                this.subs.push(
+                    this.safariViewController
+                        .show({
+                            url: "https://coware-apps.github.io/naplo/privacy",
+                            barColor: "#3880ff",
+                            toolbarColor: "#3880ff",
+                            controlTintColor: "#ffffff",
+                        })
+                        .subscribe(
+                            (result: any) => {},
+                            (error: any) => {
+                                console.error(error);
+                                this.firebase.logError(
+                                    "login privacypolicy subscription error: " + error
+                                );
+                            }
+                        )
+                );
             } else {
                 console.log("browser tab not supported");
 
