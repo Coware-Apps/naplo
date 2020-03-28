@@ -11,6 +11,7 @@
         "no": "No",
         "back": "Back",
         "exit": "Exit",
+        "close": "Close",
         "are-you-sure": "Are you sure?",
         "data-will-be-lost": "The data will not be saved"
     },
