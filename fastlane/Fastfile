@@ -17,7 +17,7 @@ default_platform :ios
 
 platform :ios do
 
-  lane :setup_project do
+  lane :setup do
     create_keychain(
       name: "fastlane_keychain",
       password: "mooo",

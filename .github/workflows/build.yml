@@ -76,6 +76,9 @@ jobs:
             - uses: actions/checkout@v1
             - uses: actions/setup-node@v1.1.0
 
+            - name: Create fastlane keystore
+              run: fastlane setup --verbose
+
             - name: Install @ionic/cli and Cordova
               run: sudo npm install -g @ionic/cli cordova
 
