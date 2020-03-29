@@ -30,6 +30,7 @@ platform :ios do
 
     match(
       type: 'appstore',
+      readonly: true,
       keychain_name: "fastlane_keychain",
       keychain_password: "mooo"
     )
