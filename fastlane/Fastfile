@@ -1,0 +1,77 @@
+# Customise this file, documentation can be found here:
+# https://github.com/fastlane/fastlane/tree/master/fastlane/docs
+# All available actions: https://docs.fastlane.tools/actions
+# can also be listed using the `fastlane actions` command
+
+# Change the syntax highlighting to Ruby
+# All lines starting with a # are ignored when running `fastlane`
+
+# If you want to automatically update fastlane if a new version is available:
+# update_fastlane
+
+# This is the minimum version number required.
+# Update this, if you use features of a newer version
+fastlane_version "2.28.3"
+
+default_platform :ios
+
+platform :ios do
+
+  desc "Build Release"
+  lane :build_release do
+    match(type: 'appstore')
+    ionic(
+      platform: 'ios',
+      prod: true,
+      release: true
+    )
+  end
+
+end
+
+# CLEARTEXT PASSWORDS IN LOGS!
+
+# platform :android do
+#   before_all do
+#     #pass keystore as CI secret
+#     #Keystore encode: openssl base64 -A -in keystore.jks
+#     #Keyfile decode: echo $DEBUG_KEYSTORE_BASE64 | base64 --decode > keystore.jks
+
+#     ENV["CORDOVA_ANDROID_KEYSTORE_PATH"] = "fastlane/coware.keystore"
+#     #ENV["CORDOVA_ANDROID_KEYSTORE_ALIAS"] = ""
+#     #ENV["CORDOVA_ANDROID_KEY_PASSWORD"] = ""
+#     #ENV["CORDOVA_ANDROID_KEYSTORE_PASSWORD"] = ""
+#   end
+
+#   desc "Build Release"
+#   lane :build_release do
+#     ionic(
+#       platform: 'android',
+#       prod: true,
+#       release: true
+#     )
+
+#     gradle(
+#       task: 'bundle',
+#       build_type: 'Release',
+#       project_dir: 'platforms/android',
+#       gradle_path: 'gradlew',
+#       print_command: false,
+
+#       properties: {
+#         "android.injected.signing.store.file" => ENV["CORDOVA_ANDROID_KEYSTORE_PATH"],
+#         "android.injected.signing.store.password" => ENV["CORDOVA_ANDROID_KEYSTORE_PASSWORD"],
+#         "android.injected.signing.key.alias" => ENV["CORDOVA_ANDROID_KEYSTORE_ALIAS"],
+#         "android.injected.signing.key.password" => ENV["CORDOVA_ANDROID_KEY_PASSWORD"],
+#       }
+#     )
+#   end
+
+# end
+
+
+# More information about multiple platforms in fastlane: https://github.com/fastlane/fastlane/blob/master/fastlane/docs/Platforms.md
+# All available actions: https://docs.fastlane.tools/actions
+
+# fastlane reports which actions are used
+# No personal data is recorded. Learn more at https://github.com/fastlane/enhancer

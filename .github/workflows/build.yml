@@ -1,15 +1,17 @@
-name: Build and sign Android
+name: Build and publish
 
 on:
     push:
         branches:
             - master
+            - gha-ios
     pull_request:
         branches:
             - master
 
 jobs:
-    build:
+    android:
+        name: Build for Android
         runs-on: ubuntu-latest
 
         steps:
@@ -65,3 +67,31 @@ jobs:
               with:
                   name: naplo-${{ env.PACKAGE_VERSION }}-release-signed.aab
                   path: ${{ env.SIGNED_RELEASE_FILE }}
+
+    ios:
+        name: Build for iOS
+        runs-on: macos-latest
+
+        steps:
+            - uses: actions/checkout@v1
+            - uses: actions/setup-node@v1.1.0
+
+            - name: Install @ionic/cli and Cordova
+              run: sudo npm install -g @ionic/cli cordova
+
+            - name: npm install
+              run: npm install
+
+            - name: Build release with fastlane
+              run: fastlane ios build_release
+
+            - name: Get package version
+              run: |
+                  v=`node -p "const p = require('./package.json'); p.version;"`
+                  echo ::set-env name=PACKAGE_VERSION::$v
+
+            - name: Upload IPA artifact
+              uses: actions/upload-artifact@v1.0.0
+              with:
+                  name: naplo-${{ env.PACKAGE_VERSION }}-release-signed.ipa
+                  path: platforms/ios/build/device/NaploPlusz.ipa
