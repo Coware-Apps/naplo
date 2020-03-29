@@ -13,6 +13,7 @@ jobs:
     android:
         name: Build for Android
         runs-on: ubuntu-latest
+        if: "!contains(github.event.head_commit.message, '[skip-ci]')"
 
         steps:
             - uses: actions/checkout@v1
@@ -71,6 +72,7 @@ jobs:
     ios:
         name: Build for iOS
         runs-on: macos-latest
+        if: "!contains(github.event.head_commit.message, '[skip-ci]')"
         env:
             FASTLANE_APPLE_ID: ${{ secrets.FL_APPLE_ID }}
             FASTLANE_PASSWORD: ${{ secrets.FL_APPLE_PASSWORD }}
@@ -93,7 +95,7 @@ jobs:
             - name: Build release with fastlane
               run: fastlane ios build
 
-            - if: github.ref == "master"
+            - if: github.ref == 'master'
               name: Upload to Testflight
               run: fastlane ios upload_to_tf
 
