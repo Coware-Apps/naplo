@@ -19,7 +19,7 @@ platform :ios do
 
   desc "Build Release"
   lane :build_release do
-    match(type: 'appstore')
+    match(type: 'appstore', readonly: true)
     ionic(
       platform: 'ios',
       prod: true,
