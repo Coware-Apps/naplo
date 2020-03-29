@@ -95,10 +95,6 @@ jobs:
             - name: Build release with fastlane
               run: fastlane ios build
 
-            - if: github.ref == 'master'
-              name: Upload to Testflight
-              run: fastlane ios upload_to_tf
-
             - name: Get package version
               run: |
                   v=`node -p "const p = require('./package.json'); p.version;"`
@@ -108,4 +104,8 @@ jobs:
               uses: actions/upload-artifact@v1.0.0
               with:
                   name: naplo-${{ env.PACKAGE_VERSION }}-release-signed.ipa
-                  path: platforms/ios/build/device
+                  path: platforms/ios/build/device/NaploPlusz.ipa
+
+            - if: github.ref == 'master'
+              name: Upload to Testflight
+              run: fastlane ios upload_to_tf
