@@ -1,4 +1,4 @@
-name: Build and publish
+name: Build and upload
 
 on:
     push:
@@ -84,6 +84,9 @@ jobs:
 
             - name: Build release with fastlane
               run: fastlane ios build_release
+              env:
+                  MATCH_PASSWORD: ${{ secrets.MATCH_PASSPHRASE }}
+                  MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_SECRETS_REPO_TOKEN }}
 
             - name: Get package version
               run: |
