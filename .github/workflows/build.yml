@@ -83,8 +83,9 @@ jobs:
               run: npm install
 
             - name: Build release with fastlane
-              run: fastlane ios build_release
+              run: bundle exec fastlane ios build_release
               env:
+                  MATCH_GIT_URL: "https://kodolok@github.com/kodolok/coware-secrets.git"
                   MATCH_PASSWORD: ${{ secrets.MATCH_PASSPHRASE }}
                   MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_SECRETS_REPO_TOKEN }}
 
