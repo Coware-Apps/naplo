@@ -17,7 +17,8 @@ default_platform :ios
 
 platform :ios do
 
-  lane :setup do
+  desc "Build Release"
+  lane :build do
     create_keychain(
       name: "fastlane_keychain",
       password: "mooo",
@@ -26,13 +27,9 @@ platform :ios do
       timeout: 3600,
       lock_when_sleeps: false
     )
-  end
 
-  desc "Build Release"
-  lane :build_release do
     match(
-      type: 'appstore', 
-      readonly: true,
+      type: 'appstore',
       keychain_name: "fastlane_keychain",
       keychain_password: "mooo"
     )
@@ -41,6 +38,14 @@ platform :ios do
       platform: 'ios',
       prod: true,
       release: true
+    )
+  end
+
+  lane :upload_to_tf do
+    upload_to_testflight(
+      skip_submission: true,
+      skip_waiting_for_build_processing: true,
+      ipa: 'platforms/ios/build/device/NaploPlusz.ipa'
     )
   end
 

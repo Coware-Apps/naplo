@@ -71,13 +71,18 @@ jobs:
     ios:
         name: Build for iOS
         runs-on: macos-latest
+        env:
+            FASTLANE_APPLE_ID: ${{ secrets.FL_APPLE_ID }}
+            FASTLANE_PASSWORD: ${{ secrets.FL_APPLE_PASSWORD }}
+            FASTLANE_TEAM_ID: ${{ secrets.FL_TEAM_ID }}
+            PILOT_APPLE_ID: ${{ secrets.FL_APPLE_APP_ID }}
+            MATCH_PASSWORD: ${{ secrets.MATCH_PASSPHRASE }}
+            MATCH_SECRETS_REPO_URL: ${{ secrets.MATCH_SECRETS_REPO_URL }}
+            MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_SECRETS_REPO_TOKEN }}
 
         steps:
             - uses: actions/checkout@v1
             - uses: actions/setup-node@v1.1.0
-
-            - name: Create fastlane keystore
-              run: fastlane setup --verbose
 
             - name: Install @ionic/cli and Cordova
               run: sudo npm install -g @ionic/cli cordova
@@ -86,10 +91,11 @@ jobs:
               run: npm install
 
             - name: Build release with fastlane
-              run: fastlane ios build_release
-              env:
-                  MATCH_PASSWORD: ${{ secrets.MATCH_PASSPHRASE }}
-                  MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_SECRETS_REPO_TOKEN }}
+              run: fastlane ios build
+
+            - if: github.ref == "master"
+              name: Upload to Testflight
+              run: fastlane ios upload_to_tf
 
             - name: Get package version
               run: |
@@ -100,4 +106,4 @@ jobs:
               uses: actions/upload-artifact@v1.0.0
               with:
                   name: naplo-${{ env.PACKAGE_VERSION }}-release-signed.ipa
-                  path: platforms/ios/build/device/NaploPlusz.ipa
+                  path: platforms/ios/build/device
