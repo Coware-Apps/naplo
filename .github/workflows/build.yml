@@ -75,7 +75,6 @@ jobs:
                   packageName: hu.coware.naplo
                   releaseFile: ${{ env.SIGNED_RELEASE_FILE }}
                   track: internal
-                  userFraction: 1.00
 
             # - name: Decode Play API secrets
             #   run: echo $FL_PLAY_API_SECRETS_B64 | base64 --decode > fastlane/google-play-api-secrets.json
