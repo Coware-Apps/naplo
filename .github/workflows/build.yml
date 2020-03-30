@@ -12,7 +12,7 @@ on:
 jobs:
     android:
         name: Build for Android
-        runs-on: macos-latest
+        runs-on: ubuntu-latest
         if: "!contains(github.event.head_commit.message, '[skip-ci]')"
 
         steps:
@@ -69,13 +69,20 @@ jobs:
                   name: naplo-${{ env.PACKAGE_VERSION }}-release-signed.aab
                   path: ${{ env.SIGNED_RELEASE_FILE }}
 
-            - name: Decode Play API secrets
-              run: echo $FL_PLAY_API_SECRETS_B64 | base64 --decode > fastlane/google-play-api-secrets.json
-              env:
-                  FL_PLAY_API_SECRETS_B64: ${{ env.FL_PLAY_API_SECRETS_B64 }}
+            - uses: r0adkll/upload-google-play@v1
+              with:
+                  serviceAccountJson: ${{ secrets.FL_PLAY_API_SECRETS }}
+                  packageName: hu.coware.naplo
+                  releaseFile: ${{ env.SIGNED_RELEASE_FILE }}
+                  track: internal
+                  userFraction: 1.00
 
-            - name: Upload AAB to Play Store
-              run: fastlane android upload_to_ps
+            # - name: Decode Play API secrets
+            #   run: echo $FL_PLAY_API_SECRETS_B64 | base64 --decode > fastlane/google-play-api-secrets.json
+            #   env:
+            #       FL_PLAY_API_SECRETS_B64: ${{ secrets.FL_PLAY_API_SECRETS_B64 }}
+            # - name: Upload AAB to Play Store
+            #   run: fastlane android upload_to_ps
 
     ios:
         name: Build for iOS
