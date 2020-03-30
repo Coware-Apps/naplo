@@ -1,4 +1,4 @@
-name: Build and sign Android
+name: Build and publish
 
 on:
     push:
@@ -9,8 +9,10 @@ on:
             - master
 
 jobs:
-    build:
+    android:
+        name: Build for Android
         runs-on: ubuntu-latest
+        if: "!contains(github.event.head_commit.message, '[skip-ci]')"
 
         steps:
             - uses: actions/checkout@v1
@@ -65,3 +67,53 @@ jobs:
               with:
                   name: naplo-${{ env.PACKAGE_VERSION }}-release-signed.aab
                   path: ${{ env.SIGNED_RELEASE_FILE }}
+
+            - if: github.ref == 'master'
+              name: Upload to Play Store
+              uses: r0adkll/upload-google-play@v1
+              with:
+                  serviceAccountJsonPlainText: ${{ secrets.FL_PLAY_API_SECRETS }}
+                  packageName: hu.coware.naplo
+                  releaseFile: ${{ env.SIGNED_RELEASE_FILE }}
+                  track: internal
+
+    ios:
+        name: Build for iOS
+        runs-on: macos-latest
+        if: "!contains(github.event.head_commit.message, '[skip-ci]')"
+        env:
+            FASTLANE_APPLE_ID: ${{ secrets.FL_APPLE_ID }}
+            FASTLANE_PASSWORD: ${{ secrets.FL_APPLE_PASSWORD }}
+            FASTLANE_TEAM_ID: ${{ secrets.FL_TEAM_ID }}
+            PILOT_APPLE_ID: ${{ secrets.FL_APPLE_APP_ID }}
+            MATCH_PASSWORD: ${{ secrets.MATCH_PASSPHRASE }}
+            MATCH_SECRETS_REPO_URL: ${{ secrets.MATCH_SECRETS_REPO_URL }}
+            MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_SECRETS_REPO_TOKEN }}
+
+        steps:
+            - uses: actions/checkout@v1
+            - uses: actions/setup-node@v1.1.0
+
+            - name: Install @ionic/cli and Cordova
+              run: sudo npm install -g @ionic/cli cordova
+
+            - name: npm install
+              run: npm install
+
+            - name: Build release with fastlane
+              run: fastlane ios build
+
+            - name: Get package version
+              run: |
+                  v=`node -p "const p = require('./package.json'); p.version;"`
+                  echo ::set-env name=PACKAGE_VERSION::$v
+
+            - name: Upload IPA artifact
+              uses: actions/upload-artifact@v1.0.0
+              with:
+                  name: naplo-${{ env.PACKAGE_VERSION }}-release-signed.ipa
+                  path: platforms/ios/build/device/NaploPlusz.ipa
+
+            - if: github.ref == 'master'
+              name: Upload to Testflight
+              run: fastlane ios upload_to_tf
