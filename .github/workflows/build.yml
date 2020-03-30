@@ -71,7 +71,7 @@ jobs:
 
             - uses: r0adkll/upload-google-play@v1
               with:
-                  serviceAccountJson: ${{ secrets.FL_PLAY_API_SECRETS }}
+                  serviceAccountJsonPlainText: ${{ secrets.FL_PLAY_API_SECRETS }}
                   packageName: hu.coware.naplo
                   releaseFile: ${{ env.SIGNED_RELEASE_FILE }}
                   track: internal
