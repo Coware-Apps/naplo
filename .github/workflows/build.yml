@@ -1,4 +1,4 @@
-name: Build and upload
+name: Build and publish
 
 on:
     push:
@@ -68,6 +68,14 @@ jobs:
               with:
                   name: naplo-${{ env.PACKAGE_VERSION }}-release-signed.aab
                   path: ${{ env.SIGNED_RELEASE_FILE }}
+
+            - name: Decode Play API secrets
+              run: echo $FL_PLAY_API_SECRETS_B64 | base64 --decode > fastlane/google-play-api-secrets.json
+              env:
+                  FL_PLAY_API_SECRETS_B64: ${{ env.FL_PLAY_API_SECRETS_B64 }}
+
+            - name: Upload AAB to Play Store
+              run: fastlane android upload_to_ps
 
     ios:
         name: Build for iOS

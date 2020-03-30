@@ -52,45 +52,56 @@ platform :ios do
 
 end
 
-# CLEARTEXT PASSWORDS IN LOGS!
 
-# platform :android do
-#   before_all do
-#     #pass keystore as CI secret
-#     #Keystore encode: openssl base64 -A -in keystore.jks
-#     #Keyfile decode: echo $DEBUG_KEYSTORE_BASE64 | base64 --decode > keystore.jks
+platform :android do
+  before_all do
+    #pass keystore as CI secret
+    #Keystore encode: openssl base64 -A -in keystore.jks
+    #Keyfile decode: echo $DEBUG_KEYSTORE_BASE64 | base64 --decode > keystore.jks
 
-#     ENV["CORDOVA_ANDROID_KEYSTORE_PATH"] = "fastlane/coware.keystore"
-#     #ENV["CORDOVA_ANDROID_KEYSTORE_ALIAS"] = ""
-#     #ENV["CORDOVA_ANDROID_KEY_PASSWORD"] = ""
-#     #ENV["CORDOVA_ANDROID_KEYSTORE_PASSWORD"] = ""
-#   end
+    #ENV["CORDOVA_ANDROID_KEYSTORE_PATH"] = "fastlane/coware.keystore"
+    #ENV["CORDOVA_ANDROID_KEYSTORE_ALIAS"] = ""
+    #ENV["CORDOVA_ANDROID_KEY_PASSWORD"] = ""
+    #ENV["CORDOVA_ANDROID_KEYSTORE_PASSWORD"] = ""
+  end
 
-#   desc "Build Release"
-#   lane :build_release do
-#     ionic(
-#       platform: 'android',
-#       prod: true,
-#       release: true
-#     )
+  # CLEARTEXT PASSWORDS IN LOGS!
 
-#     gradle(
-#       task: 'bundle',
-#       build_type: 'Release',
-#       project_dir: 'platforms/android',
-#       gradle_path: 'gradlew',
-#       print_command: false,
+  # desc "Build Release"
+  # lane :build_release do
+  #   ionic(
+  #     platform: 'android',
+  #     prod: true,
+  #     release: true
+  #   )
 
-#       properties: {
-#         "android.injected.signing.store.file" => ENV["CORDOVA_ANDROID_KEYSTORE_PATH"],
-#         "android.injected.signing.store.password" => ENV["CORDOVA_ANDROID_KEYSTORE_PASSWORD"],
-#         "android.injected.signing.key.alias" => ENV["CORDOVA_ANDROID_KEYSTORE_ALIAS"],
-#         "android.injected.signing.key.password" => ENV["CORDOVA_ANDROID_KEY_PASSWORD"],
-#       }
-#     )
-#   end
+  #   gradle(
+  #     task: 'bundle',
+  #     build_type: 'Release',
+  #     project_dir: 'platforms/android',
+  #     gradle_path: 'gradlew',
+  #     print_command: false,
 
-# end
+  #     properties: {
+  #       "android.injected.signing.store.file" => ENV["CORDOVA_ANDROID_KEYSTORE_PATH"],
+  #       "android.injected.signing.store.password" => ENV["CORDOVA_ANDROID_KEYSTORE_PASSWORD"],
+  #       "android.injected.signing.key.alias" => ENV["CORDOVA_ANDROID_KEYSTORE_ALIAS"],
+  #       "android.injected.signing.key.password" => ENV["CORDOVA_ANDROID_KEY_PASSWORD"],
+  #     }
+  #   )
+  # end
+
+  desc "Upload bundle to Play Store"
+  lane :upload_to_ps do
+    upload_to_play_store(
+      track: 'internal',
+      aab: 'platforms/android/app/build/outputs/bundle/release/app.aab',
+      skip_upload_changelogs: true,
+      release_status: 'draft'
+    )
+  end
+
+end
 
 
 # More information about multiple platforms in fastlane: https://github.com/fastlane/fastlane/blob/master/fastlane/docs/Platforms.md
