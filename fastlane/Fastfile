@@ -91,15 +91,15 @@ platform :android do
   #   )
   # end
 
-  desc "Upload bundle to Play Store"
-  lane :upload_to_ps do
-    upload_to_play_store(
-      track: 'internal',
-      aab: 'platforms/android/app/build/outputs/bundle/release/app.aab',
-      skip_upload_changelogs: true,
-      release_status: 'draft'
-    )
-  end
+  # desc "Upload bundle to Play Store"
+  # lane :upload_to_ps do
+  #   upload_to_play_store(
+  #     track: 'internal',
+  #     aab: 'platforms/android/app/build/outputs/bundle/release/app.aab',
+  #     skip_upload_changelogs: true,
+  #     release_status: 'draft'
+  #   )
+  # end
 
 end
 
