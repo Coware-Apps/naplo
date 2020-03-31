@@ -27,3 +27,16 @@ export class KretaEUgyInvalidTokenResponseException extends KretaEUgyException {
         super("Invalid response to token request.", "InvalidTokenResponseException");
     }
 }
+
+export class KretaEUgyMessageAttachmentDownloadException extends KretaEUgyException {
+    protected filename;
+
+    constructor(error, filename) {
+        super(error, "MessageAttachmentDownloadException");
+        this.filename = filename;
+    }
+
+    toString() {
+        return `${this.name} (${this.filename}): ${this.message}`;
+    }
+}

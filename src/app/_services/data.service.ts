@@ -94,28 +94,58 @@ export class DataService {
     public async postUrl(
         url: string,
         body?: any,
-        headers?: any,
+        headers: object = {},
         dataSerializer: "json" | "urlencoded" | "utf8" | "multipart" = "urlencoded"
     ): Promise<HTTPResponse> {
         const appVersionNumber = await this.appVersion.getVersionNumber();
         console.log("SZERVERHÍVÁS: " + url);
 
-        if (headers)
-            headers["User-Agent"] = environment.userAgent.replace(
-                "%APP_VERSION_NUMBER%",
-                appVersionNumber
-            );
-        else
-            headers = {
-                "User-Agent": environment.userAgent.replace(
-                    "%APP_VERSION_NUMBER%",
-                    appVersionNumber
-                ),
-            };
+        headers["User-Agent"] = environment.userAgent.replace(
+            "%APP_VERSION_NUMBER%",
+            appVersionNumber
+        );
 
         this.http.setDataSerializer(dataSerializer);
         await this.firebase.startTrace("http_post_call_time");
         const response = this.http.post(url, body, headers).catch(async err => {
+            try {
+                const e = JSON.parse(err.error);
+                if (
+                    e &&
+                    e.error_description &&
+                    e.error_description != "invalid_username_or_password"
+                ) {
+                    this.firebase.logError("postUrl(" + url + ") HTTP error: " + stringify(err));
+                    await this.errorHelper.presentToast(
+                        await this.translate.get("common.comm-error").toPromise(),
+                        10000
+                    );
+                }
+            } catch (ex) {}
+
+            throw err;
+        });
+        this.firebase.stopTrace("http_post_call_time");
+        return response;
+    }
+
+    public async deleteUrl(
+        url: string,
+        body?: any,
+        headers: object = {},
+        dataSerializer: "json" | "urlencoded" | "utf8" | "multipart" = "urlencoded"
+    ): Promise<HTTPResponse> {
+        const appVersionNumber = await this.appVersion.getVersionNumber();
+        console.log("SZERVERHÍVÁS: " + url);
+
+        headers["User-Agent"] = environment.userAgent.replace(
+            "%APP_VERSION_NUMBER%",
+            appVersionNumber
+        );
+
+        this.http.setDataSerializer(dataSerializer);
+        await this.firebase.startTrace("http_post_call_time");
+        const response = this.http.delete(url, body, headers).catch(async err => {
             try {
                 const e = JSON.parse(err.error);
                 if (

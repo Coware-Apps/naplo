@@ -11,5 +11,6 @@ export * from "./institute";
 export * from "./tanitott-csoport";
 export * from "./ertekeles-tipus";
 export * from "./tanmenet";
+export * from "./message";
 
 export * from "./idirty";
