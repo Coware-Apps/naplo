@@ -104,6 +104,23 @@
         "list-empty": "A lista üres",
         "info-days-limit-empty": "Technikai okokból csak az elmúlt {{value}} nap óráit tudjuk ellenőrizni."
     },
+    "messages": {
+        "title": "Üzenetek",
+        "tab": {
+            "inbox": "Beérkezett",
+            "sent": "Elküldött",
+            "trash": "Törölt"
+        },
+        "inbox": {
+            "title": "Beérkezett üzenetek"
+        },
+        "sent": {
+            "title": "Elküldött üzenetek"
+        },
+        "trash": {
+            "title": "Törölt üzenetek"
+        }
+    },
     "settings": {
         "title": "Beállítások",
         "header-appearance": "Megjelenés",

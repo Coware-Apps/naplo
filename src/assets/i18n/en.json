@@ -103,6 +103,9 @@
         "list-empty": "The list is empty",
         "info-days-limit-empty": "Due to technical reasons, we can only check the last {{value}} days lessons."
     },
+    "messages": {
+        "title": "Messages"
+    },
     "settings": {
         "title": "Settings",
         "header-appearance": "Appearance",
