@@ -19,10 +19,7 @@ import { SafariViewController } from "@ionic-native/safari-view-controller/ngx";
 import { StatusBar } from "@ionic-native/status-bar/ngx";
 import { InAppBrowser } from "@ionic-native/in-app-browser/ngx";
 import { Market } from "@ionic-native/market/ngx";
-import {
-    KretaMissingRoleException,
-    KretaInvalidPasswordException,
-} from "../_models/kreta-exceptions";
+import { KretaMissingRoleException, KretaInvalidPasswordException } from "../_exceptions";
 import { TranslateService } from "@ngx-translate/core";
 import { Subscription } from "rxjs";
 

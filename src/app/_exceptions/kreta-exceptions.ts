@@ -1,10 +1,3 @@
-// declare global {
-//     interface Error {
-//         // stack: any;
-//         type: KretaLoginExceptionType;
-//     }
-// }
-
 export class KretaException extends Error {
     constructor(public message: string, name?: string) {
         super(message);

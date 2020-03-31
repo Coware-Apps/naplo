@@ -16,10 +16,7 @@ import {
     Tanmenet,
 } from "../_models";
 import { ErrorHelper, JwtDecodeHelper } from "../_helpers";
-import {
-    KretaMissingRoleException,
-    KretaInvalidPasswordException,
-} from "../_models/kreta-exceptions";
+import { KretaMissingRoleException, KretaInvalidPasswordException } from "../_exceptions";
 import { stringify } from "flatted/esm";
 import { FirebaseService } from "./firebase.service";
 import { TranslateService } from "@ngx-translate/core";
