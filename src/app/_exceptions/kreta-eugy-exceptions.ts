@@ -16,9 +16,9 @@ export class KretaEUgyInvalidPasswordException extends KretaEUgyException {
     }
 }
 
-export class KretaEUgyMissingRoleException extends KretaEUgyException {
+export class KretaEUgyNotLoggedInException extends KretaEUgyException {
     constructor() {
-        super("Missing role.", "MissingRoleException");
+        super("No logged in user.", "NotLoggedInException");
     }
 }
 

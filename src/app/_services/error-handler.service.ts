@@ -18,7 +18,7 @@ export class ErrorHandlerService extends ErrorHandler {
 
     async handleError(error: any): Promise<void> {
         this.firebase.logError("[GLOBAL ERROR HANDLER] " + stringify(error));
-        console.log("GLOBAL error handler ran: ", error);
+        console.debug("GLOBAL error handler ran.");
 
         if (this.config.debugging) this.errorHelper.presentAlert(error);
 

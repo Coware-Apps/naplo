@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { Platform } from "@ionic/angular";
+import { Platform, AlertController } from "@ionic/angular";
 import { Institute, MessageListItem, MessageAddressee, MessageAddresseeType } from "../_models";
 
 import { stringify } from "querystring";
@@ -7,6 +7,7 @@ import {
     KretaEUgyInvalidTokenResponseException,
     KretaEUgyInvalidPasswordException,
     KretaEUgyMessageAttachmentDownloadException,
+    KretaEUgyNotLoggedInException,
 } from "../_exceptions";
 
 import { File } from "@ionic-native/file/ngx";
@@ -68,13 +69,11 @@ export class KretaEUgyService {
 
         //ha nincs vagy lejárt az access_token, de van refresh_token, megújítunk azzal
         const refresh_token = await this.data.getItem<string>("eugy_refresh_token").catch(() => {
-            throw Error("[LOGIN-EU] Nincs valid RT");
+            throw new KretaEUgyNotLoggedInException();
         });
 
-        if (refresh_token) {
-            console.debug("[LOGIN-EU] Van valid RT, megújítás...");
-            return await this.renewToken(refresh_token, this.kreta.institute);
-        }
+        console.debug("[LOGIN-EU] Van valid RT, megújítás...");
+        return await this.renewToken(refresh_token, this.kreta.institute);
     }
 
     /**
@@ -135,6 +134,18 @@ export class KretaEUgyService {
 
             throw error;
         }
+    }
+
+    /**
+     * Initiates login with only a password
+     * @param password The password
+     */
+    public doPasswordLogin(password: string): Promise<string> {
+        return this.getToken(
+            this.kreta.currentUser["kreta:user_name"],
+            password,
+            this.kreta.institute
+        );
     }
 
     private delay(timer: number): Promise<void> {
@@ -202,6 +213,15 @@ export class KretaEUgyService {
         } finally {
             this.loginInProgress = false;
         }
+    }
+
+    /**
+     * Returns whether the user is logged in to EUgy or not
+     * @returns boolean
+     */
+    public async isAuthenticated(): Promise<boolean> {
+        const loginInfo = await this.data.itemExists("eugy_refresh_token");
+        return loginInfo === true;
     }
 
     /**
@@ -495,6 +515,9 @@ export class KretaEUgyService {
         }
     }
 
+    /**
+     *
+     */
     private async getDownloadPath() {
         if (this.platform.is("ios")) {
             return this.file.documentsDirectory;

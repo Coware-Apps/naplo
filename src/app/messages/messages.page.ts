@@ -1,15 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from "@angular/core";
+import { AlertController } from "@ionic/angular";
+import { KretaService, KretaEUgyService } from "../_services";
 
 @Component({
-  selector: 'app-messages',
-  templateUrl: './messages.page.html',
-  styleUrls: ['./messages.page.scss'],
+    selector: "app-messages",
+    templateUrl: "./messages.page.html",
+    styleUrls: ["./messages.page.scss"],
 })
-export class MessagesPage implements OnInit {
+export class MessagesPage {
+    constructor() {}
 
-  constructor() { }
-
-  ngOnInit() {
-  }
-
+    public async ionViewWillEnter() {}
 }

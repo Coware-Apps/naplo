@@ -9,7 +9,7 @@ import { KretaEUgyService } from "src/app/_services";
 export class InboxPage {
     constructor(private eugy: KretaEUgyService) {}
 
-    async ionViewWillEnter() {
+    public async ionViewWillEnter() {
         const messages = await this.eugy.getMessageList("inbox");
     }
 }
