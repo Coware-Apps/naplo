@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { Platform, AlertController } from "@ionic/angular";
+import { Platform } from "@ionic/angular";
 import { Institute, MessageListItem, MessageAddressee, MessageAddresseeType } from "../_models";
 
 import { stringify } from "querystring";
@@ -73,7 +73,7 @@ export class KretaEUgyService {
         });
 
         console.debug("[LOGIN-EU] Van valid RT, megújítás...");
-        return await this.renewToken(refresh_token, this.kreta.institute);
+        return this.renewToken(refresh_token, this.kreta.institute);
     }
 
     /**
@@ -93,9 +93,7 @@ export class KretaEUgyService {
         if (!institute) throw Error("getToken(): Missing institute");
 
         try {
-            const headers = {
-                "Content-Type": "application/x-www-form-urlencoded",
-            };
+            const headers = {};
             const params = {
                 userName: username,
                 password: password,
@@ -113,7 +111,7 @@ export class KretaEUgyService {
             console.debug("[WEB->getToken()] result:", response);
 
             if (response.status == 400) throw new KretaEUgyInvalidPasswordException();
-            const data = JSON.parse(response.data).access_token;
+            const data = JSON.parse(response.data);
             if (!data || !data.access_token)
                 throw new Error("Invalid data in token response: " + stringify(response.data));
 
@@ -172,9 +170,7 @@ export class KretaEUgyService {
         this.loginInProgress = true;
 
         try {
-            const headers = {
-                "Content-Type": "application/x-www-form-urlencoded",
-            };
+            const headers = {};
             const params = {
                 refresh_token: refresh_token,
                 grant_type: "refresh_token",
@@ -227,7 +223,6 @@ export class KretaEUgyService {
     /**
      * Gets the user's message list by a specified category (state)
      * @param state From which category to get the message list
-     * @param tokens `Token` used for authentication
      */
     public async getMessageList(state: "inbox" | "outbox" | "deleted"): Promise<MessageListItem[]> {
         const access_token = await this.getValidAccessToken();
@@ -251,7 +246,6 @@ export class KretaEUgyService {
      * Put a message in the bin (it can be reverted)
      * @param action Choose put to put the message in the bin, remove to remove it.
      * @param messageIdList The `azonosito` fields of the messages to perform the operation on
-     * @param tokens `Token` used for authentication
      */
     public async binMessages(
         action: "put" | "remove",
@@ -272,7 +266,6 @@ export class KretaEUgyService {
     /**
      * Delete a message permanently (HOT!)
      * @param messageIdList The `uzenetAzonosito` fields of the messages to perform the operation on
-     * @param tokens `Token` used for authentication
      */
     public async deleteMessages(messageIdList: number[]): Promise<HTTPResponse> {
         const access_token = await this.getValidAccessToken();
@@ -291,7 +284,6 @@ export class KretaEUgyService {
      * Set a message's state either read or to unread
      * @param newState Choose read to set the message as read, unread to set it as unread
      * @param messageIdList The `uzenetAzonosito` fields of the messages to perform the operation on
-     * @param tokens `Token` used for authentication
      */
     public async changeMessageState(
         newState: "read" | "unread",
@@ -317,7 +309,6 @@ export class KretaEUgyService {
      * @param targy The subject of the new message
      * @param szoveg The text of the new message (Can include HTML tags)
      * @param attachmentList The list of attachments to send with the message
-     * @param tokens `Token` used for authentication
      */
     public async replyToMessage(
         messageId: number,
@@ -363,7 +354,6 @@ export class KretaEUgyService {
      * @param targy The subject of the new message
      * @param szoveg The text of the new message (Can include HTML tags)
      * @param attachmentList The list of attachments to send with the message
-     * @param tokens `Token` used for authentication
      * @see The documentation for more info about addressees
      */
     public async sendNewMessage(
@@ -406,7 +396,6 @@ export class KretaEUgyService {
 
     /**
      * Gets the types of addressees the user can choose from. It is used to display category names descriptions etc.
-     * @param tokens `Token` used for authentication
      * @see The documentation for more info about addressees
      */
     public async getAddresseeTypeList(): Promise<Observable<MessageAddresseeType[]>> {
@@ -428,7 +417,6 @@ export class KretaEUgyService {
     /**
      * Gets the list of possible addressees to send a message to, from a specified category.
      * @param category The category from which to get the list of possible addressees
-     * @param tokens `Token` used for authentication
      */
     public async getAddresseListByCategory(
         category: "teachers" | "headTeachers" | "directorate" | "admins"
