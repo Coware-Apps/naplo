@@ -1,6 +1,5 @@
 import { Component } from "@angular/core";
-import { AlertController } from "@ionic/angular";
-import { KretaService, KretaEUgyService } from "../_services";
+import { KretaEUgyService } from "../_services";
 
 @Component({
     selector: "app-messages",
@@ -8,7 +7,7 @@ import { KretaService, KretaEUgyService } from "../_services";
     styleUrls: ["./messages.page.scss"],
 })
 export class MessagesPage {
-    constructor() {}
+    constructor(public eugy: KretaEUgyService) {}
 
     public async ionViewWillEnter() {}
 }

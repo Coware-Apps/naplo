@@ -1,4 +1,8 @@
-<ion-tabs>
+<app-password-confirm-required
+    *ngIf="!eugy.isAuthenticated(); else: tabs"
+></app-password-confirm-required>
+
+<ion-tabs #tabs>
     <ion-tab-bar slot="bottom">
         <ion-tab-button tab="inbox">
             <ion-icon name="file-tray-outline"></ion-icon>
