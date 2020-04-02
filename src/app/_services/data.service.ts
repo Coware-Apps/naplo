@@ -24,22 +24,18 @@ export class DataService {
 
     private longtermStorageExpiry = 72 * 30 * 24 * 60 * 60;
 
-    public async getUrl(url: string, parameters?: any, headers?: any): Promise<HTTPResponse> {
+    public async getUrl(
+        url: string,
+        parameters?: any,
+        headers: object = {}
+    ): Promise<HTTPResponse> {
         const appVersionNumber = await this.appVersion.getVersionNumber();
         console.debug("SZERVERHÍVÁS: " + url);
 
-        if (headers)
-            headers["User-Agent"] = environment.userAgent.replace(
-                "%APP_VERSION_NUMBER%",
-                appVersionNumber
-            );
-        else
-            headers = {
-                "User-Agent": environment.userAgent.replace(
-                    "%APP_VERSION_NUMBER%",
-                    appVersionNumber
-                ),
-            };
+        headers["User-Agent"] = environment.userAgent.replace(
+            "%APP_VERSION_NUMBER%",
+            appVersionNumber
+        );
 
         const response = this.http.get(url, parameters, headers).catch(async err => {
             this.firebase.logError("getUrl(" + url + ") HTTP error: " + stringify(err));
@@ -47,7 +43,7 @@ export class DataService {
                 await this.translate.get("common.comm-error").toPromise(),
                 10000
             );
-            throw new Error("[HTTP] response: " + err.error);
+            throw new Error("[HTTP] response: " + stringify(err));
         });
 
         return response;

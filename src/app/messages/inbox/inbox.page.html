@@ -5,6 +5,24 @@
         </ion-buttons>
 
         <ion-title translate="messages.inbox.title"></ion-title>
+
+        <ion-buttons slot="end">
+            <ion-button (click)="toggleSearchbar()">
+                <ion-icon slot="icon-only" name="search"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+    <ion-toolbar color="secondary" *ngIf="searchbarEnabled">
+        <ion-searchbar
+            placeholder="Keresés"
+            animated
+            inputmode="search"
+            type="search"
+            (ionChange)="onSearchChange($event)"
+            (ionCancel)="toggleSearchbar(false)"
+            [debounce]="250"
+            showCancelButton="250"
+        ></ion-searchbar>
     </ion-toolbar>
 
     <app-offline-warning-bar></app-offline-warning-bar>
@@ -16,4 +34,32 @@
             <ion-icon name="create-outline"></ion-icon>
         </ion-fab-button>
     </ion-fab>
+
+    <ion-list>
+        <ion-item
+            *ngFor="let m of displayedMessages"
+            class="message"
+            [class.unread]="!m.isElolvasva"
+            button
+        >
+            <ion-label>
+                <span class="ion-float-right">
+                    <small>
+                        {{ m.uzenetKuldesDatum.toLocaleDateString(config.locale, { month: "short",
+                        day: "numeric" }) }}
+                    </small>
+                    <div *ngIf="m.hasCsatolmany" class="ion-text-right">
+                        <ion-icon name="attach-outline"></ion-icon>
+                    </div>
+                </span>
+                <h2>{{m.uzenetFeladoNev}} <small>({{m.uzenetFeladoTitulus}})</small></h2>
+                <p>{{m.uzenetTargy}}</p>
+            </ion-label>
+        </ion-item>
+    </ion-list>
+
+    <ion-infinite-scroll threshold="100px" (ionInfinite)="loadMoreData($event)">
+        <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more data...">
+        </ion-infinite-scroll-content>
+    </ion-infinite-scroll>
 </ion-content>

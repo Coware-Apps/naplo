@@ -1,6 +1,8 @@
-import { Component, OnInit } from "@angular/core";
-import { ModalController } from "@ionic/angular";
-import { PasswordModalPage } from "src/app/login/password-modal/password-modal.page";
+import { Component, OnInit, Output, EventEmitter } from "@angular/core";
+import { Platform } from "@ionic/angular";
+import { KretaService, KretaEUgyService } from "src/app/_services";
+import { ErrorHelper } from "src/app/_helpers";
+import { KretaEUgyInvalidPasswordException } from "src/app/_exceptions";
 
 @Component({
     selector: "app-password-confirm-required",
@@ -8,15 +10,33 @@ import { PasswordModalPage } from "src/app/login/password-modal/password-modal.p
     styleUrls: ["./password-confirm-required.component.scss"],
 })
 export class PasswordConfirmRequiredComponent implements OnInit {
-    constructor(private modalController: ModalController) {}
+    public password: string;
 
-    ngOnInit() {}
+    @Output() onSuccessfulLogin = new EventEmitter<boolean>();
 
-    async showLoginModal() {
-        const modal = await this.modalController.create({
-            component: PasswordModalPage,
-        });
+    constructor(
+        public kreta: KretaService,
+        public platform: Platform,
+        private eugy: KretaEUgyService,
+        private error: ErrorHelper
+    ) {}
 
-        modal.present();
+    public async ngOnInit() {}
+
+    public async onSubmit() {
+        if (!this.password) {
+            this.error.presentAlert("Add meg a jelszavad!", null, "Hiba");
+            return;
+        }
+
+        try {
+            const result = await this.eugy.doPasswordLogin(this.password);
+            if (result) this.onSuccessfulLogin.emit(true);
+        } catch (error) {
+            if (error instanceof KretaEUgyInvalidPasswordException)
+                return this.error.presentAlert("Hibás jelszó!");
+
+            this.error.presentAlert(error.message, null, "Ismeretlen hiba");
+        }
     }
 }

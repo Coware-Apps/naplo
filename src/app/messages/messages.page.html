@@ -1,23 +1,38 @@
-<app-password-confirm-required
-    *ngIf="!eugy.isAuthenticated(); else: tabs"
-></app-password-confirm-required>
+<ng-container *ngIf="eugyLoggedIn == false else tabs">
+    <ion-header>
+        <ion-toolbar color="primary">
+            <ion-buttons slot="start">
+                <ion-menu-button></ion-menu-button>
+            </ion-buttons>
 
-<ion-tabs #tabs>
-    <ion-tab-bar slot="bottom">
-        <ion-tab-button tab="inbox">
-            <ion-icon name="file-tray-outline"></ion-icon>
-            <ion-label translate="messages.tab.inbox"></ion-label>
-            <ion-badge>6</ion-badge>
-        </ion-tab-button>
+            <ion-title translate="messages.title"></ion-title>
+        </ion-toolbar>
+    </ion-header>
 
-        <ion-tab-button tab="sent">
-            <ion-icon name="paper-plane-outline"></ion-icon>
-            <ion-label translate="messages.tab.sent"></ion-label>
-        </ion-tab-button>
+    <ion-content>
+        <app-password-confirm-required
+            (onSuccessfulLogin)="onSuccessfulLogin()"
+        ></app-password-confirm-required>
+    </ion-content>
+</ng-container>
 
-        <ion-tab-button tab="trash">
-            <ion-icon name="trash-bin-outline"></ion-icon>
-            <ion-label translate="messages.tab.trash"></ion-label>
-        </ion-tab-button>
-    </ion-tab-bar>
-</ion-tabs>
+<ng-template #tabs>
+    <ion-tabs>
+        <ion-tab-bar slot="bottom">
+            <ion-tab-button tab="inbox">
+                <ion-icon name="file-tray-outline"></ion-icon>
+                <ion-label translate="messages.tab.inbox"></ion-label>
+            </ion-tab-button>
+
+            <ion-tab-button tab="sent">
+                <ion-icon name="paper-plane-outline"></ion-icon>
+                <ion-label translate="messages.tab.sent"></ion-label>
+            </ion-tab-button>
+
+            <ion-tab-button tab="trash">
+                <ion-icon name="trash-bin-outline"></ion-icon>
+                <ion-label translate="messages.tab.trash"></ion-label>
+            </ion-tab-button>
+        </ion-tab-bar>
+    </ion-tabs>
+</ng-template>

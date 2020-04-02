@@ -65,7 +65,7 @@ export interface Message {
 export interface MessageListItem {
     azonosito: number;
     uzenetAzonosito: number;
-    uzenetKuldesDatum: string;
+    uzenetKuldesDatum: Date;
     uzenetFeladoNev: string;
     uzenetFeladoTitulus: string;
     uzenetTargy: string;

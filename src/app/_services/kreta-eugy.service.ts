@@ -37,9 +37,20 @@ export class KretaEUgyService {
             headTeachers: "kreta/alkalmazottak/oszalyfonok",
             directorate: "kreta/alkalmazottak/igazgatosag",
             admins: "kreta/alkalmazottak/adminisztrator",
+            groups: "kommunikacio/tanoraicsoportok/cimezheto",
+            classes: "kommunikacio/osztalyok/cimezheto",
+            szmk: "kommunikacio/szmkkepviselok/cimezheto",
+            parents: {
+                byGroups: "kreta/gondviselok/tanoraicsoport",
+                byClasses: "kreta/gondviselok/osztaly",
+            },
+            students: {
+                byGroups: "kreta/tanulok/tanoraicsoportok",
+                byClasses: "kreta/tanulok/osztalyok",
+            },
         },
         newMessage: "kommunikacio/uzenetek",
-        temporaryAttachmentStorage: "kommunikacio/ideiglenesfajlok",
+        temporaryAttachmentStorage: "ideiglenesfajlok",
         finalAttachmentStorage: "kommunikacio/dokumentumok/uzenetek",
     };
     private longtermStorageExpiry = 72 * 30 * 24 * 60 * 60;
@@ -116,9 +127,14 @@ export class KretaEUgyService {
                 throw new Error("Invalid data in token response: " + stringify(response.data));
 
             await Promise.all([
-                this.data.saveItem("access_token", data.access_token, null, data.expires_in - 30),
                 this.data.saveItem(
-                    "refresh_token",
+                    "eugy_access_token",
+                    data.access_token,
+                    null,
+                    data.expires_in - 30
+                ),
+                this.data.saveItem(
+                    "eugy_refresh_token",
                     data.refresh_token,
                     null,
                     this.longtermStorageExpiry
@@ -186,14 +202,19 @@ export class KretaEUgyService {
             );
 
             if (response.status == 400) throw new KretaEUgyInvalidPasswordException();
-            const data = JSON.parse(response.data).access_token;
+            const data = JSON.parse(response.data);
             if (!data || !data.access_token)
-                throw new Error("Invalid data in token response: " + stringify(response.data));
+                throw new Error("Invalid data in token response: " + stringify(response));
 
             await Promise.all([
-                this.data.saveItem("access_token", data.access_token, null, data.expires_in - 30),
                 this.data.saveItem(
-                    "refresh_token",
+                    "eugy_access_token",
+                    data.access_token,
+                    null,
+                    data.expires_in - 30
+                ),
+                this.data.saveItem(
+                    "eugy_refresh_token",
                     data.refresh_token,
                     null,
                     this.longtermStorageExpiry
@@ -203,7 +224,14 @@ export class KretaEUgyService {
             return data.access_token;
         } catch (error) {
             if (error instanceof SyntaxError) throw new KretaEUgyInvalidTokenResponseException();
-            if (error.status == 400) throw new KretaEUgyInvalidPasswordException();
+            if (error.status == 400) {
+                await Promise.all([
+                    this.data.removeItem("eugy_access_token"),
+                    this.data.removeItem("eugy_refresh_token"),
+                ]);
+
+                throw new KretaEUgyInvalidPasswordException();
+            }
 
             throw error;
         } finally {
@@ -231,15 +259,16 @@ export class KretaEUgyService {
         };
         const params = {};
 
-        try {
-            let response = await this.data.postUrl(
-                this.host + this.endpoints[`${state}List`],
-                params,
-                headers
-            );
+        const response = await this.data.getUrl(
+            this.host + this.endpoints[`${state}List`],
+            params,
+            headers
+        );
 
-            return <MessageListItem[]>JSON.parse(response.data);
-        } catch (error) {}
+        return (<MessageListItem[]>JSON.parse(response.data)).map(x => {
+            x.uzenetKuldesDatum = new Date(x.uzenetKuldesDatum);
+            return x;
+        });
     }
 
     /**

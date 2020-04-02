@@ -7,7 +7,15 @@ import { KretaEUgyService } from "../_services";
     styleUrls: ["./messages.page.scss"],
 })
 export class MessagesPage {
+    public eugyLoggedIn: boolean;
+
     constructor(public eugy: KretaEUgyService) {}
 
-    public async ionViewWillEnter() {}
+    public async ionViewWillEnter() {
+        this.eugyLoggedIn = await this.eugy.isAuthenticated();
+    }
+
+    public onSuccessfulLogin() {
+        this.eugyLoggedIn = true;
+    }
 }

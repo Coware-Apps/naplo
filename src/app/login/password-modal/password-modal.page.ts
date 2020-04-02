@@ -2,7 +2,7 @@ import { Component } from "@angular/core";
 import { KretaService, KretaEUgyService } from "src/app/_services";
 import { ErrorHelper } from "src/app/_helpers";
 import { KretaEUgyInvalidPasswordException } from "src/app/_exceptions";
-import { ModalController } from "@ionic/angular";
+import { ModalController, Platform } from "@ionic/angular";
 
 @Component({
     selector: "app-password-modal",
@@ -14,6 +14,7 @@ export class PasswordModalPage {
 
     constructor(
         public kreta: KretaService,
+        public platform: Platform,
         private eugy: KretaEUgyService,
         private error: ErrorHelper,
         private modalController: ModalController
