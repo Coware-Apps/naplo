@@ -244,23 +244,29 @@ export class KretaEUgyService {
      * Gets the user's message list by a specified category (state)
      * @param state From which category to get the message list
      */
-    public async getMessageList(state: "inbox" | "outbox" | "deleted"): Promise<MessageListItem[]> {
+    public async getMessageList(
+        state: "inbox" | "outbox" | "deleted"
+    ): Promise<Observable<MessageListItem[]>> {
         const access_token = await this.getValidAccessToken();
         const headers = {
             Authorization: "Bearer " + access_token,
         };
         const params = {};
 
-        const response = await this.data.getUrl(
+        const response = await this.data.getUrlWithCache(
             this.host + this.endpoints[`${state}List`],
             params,
             headers
         );
 
-        return (<MessageListItem[]>JSON.parse(response.data)).map(x => {
-            x.uzenetKuldesDatum = new Date(x.uzenetKuldesDatum);
-            return x;
-        });
+        return response.pipe(
+            map(x =>
+                (<MessageListItem[]>JSON.parse(x.data)).map(x => {
+                    x.uzenetKuldesDatum = new Date(x.uzenetKuldesDatum);
+                    return x;
+                })
+            )
+        );
     }
 
     /**

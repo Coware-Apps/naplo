@@ -1,14 +1,14 @@
-import { Component, OnInit, Input } from "@angular/core";
+import { Component, OnInit, Input, OnDestroy } from "@angular/core";
 import { MessageListItem } from "src/app/_models";
 import { ConfigService, KretaEUgyService } from "src/app/_services";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, Subscription } from "rxjs";
 
 @Component({
     selector: "app-message-list-component",
     templateUrl: "./message-list.component.html",
     styleUrls: ["./message-list.component.scss"],
 })
-export class MessageListComponent implements OnInit {
+export class MessageListComponent implements OnInit, OnDestroy {
     @Input() private folder: "inbox" | "outbox" | "deleted" = "inbox";
     @Input() private initNumberMessages: number = 15;
     @Input() private incrementNumberMessages: number = 5;
@@ -19,6 +19,7 @@ export class MessageListComponent implements OnInit {
     public componentState: BehaviorSubject<
         "loading" | "loaded" | "empty" | "error"
     > = new BehaviorSubject("loading");
+    private subs: Subscription[] = [];
 
     constructor(public config: ConfigService, private eugy: KretaEUgyService) {}
 
@@ -26,19 +27,31 @@ export class MessageListComponent implements OnInit {
         await this.loadMessages();
     }
 
+    public ngOnDestroy() {
+        this.subs.forEach((s, index, object) => {
+            s.unsubscribe();
+            object.splice(index, 1);
+        });
+    }
+
     public async loadMessages(force: boolean = false, event?) {
         this.componentState.next("loading");
         try {
-            this.messages = await this.eugy.getMessageList(this.folder);
-            if (event) event.target.complete();
+            this.subs.push(
+                (await this.eugy.getMessageList(this.folder)).subscribe(x => {
+                    this.messages = x;
 
-            if (this.messages.length == 0) {
-                this.componentState.next("empty");
-                return;
-            }
+                    if (event) event.target.complete();
 
-            this.resetDisplay();
-            this.componentState.next("loaded");
+                    if (this.messages.length == 0) {
+                        this.componentState.next("empty");
+                        return;
+                    }
+
+                    this.resetDisplay();
+                    this.componentState.next("loaded");
+                })
+            );
         } catch (error) {
             this.componentState.next("error");
             throw error;
@@ -69,8 +82,6 @@ export class MessageListComponent implements OnInit {
     }
 
     public onSearchChange(event) {
-        console.log(event.detail.value);
-
         if (event.detail.value == "") {
             this.displayedMessages = [];
             this.toBeDisplayed = [...this.messages];
