@@ -72,7 +72,7 @@ export class KretaEUgyService {
     private async getValidAccessToken(): Promise<string> {
         // ha van érvényes access_token elmentve, visszaadjuk azt
         const access_token = await this.data.getItem<string>("eugy_access_token").catch(() => {
-            console.debug("[LOGIN-EU] Nincs valid AT");
+            console.debug("[EUGY] Nincs valid AT");
             return null;
         });
 
@@ -83,7 +83,7 @@ export class KretaEUgyService {
             throw new KretaEUgyNotLoggedInException();
         });
 
-        console.debug("[LOGIN-EU] Van valid RT, megújítás...");
+        console.debug("[EUGY] Van valid RT, megújítás...");
         return this.renewToken(refresh_token, this.kreta.institute);
     }
 
@@ -99,10 +99,6 @@ export class KretaEUgyService {
         password: string,
         institute: Institute
     ): Promise<string> {
-        if (!username) throw Error("getToken(): Missing username");
-        if (!password) throw Error("getToken(): Missing password");
-        if (!institute) throw Error("getToken(): Missing institute");
-
         try {
             const headers = {};
             const params = {
@@ -119,7 +115,7 @@ export class KretaEUgyService {
                 headers
             );
 
-            console.debug("[WEB->getToken()] result:", response);
+            console.debug("[EUGY] getToken result:", response);
 
             if (response.status == 400) throw new KretaEUgyInvalidPasswordException();
             const data = JSON.parse(response.data);
@@ -173,10 +169,6 @@ export class KretaEUgyService {
      * @returns A Promise that resolves to an access_token
      */
     public async renewToken(refresh_token: string, institute: Institute): Promise<string> {
-        if (!refresh_token) throw Error("getToken(): Missing refresh_token");
-        if (!institute) throw Error("getToken(): Missing institute");
-
-        // ha épp folyamatban van bejelentkezés, akkor azt megvárjuk és utána annak az eredményét adjuk vissza
         if (this.loginInProgress) {
             while (this.loginInProgress) await this.delay(20);
 
@@ -193,7 +185,7 @@ export class KretaEUgyService {
                 institute_code: institute.InstituteCode,
                 client_id: "kozelkep-js-web",
             };
-            console.log(`[WEB->renewToken()] renewing tokens with refreshToken`, refresh_token);
+            console.log(`[EUGY->renewToken()] renewing tokens with refreshToken`, refresh_token);
 
             let response = await this.data.postUrl(
                 "https://idp.e-kreta.hu/connect/Token",
