@@ -9,6 +9,7 @@ import { InboxPageRoutingModule } from "./inbox-routing.module";
 import { InboxPage } from "./inbox.page";
 import { ComponentsModule } from "src/app/_components/components.module";
 import { TranslateModule } from "@ngx-translate/core";
+import { MessageComponentsModule } from "../_components/message-components/message-components.module";
 
 @NgModule({
     imports: [
@@ -17,6 +18,7 @@ import { TranslateModule } from "@ngx-translate/core";
         IonicModule,
         InboxPageRoutingModule,
         ComponentsModule,
+        MessageComponentsModule,
         TranslateModule,
     ],
     declarations: [InboxPage],

@@ -9,6 +9,7 @@ import { SentPageRoutingModule } from "./sent-routing.module";
 import { SentPage } from "./sent.page";
 import { TranslateModule } from "@ngx-translate/core";
 import { ComponentsModule } from "src/app/_components/components.module";
+import { MessageComponentsModule } from "../_components/message-components/message-components.module";
 
 @NgModule({
     imports: [
@@ -17,6 +18,7 @@ import { ComponentsModule } from "src/app/_components/components.module";
         IonicModule,
         SentPageRoutingModule,
         ComponentsModule,
+        MessageComponentsModule,
         TranslateModule,
     ],
     declarations: [SentPage],

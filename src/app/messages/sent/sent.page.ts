@@ -1,15 +1,24 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ViewChild } from "@angular/core";
+import { MessageListComponent } from "../_components/message-components/message-list/message-list.component";
 
 @Component({
-  selector: 'app-sent',
-  templateUrl: './sent.page.html',
-  styleUrls: ['./sent.page.scss'],
+    selector: "app-sent",
+    templateUrl: "./sent.page.html",
+    styleUrls: ["./sent.page.scss"],
 })
-export class SentPage implements OnInit {
+export class SentPage {
+    @ViewChild(MessageListComponent, { static: false })
+    public messageListComponent: MessageListComponent;
 
-  constructor() { }
+    public searchbarEnabled: boolean = false;
 
-  ngOnInit() {
-  }
+    constructor() {}
 
+    public toggleSearchbar(enabled: boolean = true) {
+        this.searchbarEnabled = enabled;
+
+        if (!enabled) {
+            this.messageListComponent.resetDisplay();
+        }
+    }
 }

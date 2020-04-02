@@ -66,8 +66,9 @@ export interface MessageListItem {
     azonosito: number;
     uzenetAzonosito: number;
     uzenetKuldesDatum: Date;
-    uzenetFeladoNev: string;
-    uzenetFeladoTitulus: string;
+    uzenetFeladoNev?: string;
+    uzenetFeladoTitulus?: string;
+    uzenetCimzettLista?: MessageAddressee[];
     uzenetTargy: string;
     hasCsatolmany: boolean;
     isElolvasva: boolean;

@@ -9,6 +9,7 @@ import { TrashPageRoutingModule } from "./trash-routing.module";
 import { TrashPage } from "./trash.page";
 import { ComponentsModule } from "src/app/_components/components.module";
 import { TranslateModule } from "@ngx-translate/core";
+import { MessageComponentsModule } from "../_components/message-components/message-components.module";
 
 @NgModule({
     imports: [
@@ -17,6 +18,7 @@ import { TranslateModule } from "@ngx-translate/core";
         IonicModule,
         TrashPageRoutingModule,
         ComponentsModule,
+        MessageComponentsModule,
         TranslateModule,
     ],
     declarations: [TrashPage],

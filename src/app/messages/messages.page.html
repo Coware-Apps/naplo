@@ -1,4 +1,4 @@
-<ng-container *ngIf="eugyLoggedIn == false else tabs">
+<ng-container *ngIf="eugyLoggedIn == false">
     <ion-header>
         <ion-toolbar color="primary">
             <ion-buttons slot="start">
@@ -16,23 +16,21 @@
     </ion-content>
 </ng-container>
 
-<ng-template #tabs>
-    <ion-tabs>
-        <ion-tab-bar slot="bottom">
-            <ion-tab-button tab="inbox">
-                <ion-icon name="file-tray-outline"></ion-icon>
-                <ion-label translate="messages.tab.inbox"></ion-label>
-            </ion-tab-button>
+<ion-tabs *ngIf="eugyLoggedIn">
+    <ion-tab-bar slot="bottom">
+        <ion-tab-button tab="inbox">
+            <ion-icon name="file-tray-outline"></ion-icon>
+            <ion-label translate="messages.tab.inbox"></ion-label>
+        </ion-tab-button>
 
-            <ion-tab-button tab="sent">
-                <ion-icon name="paper-plane-outline"></ion-icon>
-                <ion-label translate="messages.tab.sent"></ion-label>
-            </ion-tab-button>
+        <ion-tab-button tab="sent">
+            <ion-icon name="paper-plane-outline"></ion-icon>
+            <ion-label translate="messages.tab.sent"></ion-label>
+        </ion-tab-button>
 
-            <ion-tab-button tab="trash">
-                <ion-icon name="trash-bin-outline"></ion-icon>
-                <ion-label translate="messages.tab.trash"></ion-label>
-            </ion-tab-button>
-        </ion-tab-bar>
-    </ion-tabs>
-</ng-template>
+        <ion-tab-button tab="trash">
+            <ion-icon name="trash-bin-outline"></ion-icon>
+            <ion-label translate="messages.tab.trash"></ion-label>
+        </ion-tab-button>
+    </ion-tab-bar>
+</ion-tabs>
