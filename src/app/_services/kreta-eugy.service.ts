@@ -1,13 +1,20 @@
 import { Injectable } from "@angular/core";
 import { Platform } from "@ionic/angular";
-import { Institute, MessageListItem, MessageAddressee, MessageAddresseeType } from "../_models";
+import {
+    Institute,
+    InstituteEugy,
+    MessageListItem,
+    MessageAddressee,
+    MessageAddresseeType,
+} from "../_models";
 
 import { stringify } from "querystring";
 import {
-    KretaEUgyInvalidTokenResponseException,
+    KretaEUgyInvalidResponseException,
     KretaEUgyInvalidPasswordException,
     KretaEUgyMessageAttachmentDownloadException,
     KretaEUgyNotLoggedInException,
+    KretaEUgyException,
 } from "../_exceptions";
 
 import { File } from "@ionic-native/file/ngx";
@@ -25,6 +32,7 @@ import { Observable } from "rxjs";
 export class KretaEUgyService {
     private host = "https://eugyintezes.e-kreta.hu/api/v1/";
     private endpoints = {
+        instituteDetails: "ugy/aktualisIntezmenyAdatok",
         inboxList: "kommunikacio/postaladaelemek/beerkezett",
         outboxList: "kommunikacio/postaladaelemek/elkuldott",
         deletedList: "kommunikacio/postaladaelemek/torolt",
@@ -70,7 +78,7 @@ export class KretaEUgyService {
      * @returns A promise that resolves to a valid access_token
      */
     private async getValidAccessToken(): Promise<string> {
-        // ha van érvényes access_token elmentve, visszaadjuk azt
+        // If there's a valid access token in the cache, we use that
         const access_token = await this.data.getItem<string>("eugy_access_token").catch(() => {
             console.debug("[EUGY] Nincs valid AT");
             return null;
@@ -78,7 +86,7 @@ export class KretaEUgyService {
 
         if (access_token) return access_token;
 
-        //ha nincs vagy lejárt az access_token, de van refresh_token, megújítunk azzal
+        // If there isn't or it's expried, we refresh it
         const refresh_token = await this.data.getItem<string>("eugy_refresh_token").catch(() => {
             throw new KretaEUgyNotLoggedInException();
         });
@@ -120,7 +128,7 @@ export class KretaEUgyService {
             if (response.status == 400) throw new KretaEUgyInvalidPasswordException();
             const data = JSON.parse(response.data);
             if (!data || !data.access_token)
-                throw new Error("Invalid data in token response: " + stringify(response.data));
+                throw new KretaEUgyInvalidResponseException(response.data);
 
             await Promise.all([
                 this.data.saveItem(
@@ -135,11 +143,12 @@ export class KretaEUgyService {
                     null,
                     this.longtermStorageExpiry
                 ),
+                this.data.saveSetting("eugy_institute", await this.getInstituteDetails()),
             ]);
 
             return data.access_token;
         } catch (error) {
-            if (error instanceof SyntaxError) throw new KretaEUgyInvalidTokenResponseException();
+            if (error instanceof SyntaxError) throw new KretaEUgyInvalidResponseException(error);
             if (error.status == 400) throw new KretaEUgyInvalidPasswordException();
 
             throw error;
@@ -215,7 +224,7 @@ export class KretaEUgyService {
 
             return data.access_token;
         } catch (error) {
-            if (error instanceof SyntaxError) throw new KretaEUgyInvalidTokenResponseException();
+            if (error instanceof SyntaxError) throw new KretaEUgyInvalidResponseException();
             if (error.status == 400) {
                 await Promise.all([
                     this.data.removeItem("eugy_access_token"),
@@ -241,11 +250,49 @@ export class KretaEUgyService {
     }
 
     /**
+     * Returns the details of the current institute
+     * @returns A promise that resolves to an InstituteEugy
+     */
+    public async getInstituteDetails(): Promise<InstituteEugy> {
+        const access_token = await this.getValidAccessToken();
+        const headers = {
+            Authorization: "Bearer " + access_token,
+        };
+        const params = {};
+
+        const response = await this.data.getUrl(
+            this.host + this.endpoints.instituteDetails,
+            params,
+            headers
+        );
+
+        const institute = JSON.parse(response.data);
+        await this.data.saveSetting("eugy_institute", institute);
+
+        return institute;
+    }
+
+    /**
+     * Gets whether the messaging service is enabled in the institution
+     * @returns boolean
+     */
+    public async isMessagingEnabled() {
+        const institute: InstituteEugy = await this.data
+            .getSetting("eugy_institute")
+            .catch(() => null);
+
+        if (!institute) throw new KretaEUgyException("No institution settings available.");
+
+        return institute.IsUzenetKezelesElerheto;
+    }
+
+    /**
      * Gets the user's message list by a specified category (state)
      * @param state From which category to get the message list
      */
     public async getMessageList(
-        state: "inbox" | "outbox" | "deleted"
+        state: "inbox" | "outbox" | "deleted",
+        forceRefresh = false
     ): Promise<Observable<MessageListItem[]>> {
         const access_token = await this.getValidAccessToken();
         const headers = {
@@ -256,7 +303,9 @@ export class KretaEUgyService {
         const response = await this.data.getUrlWithCache(
             this.host + this.endpoints[`${state}List`],
             params,
-            headers
+            headers,
+            null,
+            forceRefresh
         );
 
         return response.pipe(

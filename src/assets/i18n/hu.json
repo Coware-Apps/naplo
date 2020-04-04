@@ -106,6 +106,10 @@
     },
     "messages": {
         "title": "Üzenetek",
+        "not-enabled": {
+            "header": "Az üzenetküldés ki van kapcsolva az intézményben",
+            "message": "Vedd fel a kapcsolatot az intézményi KRÉTA adminisztrátorral, ha használni szeretnéd."
+        },
         "tab": {
             "inbox": "Beérkezett",
             "sent": "Elküldött",
@@ -147,5 +151,12 @@
     "kreta": {
         "api-error": "A KRÉTA-szerver érvénytelen választ küldött. Valószínűleg karbantartás alatt van.",
         "login-unknown-error": "Ismeretlen hiba a bejelentkezés megújítása során."
+    },
+    "exceptions": {
+        "server-error": "Szerverhiba",
+        "network-error": "Hálózati hiba",
+        "eugy-invalid-response.message": "A KRÉTA-szerver érvénytelen választ küldött. Valószínűleg karbantartás alatt van.",
+        "network-exception.message": "Hálózati hiba történt. Ellenőrizd az internetkapcsolatod!",
+        "server-side-error.message": "Szerveroldali hiba történt. Elképzelhető, hogy a KRÉTA éppen karbantartás alatt van."
     }
 }

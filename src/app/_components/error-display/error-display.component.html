@@ -1,0 +1,40 @@
+<ion-grid>
+    <ion-row class="ion-text-center ion-align-items-center">
+        <ion-col>
+            <ion-icon
+                [name]="exception && exception.iconName ? exception.iconName : iconName"
+            ></ion-icon>
+            <ion-text class="ion-text-center">
+                <h1
+                    *ngIf="exception?.nameTranslationKey"
+                    [translate]="exception.nameTranslationKey"
+                ></h1>
+                <h1 *ngIf="!exception?.nameTranslationKey">{{ header }}</h1>
+
+                <p
+                    *ngIf="exception?.messageTranslationKey"
+                    [translate]="exception.messageTranslationKey"
+                ></p>
+                <p *ngIf="!exception?.messageTranslationKey">{{ message || exception.message }}</p>
+            </ion-text>
+            <ion-button color="primary" (click)="onButtonClicked.emit()" *ngIf="buttonText">
+                {{ buttonText }}
+            </ion-button>
+
+            <ng-container class="debug-info" *ngIf="config.debugging">
+                <ion-button (click)="toggleDebuggingInfo()" color="danger">
+                    Részletek
+                </ion-button>
+
+                <div class="debug-info ion-text-left" *ngIf="debuggingShown">
+                    <p>
+                        <strong>{{ exception?.name }}</strong>
+                        <br />
+                        <em>{{ exception?.message }}</em>
+                    </p>
+                    <pre>{{ exception?.stack }}</pre>
+                </div>
+            </ng-container>
+        </ion-col>
+    </ion-row>
+</ion-grid>

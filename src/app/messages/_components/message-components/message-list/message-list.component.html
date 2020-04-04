@@ -114,5 +114,10 @@
 </ng-container>
 
 <ng-container *ngIf="componentState.value == 'error'">
-    <h1>Hiba történt</h1>
+    <app-error-display
+        header="Hiba"
+        [exception]="exception"
+        buttonText="Újra"
+        (onButtonClicked)="loadMessages(true)"
+    ></app-error-display>
 </ng-container>

@@ -12,6 +12,7 @@ import { ErtekelesComponent } from "./ertekeles/ertekeles.component";
 import { OrarendiOraComponent } from "./orarendi-ora/orarendi-ora.component";
 import { OfflineWarningBarComponent } from "./offline-warning-bar/offline-warning-bar.component";
 import { PasswordConfirmRequiredComponent } from "./password-confirm-required/password-confirm-required.component";
+import { ErrorDisplayComponent } from "./error-display/error-display.component";
 
 @NgModule({
     declarations: [
@@ -22,6 +23,7 @@ import { PasswordConfirmRequiredComponent } from "./password-confirm-required/pa
         OrarendiOraComponent,
         OfflineWarningBarComponent,
         PasswordConfirmRequiredComponent,
+        ErrorDisplayComponent,
     ],
     exports: [
         TanuloJelenletComponent,
@@ -31,6 +33,7 @@ import { PasswordConfirmRequiredComponent } from "./password-confirm-required/pa
         OrarendiOraComponent,
         OfflineWarningBarComponent,
         PasswordConfirmRequiredComponent,
+        ErrorDisplayComponent,
     ],
     imports: [CommonModule, IonicModule, FormsModule, PipesModule, TranslateModule],
 })

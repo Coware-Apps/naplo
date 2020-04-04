@@ -16,7 +16,7 @@
     </ion-content>
 </ng-container>
 
-<ion-tabs *ngIf="eugyLoggedIn">
+<ion-tabs *ngIf="eugyLoggedIn && messagingEnabled">
     <ion-tab-bar slot="bottom">
         <ion-tab-button tab="inbox">
             <ion-icon name="file-tray-outline"></ion-icon>
@@ -34,3 +34,23 @@
         </ion-tab-button>
     </ion-tab-bar>
 </ion-tabs>
+
+<ng-container *ngIf="eugyLoggedIn && !messagingEnabled">
+    <ion-header>
+        <ion-toolbar color="primary">
+            <ion-buttons slot="start">
+                <ion-menu-button></ion-menu-button>
+            </ion-buttons>
+
+            <ion-title translate="messages.title"></ion-title>
+        </ion-toolbar>
+    </ion-header>
+
+    <ion-content>
+        <app-error-display
+            iconName="chatbubbles-outline"
+            [header]="'messages.not-enabled.header'|translate"
+            [message]="'messages.not-enabled.message'|translate"
+        ></app-error-display>
+    </ion-content>
+</ng-container>

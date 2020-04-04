@@ -2,12 +2,10 @@ import { Injectable } from "@angular/core";
 import { CacheService, CacheValueFactory } from "ionic-cache";
 import { HTTP, HTTPResponse } from "@ionic-native/http/ngx";
 import { Observable, from } from "rxjs";
-import { ErrorHelper } from "../_helpers/error-helper";
 import { environment } from "src/environments/environment";
 import { AppVersion } from "@ionic-native/app-version/ngx";
-import { stringify } from "flatted/esm";
 import { FirebaseService } from "./firebase.service";
-import { TranslateService } from "@ngx-translate/core";
+import { NetworkException, KretaInternalServerErrorException } from "../_exceptions";
 
 @Injectable({
     providedIn: "root",
@@ -16,10 +14,8 @@ export class DataService {
     constructor(
         private cache: CacheService,
         private http: HTTP,
-        private errorHelper: ErrorHelper,
         private appVersion: AppVersion,
-        private firebase: FirebaseService,
-        private translate: TranslateService
+        private firebase: FirebaseService
     ) {}
 
     private longtermStorageExpiry = 72 * 30 * 24 * 60 * 60;
@@ -37,16 +33,13 @@ export class DataService {
             appVersionNumber
         );
 
-        const response = this.http.get(url, parameters, headers).catch(async err => {
-            this.firebase.logError("getUrl(" + url + ") HTTP error: " + stringify(err));
-            await this.errorHelper.presentToast(
-                await this.translate.get("common.comm-error").toPromise(),
-                10000
-            );
-            throw new Error("[HTTP] response: " + stringify(err));
-        });
+        return this.http.get(url, parameters, headers).catch(err => {
+            if (err.status < 0) throw new NetworkException(err.status, err.error + " " + url);
+            if (err.status >= 500 && err.status < 600)
+                throw new KretaInternalServerErrorException(err.status, err.error);
 
-        return response;
+            throw err;
+        });
     }
 
     private fetchAndCacheUrl(
@@ -104,20 +97,9 @@ export class DataService {
         this.http.setDataSerializer(dataSerializer);
         await this.firebase.startTrace("http_post_call_time");
         const response = this.http.post(url, body, headers).catch(async err => {
-            try {
-                const e = JSON.parse(err.error);
-                if (
-                    e &&
-                    e.error_description &&
-                    e.error_description != "invalid_username_or_password"
-                ) {
-                    this.firebase.logError("postUrl(" + url + ") HTTP error: " + stringify(err));
-                    await this.errorHelper.presentToast(
-                        await this.translate.get("common.comm-error").toPromise(),
-                        10000
-                    );
-                }
-            } catch (ex) {}
+            if (err.status < 0) throw new NetworkException(err.status, err.error + " " + url);
+            if (err.status >= 500 && err.status < 600)
+                throw new KretaInternalServerErrorException(err.status, err.error);
 
             throw err;
         });
@@ -140,27 +122,13 @@ export class DataService {
         );
 
         this.http.setDataSerializer(dataSerializer);
-        await this.firebase.startTrace("http_post_call_time");
-        const response = this.http.delete(url, body, headers).catch(async err => {
-            try {
-                const e = JSON.parse(err.error);
-                if (
-                    e &&
-                    e.error_description &&
-                    e.error_description != "invalid_username_or_password"
-                ) {
-                    this.firebase.logError("postUrl(" + url + ") HTTP error: " + stringify(err));
-                    await this.errorHelper.presentToast(
-                        await this.translate.get("common.comm-error").toPromise(),
-                        10000
-                    );
-                }
-            } catch (ex) {}
+        return this.http.delete(url, body, headers).catch(err => {
+            if (err.status < 0) throw new NetworkException(err.status, err.error + " " + url);
+            if (err.status >= 500 && err.status < 600)
+                throw new KretaInternalServerErrorException(err.status, err.error);
 
             throw err;
         });
-        this.firebase.stopTrace("http_post_call_time");
-        return response;
     }
 
     public getItem<T>(key: string): Promise<T> {

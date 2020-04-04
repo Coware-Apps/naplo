@@ -1,12 +1,9 @@
-export class KretaEUgyException extends Error {
-    constructor(public message: string, name?: string) {
-        super(message);
-        this.name = name || "KretaException";
-        this.message = message;
-        this.stack = (<any>new Error()).stack;
-    }
-    toString() {
-        return this.name + ": " + this.message;
+import { NaploException } from "./naplo-exception";
+import { stringify } from "flatted/esm";
+
+export class KretaEUgyException extends NaploException {
+    constructor(message, ...params) {
+        super(message, ...params);
     }
 }
 
@@ -22,9 +19,16 @@ export class KretaEUgyNotLoggedInException extends KretaEUgyException {
     }
 }
 
-export class KretaEUgyInvalidTokenResponseException extends KretaEUgyException {
-    constructor() {
-        super("Invalid response to token request.", "InvalidTokenResponseException");
+export class KretaEUgyInvalidResponseException extends KretaEUgyException {
+    public response: object;
+
+    constructor(response?: object) {
+        super(
+            "Invalid response to token request. (" + stringify(response) + ")",
+            "InvalidResponseException",
+            "exceptions.eugy-invalid-response.message",
+            "exceptions.server-error"
+        );
     }
 }
 

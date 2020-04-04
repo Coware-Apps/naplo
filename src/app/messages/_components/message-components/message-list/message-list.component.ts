@@ -16,9 +16,11 @@ export class MessageListComponent implements OnInit, OnDestroy {
     private messages: MessageListItem[];
     public toBeDisplayed: MessageListItem[] = [];
     public displayedMessages: MessageListItem[] = [];
+
     public componentState: BehaviorSubject<
         "loading" | "loaded" | "empty" | "error"
     > = new BehaviorSubject("loading");
+    public exception: Error;
     private subs: Subscription[] = [];
 
     constructor(public config: ConfigService, private eugy: KretaEUgyService) {}
@@ -34,11 +36,13 @@ export class MessageListComponent implements OnInit, OnDestroy {
         });
     }
 
-    public async loadMessages(force: boolean = false, event?) {
+    public async loadMessages(forceRefresh: boolean = false, event?) {
         this.componentState.next("loading");
+        this.exception = null;
+
         try {
             this.subs.push(
-                (await this.eugy.getMessageList(this.folder)).subscribe(x => {
+                (await this.eugy.getMessageList(this.folder, forceRefresh)).subscribe(x => {
                     this.messages = x;
 
                     if (event) event.target.complete();
@@ -52,9 +56,13 @@ export class MessageListComponent implements OnInit, OnDestroy {
                     this.componentState.next("loaded");
                 })
             );
-        } catch (error) {
-            this.componentState.next("error");
-            throw error;
+        } catch (e) {
+            if (!this.messages) {
+                this.componentState.next("error");
+                this.exception = e;
+                e.handled = true;
+            }
+            throw e;
         }
     }
 
