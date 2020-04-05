@@ -17,28 +17,29 @@ export class DataService {
         private cache: CacheService,
         private http: HTTP,
         private errorHelper: ErrorHelper,
-        private appVersion: AppVersion,
         private firebase: FirebaseService,
         private translate: TranslateService
     ) {}
 
     private longtermStorageExpiry = 72 * 30 * 24 * 60 * 60;
 
+    private async getUserAgent(): Promise<string> {
+        let remoteUA = await this.firebase.getConfigValue("user_agent");
+        console.log("REMOTE UA: ", remoteUA);
+        if (!remoteUA)
+            remoteUA =
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36";
+
+        return remoteUA;
+    }
+
     public async getUrl(url: string, parameters?: any, headers?: any): Promise<HTTPResponse> {
-        const appVersionNumber = await this.appVersion.getVersionNumber();
         console.debug("SZERVERHÍVÁS: " + url);
 
-        if (headers)
-            headers["User-Agent"] = environment.userAgent.replace(
-                "%APP_VERSION_NUMBER%",
-                appVersionNumber
-            );
+        if (headers) headers["User-Agent"] = await this.getUserAgent();
         else
             headers = {
-                "User-Agent": environment.userAgent.replace(
-                    "%APP_VERSION_NUMBER%",
-                    appVersionNumber
-                ),
+                "User-Agent": await this.getUserAgent(),
             };
 
         const response = this.http.get(url, parameters, headers).catch(async err => {
@@ -97,20 +98,12 @@ export class DataService {
         headers?: any,
         dataSerializer: "json" | "urlencoded" | "utf8" | "multipart" = "urlencoded"
     ): Promise<HTTPResponse> {
-        const appVersionNumber = await this.appVersion.getVersionNumber();
         console.log("SZERVERHÍVÁS: " + url);
 
-        if (headers)
-            headers["User-Agent"] = environment.userAgent.replace(
-                "%APP_VERSION_NUMBER%",
-                appVersionNumber
-            );
+        if (headers) headers["User-Agent"] = await this.getUserAgent();
         else
             headers = {
-                "User-Agent": environment.userAgent.replace(
-                    "%APP_VERSION_NUMBER%",
-                    appVersionNumber
-                ),
+                "User-Agent": await this.getUserAgent(),
             };
 
         this.http.setDataSerializer(dataSerializer);
