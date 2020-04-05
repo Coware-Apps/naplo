@@ -4,7 +4,6 @@
 
 export const environment = {
     production: false,
-    userAgent: "NaploPlusz/%APP_VERSION_NUMBER%",
 };
 
 /*
