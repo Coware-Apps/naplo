@@ -1,37 +1,38 @@
 import { Injectable } from "@angular/core";
 import { Platform } from "@ionic/angular";
+import { HttpParams, HttpHeaders } from "@angular/common/http";
+import { Observable, ObservableInput } from "rxjs";
+import { map, catchError } from "rxjs/operators";
+
+import { File } from "@ionic-native/file/ngx";
+import { AndroidPermissions } from "@ionic-native/android-permissions/ngx";
+import { FileTransfer } from "@ionic-native/file-transfer/ngx";
+
 import {
     Institute,
     InstituteEugy,
     MessageListItem,
     MessageAddressee,
     MessageAddresseeType,
+    TokenResponse,
 } from "../_models";
 
-import { stringify } from "querystring";
 import {
     KretaEUgyInvalidResponseException,
     KretaEUgyInvalidPasswordException,
     KretaEUgyMessageAttachmentDownloadException,
     KretaEUgyNotLoggedInException,
     KretaEUgyException,
-    KretaInvalidPasswordException,
 } from "../_exceptions";
 
-import { File } from "@ionic-native/file/ngx";
-import { AndroidPermissions } from "@ionic-native/android-permissions/ngx";
-import { FileTransfer } from "@ionic-native/file-transfer/ngx";
-import { HTTPResponse } from "@ionic-native/http/ngx";
 import { DataService } from "./data.service";
 import { KretaService } from "./kreta.service";
-import { map, catchError } from "rxjs/operators";
-import { Observable, ObservableInput } from "rxjs";
 
 @Injectable({
     providedIn: "root",
 })
 export class KretaEUgyService {
-    private host = "https://eugyintezes.e-kreta.hu/api/v1/";
+    public host = "https://eugyintezes.e-kreta.hu/api/v1/";
     private endpoints = {
         instituteDetails: "ugy/aktualisIntezmenyAdatok",
         inboxList: "kommunikacio/postaladaelemek/beerkezett",
@@ -78,7 +79,7 @@ export class KretaEUgyService {
      * Gets a valid access_token from storage or from the IDP
      * @returns A promise that resolves to a valid access_token
      */
-    private async getValidAccessToken(): Promise<string> {
+    public async getValidAccessToken(): Promise<string> {
         // If there's a valid access token in the cache, we use that
         const access_token = await this.data.getItem<string>("eugy_access_token").catch(() => {
             console.debug("[EUGY] Nincs valid AT");
@@ -109,7 +110,6 @@ export class KretaEUgyService {
         institute: Institute
     ): Promise<string> {
         try {
-            const headers = {};
             const params = {
                 userName: username,
                 password: password,
@@ -118,36 +118,35 @@ export class KretaEUgyService {
                 client_id: "kozelkep-js-web",
             };
 
-            let response = await this.data.postUrl(
-                "https://idp.e-kreta.hu/connect/Token",
-                params,
-                headers
-            );
+            let response = await this.data
+                .postUrl<TokenResponse>(
+                    "https://idp.e-kreta.hu/connect/Token",
+                    new HttpParams({ fromObject: params }).toString(),
+                    new HttpHeaders().set("Content-Type", "application/x-www-form-urlencoded")
+                )
+                .toPromise();
 
             console.debug("[EUGY] getToken result:", response);
 
-            if (response.status == 400) throw new KretaEUgyInvalidPasswordException();
-            const data = JSON.parse(response.data);
-            if (!data || !data.access_token)
-                throw new KretaEUgyInvalidResponseException(response.data);
+            if (!response.access_token) throw new KretaEUgyInvalidResponseException(response);
 
             await Promise.all([
                 this.data.saveItem(
                     "eugy_access_token",
-                    data.access_token,
+                    response.access_token,
                     null,
-                    data.expires_in - 30
+                    response.expires_in - 30
                 ),
                 this.data.saveItem(
                     "eugy_refresh_token",
-                    data.refresh_token,
+                    response.refresh_token,
                     null,
                     this.longtermStorageExpiry
                 ),
                 this.data.saveSetting("eugy_institute", await this.getInstituteDetails()),
             ]);
 
-            return data.access_token;
+            return response.access_token;
         } catch (error) {
             if (error instanceof SyntaxError) throw new KretaEUgyInvalidResponseException(error);
             if (error.status == 400) throw new KretaEUgyInvalidPasswordException();
@@ -188,7 +187,6 @@ export class KretaEUgyService {
         this.loginInProgress = true;
 
         try {
-            const headers = {};
             const params = {
                 refresh_token: refresh_token,
                 grant_type: "refresh_token",
@@ -197,33 +195,32 @@ export class KretaEUgyService {
             };
             console.log(`[EUGY->renewToken()] renewing tokens with refreshToken`, refresh_token);
 
-            let response = await this.data.postUrl(
-                "https://idp.e-kreta.hu/connect/Token",
-                params,
-                headers
-            );
+            let response = await this.data
+                .postUrl<TokenResponse>(
+                    "https://idp.e-kreta.hu/connect/Token",
+                    new HttpParams({ fromObject: params }).toString(),
+                    new HttpHeaders().set("Content-Type", "application/x-www-form-urlencoded")
+                )
+                .toPromise();
 
-            if (response.status == 400) throw new KretaEUgyInvalidPasswordException();
-            const data = JSON.parse(response.data);
-            if (!data || !data.access_token)
-                throw new Error("Invalid data in token response: " + stringify(response));
+            if (!response.access_token) throw new KretaEUgyInvalidResponseException(response);
 
             await Promise.all([
                 this.data.saveItem(
                     "eugy_access_token",
-                    data.access_token,
+                    response.access_token,
                     null,
-                    data.expires_in - 30
+                    response.expires_in - 30
                 ),
                 this.data.saveItem(
                     "eugy_refresh_token",
-                    data.refresh_token,
+                    response.refresh_token,
                     null,
                     this.longtermStorageExpiry
                 ),
             ]);
 
-            return data.access_token;
+            return response.access_token;
         } catch (error) {
             if (error instanceof SyntaxError) throw new KretaEUgyInvalidResponseException();
             if (error.status == 400) {
@@ -259,22 +256,13 @@ export class KretaEUgyService {
      * @returns A promise that resolves to an InstituteEugy
      */
     public async getInstituteDetails(): Promise<InstituteEugy> {
-        const access_token = await this.getValidAccessToken();
-        const headers = {
-            Authorization: "Bearer " + access_token,
-        };
-        const params = {};
+        const response = await this.data
+            .getUrl<InstituteEugy>(this.host + this.endpoints.instituteDetails)
+            .toPromise();
 
-        const response = await this.data.getUrl(
-            this.host + this.endpoints.instituteDetails,
-            params,
-            headers
-        );
+        await this.data.saveSetting("eugy_institute", response);
 
-        const institute = JSON.parse(response.data);
-        await this.data.saveSetting("eugy_institute", institute);
-
-        return institute;
+        return response;
     }
 
     /**
@@ -295,27 +283,21 @@ export class KretaEUgyService {
      * Gets the user's message list by a specified category (state)
      * @param state From which category to get the message list
      */
-    public async getMessageList(
+    public getMessageList(
         state: "inbox" | "outbox" | "deleted",
         forceRefresh = false
-    ): Promise<Observable<MessageListItem[]>> {
-        const access_token = await this.getValidAccessToken();
-        const headers = {
-            Authorization: "Bearer " + access_token,
-        };
-        const params = {};
-
-        const response = await this.data.getUrlWithCache(
+    ): Observable<MessageListItem[]> {
+        const response = this.data.getUrlWithCache<MessageListItem[]>(
             this.host + this.endpoints[`${state}List`],
-            params,
-            headers,
+            null,
+            null,
             null,
             forceRefresh
         );
 
         return response.pipe(
-            map(x =>
-                (<MessageListItem[]>JSON.parse(x.data)).map(x => {
+            map(item =>
+                item.map(x => {
                     x.uzenetKuldesDatum = new Date(x.uzenetKuldesDatum);
                     return x;
                 })
@@ -329,37 +311,25 @@ export class KretaEUgyService {
      * @param action Choose put to put the message in the bin, remove to remove it.
      * @param messageIdList The `azonosito` fields of the messages to perform the operation on
      */
-    public async binMessages(
-        action: "put" | "remove",
-        messageIdList: number[]
-    ): Promise<HTTPResponse> {
-        const access_token = await this.getValidAccessToken();
-        const headers = {
-            Authorization: "Bearer " + access_token,
-        };
+    public binMessages(action: "put" | "remove", messageIdList: number[]): Observable<any> {
         const params = {
             isKuka: action == "put" ? true : false,
             postaladaElemAzonositoLista: messageIdList,
         };
 
-        return this.data.postUrl(this.host + this.endpoints.manageBin, params, headers, "json");
+        return this.data.postUrl<any>(this.host + this.endpoints.manageBin, params);
     }
 
     /**
      * Delete a message permanently (HOT!)
      * @param messageIdList The `uzenetAzonosito` fields of the messages to perform the operation on
      */
-    public async deleteMessages(messageIdList: number[]): Promise<HTTPResponse> {
-        const access_token = await this.getValidAccessToken();
-        const headers = {
-            Authorization: "Bearer " + access_token,
-        };
-
+    public deleteMessages(messageIdList: number[]): Observable<any> {
         const params = {
             postaladaElemAzonositok: messageIdList,
         };
 
-        return this.data.deleteUrl(this.host + this.endpoints.delete, params, headers);
+        return this.data.deleteUrl<any>(this.host + this.endpoints.delete, params);
     }
 
     /**
@@ -367,22 +337,16 @@ export class KretaEUgyService {
      * @param newState Choose read to set the message as read, unread to set it as unread
      * @param messageIdList The `uzenetAzonosito` fields of the messages to perform the operation on
      */
-    public async changeMessageState(
+    public changeMessageState(
         newState: "read" | "unread",
         messageIdList: number[]
-    ): Promise<HTTPResponse> {
-        const access_token = await this.getValidAccessToken();
-
-        const headers = {
-            Authorization: "Bearer " + access_token,
-        };
-
+    ): Observable<any> {
         const params = {
             isOlvasott: newState == "read" ? true : false,
             postaladaElemAzonositoLista: messageIdList,
         };
 
-        return this.data.postUrl(this.host + this.endpoints.manageState, params, headers);
+        return this.data.postUrl<any>(this.host + this.endpoints.manageState, params);
     }
 
     /**
@@ -392,12 +356,12 @@ export class KretaEUgyService {
      * @param szoveg The text of the new message (Can include HTML tags)
      * @param attachmentList The list of attachments to send with the message
      */
-    public async replyToMessage(
+    public replyToMessage(
         messageId: number,
         targy: string,
         szoveg: string,
         attachmentList: { name: string; id: string }[]
-    ): Promise<HTTPResponse> {
+    ): Observable<any> {
         //creating the attachments object from the attachmentList
         let attachments: {
             fajlNev: string;
@@ -413,12 +377,6 @@ export class KretaEUgyService {
             });
         });
 
-        const access_token = await this.getValidAccessToken();
-
-        const headers = {
-            Authorization: "Bearer " + access_token,
-        };
-
         const params = {
             targy: targy,
             szoveg: szoveg,
@@ -427,7 +385,7 @@ export class KretaEUgyService {
             csatolmanyok: attachments,
         };
 
-        return this.data.postUrl(this.host + this.endpoints.newMessage, params, headers, "json");
+        return this.data.postUrl<any>(this.host + this.endpoints.newMessage, params);
     }
 
     /**
@@ -438,12 +396,12 @@ export class KretaEUgyService {
      * @param attachmentList The list of attachments to send with the message
      * @see The documentation for more info about addressees
      */
-    public async sendNewMessage(
+    public sendNewMessage(
         addresseeList: MessageAddressee[],
         targy: string,
         szoveg: string,
         attachmentList: { name: string; id: string }[]
-    ): Promise<HTTPResponse> {
+    ): Observable<any> {
         //creating the attachments object from the attachmentList
         let attachments: {
             fajlNev: string;
@@ -459,12 +417,6 @@ export class KretaEUgyService {
             });
         });
 
-        const access_token = await this.getValidAccessToken();
-
-        const headers = {
-            Authorization: "Bearer " + access_token,
-        };
-
         const params = {
             targy: targy,
             szoveg: szoveg,
@@ -473,51 +425,29 @@ export class KretaEUgyService {
             csatolmanyok: attachments,
         };
 
-        return this.data.postUrl(this.host + this.endpoints.newMessage, params, headers, "json");
+        return this.data.postUrl<any>(this.host + this.endpoints.newMessage, params);
     }
 
     /**
      * Gets the types of addressees the user can choose from. It is used to display category names descriptions etc.
      * @see The documentation for more info about addressees
      */
-    public async getAddresseeTypeList(): Promise<Observable<MessageAddresseeType[]>> {
-        const access_token = await this.getValidAccessToken();
-
-        const headers = {
-            Authorization: "Bearer " + access_token,
-        };
-        const params = {};
-        let response = await this.data.getUrlWithCache(
-            this.host + this.endpoints.addresseeTypesList,
-            params,
-            headers
+    public getAddresseeTypeList(): Observable<MessageAddresseeType[]> {
+        return this.data.getUrlWithCache<MessageAddresseeType[]>(
+            this.host + this.endpoints.addresseeTypesList
         );
-
-        return response.pipe(map(x => JSON.parse(x.data)));
     }
 
     /**
      * Gets the list of possible addressees to send a message to, from a specified category.
      * @param category The category from which to get the list of possible addressees
      */
-    public async getAddresseListByCategory(
+    public getAddresseListByCategory(
         category: "teachers" | "headTeachers" | "directorate" | "admins"
-    ): Promise<Observable<MessageAddressee[]>> {
-        const access_token = await this.getValidAccessToken();
-
-        const headers = {
-            Authorization: "Bearer " + access_token,
-        };
-
-        const params = {};
-
-        let response = await this.data.getUrlWithCache(
-            this.host + this.endpoints.addresseeCategories[category],
-            params,
-            headers
+    ): Observable<MessageAddressee[]> {
+        return this.data.getUrlWithCache<MessageAddressee[]>(
+            this.host + this.endpoints.addresseeCategories[category]
         );
-
-        return response.pipe(map(x => JSON.parse(x.data)));
     }
 
     /**
@@ -532,20 +462,10 @@ export class KretaEUgyService {
      * Removes an attachment from the temporary attachment storage. Used for drafting messages.
      * @param attachmentId The id of the attachment to remove
      */
-    public async removeAttachment(attachmentId: string): Promise<HTTPResponse> {
-        const access_token = await this.getValidAccessToken();
-        const headers = {
-            Authorization: "Bearer " + access_token,
-        };
-        const params = {};
-
-        let response = await this.data.deleteUrl(
-            this.host + this.endpoints.temporaryAttachmentStorage + `/${attachmentId}`,
-            params,
-            headers
+    public removeAttachment(attachmentId: string): Observable<any> {
+        return this.data.deleteUrl<any>(
+            this.host + this.endpoints.temporaryAttachmentStorage + `/${attachmentId}`
         );
-
-        return response;
     }
 
     /**

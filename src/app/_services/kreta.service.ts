@@ -2,7 +2,6 @@ import { Injectable } from "@angular/core";
 import { DataService } from "./data.service";
 import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
-import { HTTPResponse } from "@ionic-native/http/ngx";
 import {
     TanarProfil,
     Lesson,
@@ -25,7 +24,6 @@ import {
 } from "../_exceptions";
 import { stringify } from "flatted/esm";
 import { FirebaseService } from "./firebase.service";
-import { TranslateService } from "@ngx-translate/core";
 import { HttpHeaders, HttpParams } from "@angular/common/http";
 
 @Injectable({
@@ -193,18 +191,16 @@ export class KretaService {
 
             await this.firebase.startTrace("token_refresh_time");
 
+            const body = new HttpParams()
+                .set("refresh_token", refresh_token)
+                .set("grant_type", "refresh_token")
+                .set("client_id", "kreta-naplo-mobile");
+
             const response = await this.data
                 .postUrl<TokenResponse>(
                     this.idpUrl + "/connect/Token",
-                    {
-                        refresh_token: refresh_token,
-                        grant_type: "refresh_token",
-                        client_id: "kreta-naplo-mobile",
-                    }
-                    // {
-                    //     Accept: "application/json",
-                    //     "Content-Type": "application/x-www-form-urlencoded",
-                    // }
+                    body.toString(),
+                    new HttpHeaders().set("Content-Type", "application/x-www-form-urlencoded")
                 )
                 .toPromise();
 
@@ -376,9 +372,7 @@ export class KretaService {
     postLesson(data: object): Observable<any> {
         const response = this.data.postUrl<any>(
             this.institute.Url + "/Naplo/v2/Orarend/OraNaplozas",
-            data,
-            null,
-            "json"
+            data
         );
 
         this.firebase.logEvent("post_lesson");
@@ -390,9 +384,7 @@ export class KretaService {
     postErtekeles(data: object): Observable<any> {
         const response = this.data.postUrl(
             this.institute.Url + "/Naplo/v2/Ertekeles/OsztalyCsoportErtekeles",
-            data,
-            null,
-            "json"
+            data
         );
 
         this.firebase.logEvent("post_evaluation");
