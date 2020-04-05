@@ -54,21 +54,22 @@
         "cordova-plugin-safariviewcontroller": "^1.6.0",
         "cordova-sqlite-storage": "^4.0.0",
         "core-js": "^2.6.11",
-        "flatted": "^2.0.1",
+        "flatted": "^2.0.2",
         "ionic-cache": "^4.1.0",
-        "rxjs": "^6.5.4",
+        "rxjs": "^6.5.5",
         "tslib": "^1.11.1",
         "zone.js": "~0.9.1"
     },
     "devDependencies": {
-        "@angular-devkit/architect": "^0.803.23",
-        "@angular-devkit/build-angular": "^0.803.23",
-        "@angular-devkit/core": "^8.3.23",
-        "@angular-devkit/schematics": "^8.3.23",
-        "@angular/cli": "^8.3.23",
+        "@angular-devkit/architect": "^0.803.26",
+        "@angular-devkit/build-angular": "^0.803.26",
+        "@angular-devkit/core": "^8.3.26",
+        "@angular-devkit/schematics": "^8.3.26",
+        "@angular/cli": "^8.3.26",
         "@angular/compiler": "^8.2.14",
         "@angular/compiler-cli": "^8.2.14",
         "@angular/language-service": "^8.2.14",
+        "@babel/compat-data": "7.8.0",
         "@ionic/angular-toolkit": "^2.2.0",
         "@ionic/app-scripts": "^3.2.4",
         "@types/jasmine": "~3.3.8",
@@ -94,8 +95,7 @@
         "tslint": "~5.15.0",
         "tslint-config-prettier": "^1.18.0",
         "tslint-plugin-prettier": "^2.1.0",
-        "typescript": "~3.4.3",
-        "@babel/compat-data": "7.8.0"
+        "typescript": "~3.4.3"
     },
     "cordova": {
         "plugins": {
