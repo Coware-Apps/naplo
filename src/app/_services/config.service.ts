@@ -101,6 +101,8 @@ export class ConfigService {
         } else {
             this.firebase.setAnalyticsCollectionEnabled(this.analytics);
         }
+
+        this.firebase.fetchConfig().then(() => this.firebase.activateFetchedConfig());
     }
 
     public async applyTheme(theme?: string, setStatusbar: boolean = true) {
