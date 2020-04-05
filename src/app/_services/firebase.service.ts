@@ -56,7 +56,18 @@ export class FirebaseService {
     }
 
     private isDisabled() {
-        if (!environment.production) return true;
-        return false;
+        return !environment.production;
+    }
+
+    public fetchConfig(): Promise<any> {
+        return this.firebase.fetch();
+    }
+
+    public activateFetchedConfig(): Promise<any> {
+        return this.firebase.activateFetched();
+    }
+
+    public getConfigValue(key: string): Promise<any> {
+        return this.firebase.getValue(key);
     }
 }
