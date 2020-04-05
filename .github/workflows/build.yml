@@ -68,7 +68,7 @@ jobs:
                   name: naplo-${{ env.PACKAGE_VERSION }}-release-signed.aab
                   path: ${{ env.SIGNED_RELEASE_FILE }}
 
-            - if: github.ref == 'master'
+            - if: github.ref == 'refs/heads/master'
               name: Upload to Play Store
               uses: r0adkll/upload-google-play@v1
               with:
@@ -114,6 +114,6 @@ jobs:
                   name: naplo-${{ env.PACKAGE_VERSION }}-release-signed.ipa
                   path: platforms/ios/build/device/NaploPlusz.ipa
 
-            - if: github.ref == 'master'
+            - if: github.ref == 'refs/heads/master'
               name: Upload to Testflight
               run: fastlane ios upload_to_tf
