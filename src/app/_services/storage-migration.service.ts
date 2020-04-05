@@ -16,6 +16,8 @@ export class StorageMigrationService {
     private database: IDBDatabase;
     private objectStoreName = "_ionickv";
 
+    private latestDbVersion = 3;
+
     private openDB(): Promise<IDBDatabase> {
         return new Promise<IDBDatabase>((resolve, reject) => {
             let req: IDBOpenDBRequest = this.indexedDB.open("__ionicCache");
@@ -56,6 +58,9 @@ export class StorageMigrationService {
     }
 
     public async onInit() {
+        console.log("[DB MIGRATION] URL cache purge...");
+        await this.clearOldUrlCache();
+
         if (!this.indexedDB) {
             console.log("[DB MIGRATION] No indexedDB, exiting.");
             return;
@@ -130,6 +135,27 @@ export class StorageMigrationService {
                 await this.data.saveSetting(key, value);
                 console.log("[DB MIGRATION] Migration complete: ", key, value);
             }
+        }
+    }
+
+    private async clearOldUrlCache() {
+        const currentDbVersion = (await this.data.itemExists("pref__db_version"))
+            ? await this.data.getSetting<number>("db_version")
+            : 0;
+
+        if (currentDbVersion < this.latestDbVersion) {
+            console.log(
+                "[DB MIGRATION] URL cache purge needed. Current DB version:",
+                currentDbVersion,
+                ", latest version:",
+                this.latestDbVersion
+            );
+            // await this.data.clearExpired(true);
+            await this.data.removeItems("https*");
+            await this.data.saveSetting("db_version", this.latestDbVersion);
+            console.log("[DB MIGRATION] URL cache purge complete.");
+        } else {
+            console.log("[DB MIGRATION] URL cache purge not needed.");
         }
     }
 }

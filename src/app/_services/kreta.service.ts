@@ -14,12 +14,19 @@ import {
     Institute,
     Jwt,
     Tanmenet,
+    TokenResponse,
 } from "../_models";
 import { ErrorHelper, JwtDecodeHelper } from "../_helpers";
-import { KretaMissingRoleException, KretaInvalidPasswordException } from "../_exceptions";
+import {
+    KretaMissingRoleException,
+    KretaInvalidPasswordException,
+    KretaInvalidResponseException,
+    KretaException,
+} from "../_exceptions";
 import { stringify } from "flatted/esm";
 import { FirebaseService } from "./firebase.service";
 import { TranslateService } from "@ngx-translate/core";
+import { HttpHeaders, HttpParams } from "@angular/common/http";
 
 @Injectable({
     providedIn: "root",
@@ -46,8 +53,7 @@ export class KretaService {
         private data: DataService,
         private jwtHelper: JwtDecodeHelper,
         private error: ErrorHelper,
-        private firebase: FirebaseService,
-        private translate: TranslateService
+        private firebase: FirebaseService
     ) {}
 
     private idpUrl = "https://idp.e-kreta.hu";
@@ -91,72 +97,80 @@ export class KretaService {
         }
     }
 
-    async loginWithUsername(username: string, password: string): Promise<HTTPResponse> {
+    async loginWithUsername(username: string, password: string): Promise<TokenResponse> {
+        // try {
+        if (!this.institute || !this.institute.Url)
+            throw Error("Nincs intézmény kiválasztva! (loginWithUsername())");
+
         try {
-            if (!this.institute || !this.institute.Url)
-                throw Error("Nincs intézmény kiválasztva! (loginWithUsername())");
+            const body = new HttpParams()
+                .set("institute_code", this.institute.InstituteCode)
+                .set("userName", username)
+                .set("password", password)
+                .set("grant_type", "password")
+                .set("client_id", "kreta-naplo-mobile");
 
-            const response = await this.data.postUrl(
-                this.idpUrl + "/connect/Token",
-                {
-                    institute_code: this.institute.InstituteCode,
-                    userName: username,
-                    password: password,
-                    grant_type: "password",
-                    client_id: "kreta-naplo-mobile",
-                },
-                {
-                    Accept: "application/json",
-                    "Content-Type": "application/x-www-form-urlencoded",
+            const response = await this.data
+                .postUrl<TokenResponse>(
+                    this.idpUrl + "/connect/Token",
+                    body.toString(),
+                    new HttpHeaders().set("Content-Type", "application/x-www-form-urlencoded")
+                )
+                .toPromise();
+
+            if (response.access_token) {
+                this.currentUser = this.jwtHelper.decodeToken(response.access_token);
+
+                console.debug("[LOGIN] Roles we have: ", this.currentUser.role);
+                if (this.currentUser.role.indexOf("Tanar") === -1) {
+                    console.debug("[LOGIN] Missing role: 'Tanar' in ", this.currentUser.role);
+
+                    throw new KretaMissingRoleException();
                 }
-            );
 
-            if (response.status == 200) {
-                const data = JSON.parse(response.data);
+                await Promise.all([
+                    this.data.saveItem(
+                        "access_token",
+                        response.access_token,
+                        null,
+                        response.expires_in - 30
+                    ),
+                    this.data.saveItem(
+                        "refresh_token",
+                        response.refresh_token,
+                        null,
+                        this.longtermStorageExpiry
+                    ),
+                ]);
 
-                if (data && data.access_token) {
-                    this.currentUser = this.jwtHelper.decodeToken(data.access_token);
+                Promise.all([
+                    this.getNaploEnum("MulasztasTipusEnum"),
+                    this.getNaploEnum("EsemenyTipusEnum"),
+                    this.getNaploEnum("ErtekelesModEnum"),
+                    this.getNaploEnum("ErtekelesTipusEnum"),
+                    this.getNaploEnum("OsztalyzatTipusEnum"),
+                ]);
 
-                    console.debug("[LOGIN] Roles we have: ", this.currentUser.role);
-                    if (this.currentUser.role.indexOf("Tanar") === -1) {
-                        console.debug("[LOGIN] Missing role: 'Tanar' in ", this.currentUser.role);
-
-                        throw new KretaMissingRoleException();
-                    }
-
-                    await Promise.all([
-                        this.data.saveItem(
-                            "access_token",
-                            data.access_token,
-                            null,
-                            data.expires_in - 30
-                        ),
-                        this.data.saveItem(
-                            "refresh_token",
-                            data.refresh_token,
-                            null,
-                            this.longtermStorageExpiry
-                        ),
-                    ]);
-
-                    Promise.all([
-                        this.getNaploEnum("MulasztasTipusEnum"),
-                        this.getNaploEnum("EsemenyTipusEnum"),
-                        this.getNaploEnum("ErtekelesModEnum"),
-                        this.getNaploEnum("ErtekelesTipusEnum"),
-                        this.getNaploEnum("OsztalyzatTipusEnum"),
-                    ]);
-
-                    this.firebase.initialize(this.currentUser, this.institute);
-                } else throw Error("Error response during username login: " + response.data);
-            } else if (response.status == 400) throw new KretaInvalidPasswordException();
-            else throw Error("Non-200 response during username login: " + response.data);
+                this.firebase.initialize(this.currentUser, this.institute);
+            } else throw Error("Error response during username login: " + response);
 
             return response;
         } catch (error) {
             if (error.status == 400) throw new KretaInvalidPasswordException();
             else throw error;
         }
+
+        // if (response.status == 200) {
+        //     const data = JSON.parse(response.data);
+
+        // } else if (response.status == 400) throw new KretaInvalidPasswordException();
+        // else throw Error("Non-200 response during username login: " + response.data);
+
+        // return response;
+        // } catch (error) {
+        //     if (error.status == 400) throw new KretaInvalidPasswordException();
+        //     else throw error;
+        // }
     }
 
     private delay(timer: number): Promise<void> {
@@ -179,68 +193,49 @@ export class KretaService {
 
             await this.firebase.startTrace("token_refresh_time");
 
-            const response = await this.data.postUrl(
-                this.idpUrl + "/connect/Token",
-                {
-                    refresh_token: refresh_token,
-                    grant_type: "refresh_token",
-                    client_id: "kreta-naplo-mobile",
-                },
-                {
-                    Accept: "application/json",
-                    "Content-Type": "application/x-www-form-urlencoded",
-                }
-            );
+            const response = await this.data
+                .postUrl<TokenResponse>(
+                    this.idpUrl + "/connect/Token",
+                    {
+                        refresh_token: refresh_token,
+                        grant_type: "refresh_token",
+                        client_id: "kreta-naplo-mobile",
+                    }
+                    // {
+                    //     Accept: "application/json",
+                    //     "Content-Type": "application/x-www-form-urlencoded",
+                    // }
+                )
+                .toPromise();
 
-            if (response.status == 200) {
-                const data = JSON.parse(response.data);
+            if (response.access_token) {
+                await Promise.all([
+                    this.data.saveItem(
+                        "access_token",
+                        response.access_token,
+                        null,
+                        response.expires_in - 30
+                    ),
+                    this.data.saveItem(
+                        "refresh_token",
+                        response.refresh_token,
+                        null,
+                        this.longtermStorageExpiry
+                    ),
+                ]);
 
-                if (data && data.access_token) {
-                    await Promise.all([
-                        this.data.saveItem(
-                            "access_token",
-                            data.access_token,
-                            null,
-                            data.expires_in - 30
-                        ),
-                        this.data.saveItem(
-                            "refresh_token",
-                            data.refresh_token,
-                            null,
-                            this.longtermStorageExpiry
-                        ),
-                    ]);
+                console.debug("[LOGIN] AT sikeresen megújítva RT-el");
+                this.currentUser = this.jwtHelper.decodeToken(response.access_token);
+                this.firebase.stopTrace("token_refresh_time");
 
-                    console.debug("[LOGIN] AT sikeresen megújítva RT-el");
-                    this.currentUser = this.jwtHelper.decodeToken(data.access_token);
-                    this.firebase.stopTrace("token_refresh_time");
-
-                    return data.access_token;
-                } else throw Error("Error response during token login: " + response.data);
-            } else throw Error("Non-200 response during token login: " + response.data);
+                return response.access_token;
+            } else throw Error("Error response during token login: " + response);
         } catch (error) {
             if (error instanceof SyntaxError) {
-                await this.error.presentAlert(
-                    (await this.translate.get("common.comm-error").toPromise()) +
-                        " <br>(" +
-                        error +
-                        ")"
-                );
-            } else {
-                this.firebase.logError("loginWithRefreshToken(): " + stringify(error));
-                console.error("[LOGIN] ", error);
-                await this.error.presentAlert(
-                    (await this.translate.get("kreta.login-unknown-error").toPromise()) +
-                        " (" +
-                        stringify(error) +
-                        ")",
-                    "Token refresh",
-                    await this.translate.get("common.error").toPromise(),
-                    () => {
-                        this.logout();
-                    }
-                );
+                throw new KretaInvalidResponseException(error);
             }
+
+            throw new KretaException(error);
         } finally {
             this.loginInProgress = false;
         }
@@ -257,46 +252,36 @@ export class KretaService {
         return loginInfo === true;
     }
 
-    async getInstituteList(): Promise<Observable<Institute[]>> {
-        return (
-            await this.data.getUrlWithCache(
-                "https://kretaglobalmobileapi.ekreta.hu/api/v1/Institute",
-                null,
-                {
-                    apiKey: "7856d350-1fda-45f5-822d-e1a2f3f1acf0",
-                },
-                this.longtermStorageExpiry
-            )
-        ).pipe(map(x => JSON.parse(x.data)));
+    getInstituteList(): Observable<Institute[]> {
+        return this.data.getUrlWithCache<Institute[]>(
+            "https://kretaglobalmobileapi.ekreta.hu/api/v1/Institute",
+            null,
+            new HttpHeaders().set("apiKey", "7856d350-1fda-45f5-822d-e1a2f3f1acf0"),
+            this.longtermStorageExpiry
+        );
     }
 
     async deleteInstituteListFromStorage(): Promise<void> {
         return this.data.removeItem("https://kretaglobalmobileapi.ekreta.hu/api/v1/Institute");
     }
 
-    async getAuthenticatedAdatcsomag<T>(
+    getAuthenticatedAdatcsomag<T>(
         url: string,
         cacheSecs: number = 30 * 60,
         forceRefresh: boolean = false
-    ): Promise<Observable<T>> {
-        const access_token = await this.getValidAccessToken();
-        return (
-            await this.data.getUrlWithCache(
+    ): Observable<T> {
+        return this.data
+            .getUrlWithCache<{ Adatcsomag: T }>(
                 this.institute.Url + url,
                 null,
-                {
-                    Authorization: "Bearer " + access_token,
-                },
+                null,
                 cacheSecs,
                 forceRefresh
             )
-        ).pipe(
-            map(x => JSON.parse(x.data)),
-            map(x => x.Adatcsomag)
-        );
+            .pipe(map(x => x.Adatcsomag));
     }
 
-    async getTanarProfil(): Promise<Observable<TanarProfil>> {
+    getTanarProfil(): Observable<TanarProfil> {
         console.log("getTanarProfil()");
         return this.getAuthenticatedAdatcsomag<TanarProfil>(
             "/Naplo/v2/Tanar/Profil",
@@ -304,28 +289,14 @@ export class KretaService {
         );
     }
 
-    async getNaploEnum(engedelyezettEnumName: string = "MulasztasTipusEnum"): Promise<KretaEnum[]> {
-        const access_token = await this.getValidAccessToken();
-        return (
-            await this.data.getUrlWithCache(
-                this.institute.Url +
-                    "/Naplo/v2/Enum/NaploEnum?hash=&engedelyezettEnumName=" +
-                    engedelyezettEnumName,
-                null,
-                {
-                    Authorization: "Bearer " + access_token,
-                },
-                this.longtermStorageExpiry
-            )
-        )
-            .pipe(
-                map(x => JSON.parse(x.data)),
-                map(x => x.Adatcsomag)
-            )
-            .toPromise();
+    getNaploEnum(engedelyezettEnumName: string = "MulasztasTipusEnum"): Promise<KretaEnum[]> {
+        return this.getAuthenticatedAdatcsomag<KretaEnum[]>(
+            "/Naplo/v2/Enum/NaploEnum?hash=&engedelyezettEnumName=" + engedelyezettEnumName,
+            this.longtermStorageExpiry
+        ).toPromise();
     }
 
-    async getTimetable(day: Date, forceRefresh: boolean = false): Promise<Observable<Lesson[]>> {
+    getTimetable(day: Date, forceRefresh: boolean = false): Observable<Lesson[]> {
         console.log("getTimetable()");
 
         day.setUTCHours(0, 0, 0, 0);
@@ -336,7 +307,7 @@ export class KretaService {
         );
     }
 
-    async getOsztalyTanuloi(osztalyCsoportId: number): Promise<Observable<OsztalyTanuloi>> {
+    getOsztalyTanuloi(osztalyCsoportId: number): Observable<OsztalyTanuloi> {
         console.log("getOsztalyTanuloi()");
 
         return this.getAuthenticatedAdatcsomag<OsztalyTanuloi>(
@@ -345,7 +316,7 @@ export class KretaService {
         );
     }
 
-    async getJavasoltJelenlet(ora: Lesson): Promise<Observable<JavasoltJelenletTemplate>> {
+    getJavasoltJelenlet(ora: Lesson): Observable<JavasoltJelenletTemplate> {
         console.log("getJavasoltJelenlet()");
 
         let url = "";
@@ -364,18 +335,12 @@ export class KretaService {
                 "/Naplo/v2/Ora/TanitasiOra/JavasoltJelenlet?key[0].TanitasiOraId=" +
                 ora.TanitasiOraId;
 
-        const access_token = await this.getValidAccessToken();
-        return (
-            await this.data.getUrlWithCache(url, null, {
-                Authorization: "Bearer " + access_token,
-            })
-        ).pipe(
-            map(x => JSON.parse(x.data)),
-            map(x => x[0])
-        );
+        return this.data
+            .getUrlWithCache<JavasoltJelenletTemplate[]>(url, null, null)
+            .pipe(map(x => x[0]));
     }
 
-    async getMulasztas(tanoraid: number): Promise<Observable<Mulasztas[]>> {
+    getMulasztas(tanoraid: number): Observable<Mulasztas[]> {
         console.log("getMulasztas()");
 
         return this.getAuthenticatedAdatcsomag(
@@ -383,7 +348,7 @@ export class KretaService {
         );
     }
 
-    async getFeljegyzes(tanoraid: number): Promise<Observable<Feljegyzes[]>> {
+    getFeljegyzes(tanoraid: number): Observable<Feljegyzes[]> {
         console.log("getFeljegyzes()");
 
         return this.getAuthenticatedAdatcsomag(
@@ -391,10 +356,9 @@ export class KretaService {
         );
     }
 
-    async getTanmenet(lesson: Lesson): Promise<Observable<Tanmenet>> {
-        const access_token = await this.getValidAccessToken();
-        return (
-            await this.data.getUrlWithCache(
+    getTanmenet(lesson: Lesson): Observable<Tanmenet> {
+        return this.data
+            .getUrlWithCache<Tanmenet[]>(
                 this.institute.Url +
                     "/Naplo/v2/Tanmenet?key[0].OsztalycsoportId=" +
                     lesson.OsztalyCsoportId +
@@ -403,49 +367,38 @@ export class KretaService {
                     "&key[0].FeltoltoTanarId=" +
                     this.currentUser["kreta:institute_user_id"],
                 null,
-                {
-                    Authorization: "Bearer " + access_token,
-                },
+                null,
                 60 * 60 * 24
             )
-        ).pipe(
-            map(x => JSON.parse(x.data)),
-            map(x => x[0])
-        );
+            .pipe(map(x => x[0]));
     }
 
-    async postLesson(data: object): Promise<any> {
-        const access_token = await this.getValidAccessToken();
-        const response = await this.data.postUrl(
+    postLesson(data: object): Observable<any> {
+        const response = this.data.postUrl<any>(
             this.institute.Url + "/Naplo/v2/Orarend/OraNaplozas",
             data,
-            {
-                Authorization: "Bearer " + access_token,
-            },
+            null,
             "json"
         );
 
         this.firebase.logEvent("post_lesson");
         console.log("postLesson()", data, response);
 
-        return JSON.parse(response.data);
+        return response;
     }
 
-    async postErtekeles(data: object): Promise<any> {
-        const access_token = await this.getValidAccessToken();
-        const response = await this.data.postUrl(
+    postErtekeles(data: object): Observable<any> {
+        const response = this.data.postUrl(
             this.institute.Url + "/Naplo/v2/Ertekeles/OsztalyCsoportErtekeles",
             data,
-            {
-                Authorization: "Bearer " + access_token,
-            },
+            null,
             "json"
         );
 
         this.firebase.logEvent("post_evaluation");
         console.log("postErtekeles()", data, response);
 
-        return JSON.parse(response.data);
+        return response;
     }
 
     async removeDayFromCache(day: Date) {

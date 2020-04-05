@@ -1,134 +1,82 @@
 import { Injectable } from "@angular/core";
 import { CacheService, CacheValueFactory } from "ionic-cache";
-import { HTTP, HTTPResponse } from "@ionic-native/http/ngx";
 import { Observable, from } from "rxjs";
-import { environment } from "src/environments/environment";
-import { AppVersion } from "@ionic-native/app-version/ngx";
-import { FirebaseService } from "./firebase.service";
-import { NetworkException, KretaInternalServerErrorException } from "../_exceptions";
+import { HttpHeaders, HttpClient, HttpParams } from "@angular/common/http";
+import { catchError, tap } from "rxjs/operators";
 
 @Injectable({
     providedIn: "root",
 })
 export class DataService {
-    constructor(
-        private cache: CacheService,
-        private http: HTTP,
-        private appVersion: AppVersion,
-        private firebase: FirebaseService
-    ) {}
+    constructor(private cache: CacheService, private http: HttpClient) {}
 
     private longtermStorageExpiry = 72 * 30 * 24 * 60 * 60;
 
-    public async getUrl(
-        url: string,
-        parameters?: any,
-        headers: object = {}
-    ): Promise<HTTPResponse> {
-        const appVersionNumber = await this.appVersion.getVersionNumber();
-        console.debug("SZERVERHÍVÁS: " + url);
+    public getUrl<T>(url: string, parameters?: any, headers?: HttpHeaders): Observable<T> {
+        console.debug("SZERVERHÍVÁS:", url);
 
-        headers["User-Agent"] = environment.userAgent.replace(
-            "%APP_VERSION_NUMBER%",
-            appVersionNumber
-        );
-
-        return this.http.get(url, parameters, headers).catch(err => {
-            if (err.status < 0) throw new NetworkException(err.status, err.error + " " + url);
-            if (err.status >= 500 && err.status < 600)
-                throw new KretaInternalServerErrorException(err.status, err.error);
-
-            throw err;
+        return this.http.get<T>(url, {
+            params: parameters,
+            headers: headers,
         });
     }
 
-    private fetchAndCacheUrl(
+    private fetchAndCacheUrl<T>(
         url: string,
         parameters?: any,
-        headers?: any,
+        headers?: HttpHeaders,
         ttlInSec?: number
-    ): Observable<HTTPResponse> {
+    ): Observable<T> {
         let ttl = ttlInSec || 60 * 60;
-        let obs = this.cache.loadFromDelayedObservable<HTTPResponse>(
+        let obs = this.cache.loadFromDelayedObservable<T>(
             url,
-            from(this.getUrl(url, parameters, headers)),
-            null,
+            this.getUrl<T>(url, parameters, headers),
+            "urlCache",
             ttl,
             "all"
         );
-        console.debug("Cache miss: ", url, obs);
+        console.debug("Cache miss: ", url);
 
         return obs;
     }
 
-    public async getUrlWithCache(
+    public getUrlWithCache<T>(
         url: string,
         parameters?: any,
-        headers?: any,
+        headers?: HttpHeaders,
         ttlInSec: number = 60 * 60,
         forceRefresh: boolean = false
-    ): Promise<Observable<HTTPResponse>> {
+    ): Observable<T> {
         if (forceRefresh) {
-            return this.fetchAndCacheUrl(url, parameters, headers, ttlInSec);
+            return this.fetchAndCacheUrl<T>(url, parameters, headers, ttlInSec);
         } else {
-            let obs: Observable<HTTPResponse>;
-            let c = await this.getItem(url).catch(() => {
-                obs = this.fetchAndCacheUrl(url, parameters, headers, ttlInSec);
-            });
-
-            return obs ? obs : from([<HTTPResponse>c]);
+            return from(this.getItem<T>(url)).pipe(
+                tap(x => console.log("FROM CACHE: ", x)),
+                catchError(err => this.fetchAndCacheUrl<T>(url, parameters, headers, ttlInSec))
+            );
         }
     }
 
-    public async postUrl(
+    public postUrl<T>(
         url: string,
         body?: any,
-        headers: object = {},
-        dataSerializer: "json" | "urlencoded" | "utf8" | "multipart" = "urlencoded"
-    ): Promise<HTTPResponse> {
-        const appVersionNumber = await this.appVersion.getVersionNumber();
-        console.log("SZERVERHÍVÁS: " + url);
-
-        headers["User-Agent"] = environment.userAgent.replace(
-            "%APP_VERSION_NUMBER%",
-            appVersionNumber
-        );
-
-        this.http.setDataSerializer(dataSerializer);
-        await this.firebase.startTrace("http_post_call_time");
-        const response = this.http.post(url, body, headers).catch(async err => {
-            if (err.status < 0) throw new NetworkException(err.status, err.error + " " + url);
-            if (err.status >= 500 && err.status < 600)
-                throw new KretaInternalServerErrorException(err.status, err.error);
-
-            throw err;
-        });
-        this.firebase.stopTrace("http_post_call_time");
-        return response;
+        headers?: HttpHeaders,
+        dataSerializer: "json" | "urlencoded" | "utf8" | "multipart" = "urlencoded",
+        params?: HttpParams
+    ): Observable<T> {
+        // this.http.setDataSerializer(dataSerializer);
+        return this.http.post<T>(url, body, { params: params, headers: headers });
     }
 
-    public async deleteUrl(
+    public deleteUrl<T>(
         url: string,
         body?: any,
-        headers: object = {},
-        dataSerializer: "json" | "urlencoded" | "utf8" | "multipart" = "urlencoded"
-    ): Promise<HTTPResponse> {
-        const appVersionNumber = await this.appVersion.getVersionNumber();
-        console.log("SZERVERHÍVÁS: " + url);
-
-        headers["User-Agent"] = environment.userAgent.replace(
-            "%APP_VERSION_NUMBER%",
-            appVersionNumber
-        );
-
-        this.http.setDataSerializer(dataSerializer);
-        return this.http.delete(url, body, headers).catch(err => {
-            if (err.status < 0) throw new NetworkException(err.status, err.error + " " + url);
-            if (err.status >= 500 && err.status < 600)
-                throw new KretaInternalServerErrorException(err.status, err.error);
-
-            throw err;
-        });
+        headers?: HttpHeaders,
+        dataSerializer: "json" | "urlencoded" | "utf8" | "multipart" = "urlencoded",
+        params?: HttpParams
+    ): Observable<T> {
+        // this.http.setDataSerializer(dataSerializer);
+        return this.http.delete<T>(url, { params: params, headers: headers });
     }
 
     public getItem<T>(key: string): Promise<T> {
@@ -162,6 +110,10 @@ export class DataService {
 
     public removeItem(key: string): Promise<any> {
         return this.cache.removeItem(key);
+    }
+
+    public removeItems(pattern: string): Promise<any> {
+        return this.cache.removeItems(pattern);
     }
 
     public clearExpired(ignoreOnlineStatus?: boolean): Promise<any> {

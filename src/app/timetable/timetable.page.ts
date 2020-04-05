@@ -94,8 +94,10 @@ export class TimetablePage implements OnInit {
 
         await this.firebase.startTrace("timetable_day_load_time");
         this.subs.push(
-            (await this.kreta.getTimetable(this.datum, forceRefresh)).subscribe(
+            this.kreta.getTimetable(this.datum, forceRefresh).subscribe(
                 x => {
+                    console.log("timetable result:", x);
+
                     this.orarend = x;
                     this.loading = false;
                     this.cd.detectChanges();
@@ -105,6 +107,7 @@ export class TimetablePage implements OnInit {
                     if (this.config.debugging) this.error.presentAlert(e);
 
                     this.loading = false;
+                    throw e;
                 }
             )
         );

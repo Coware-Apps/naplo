@@ -1,4 +1,5 @@
 import { NaploException } from "./naplo-exception";
+import { stringify } from "flatted/esm";
 
 export class KretaException extends NaploException {
     constructor(message: string, ...params) {
@@ -15,6 +16,19 @@ export class KretaInvalidPasswordException extends KretaException {
 export class KretaMissingRoleException extends KretaException {
     constructor() {
         super("Missing role.", "MissingRoleException");
+    }
+}
+
+export class KretaInvalidResponseException extends KretaException {
+    public response: object;
+
+    constructor(response?: object) {
+        super(
+            "Invalid response to token request. (" + stringify(response) + ")",
+            "InvalidResponseException",
+            "exceptions.eugy-invalid-response.message",
+            "exceptions.server-error"
+        );
     }
 }
 

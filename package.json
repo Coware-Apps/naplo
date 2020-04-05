@@ -61,6 +61,7 @@
         "core-js": "^2.6.11",
         "flatted": "^2.0.1",
         "ionic-cache": "^4.1.0",
+        "ionic-native-http-connection-backend": "^6.2.3",
         "rxjs": "^6.5.4",
         "tslib": "^1.11.1",
         "zone.js": "~0.9.1"

@@ -40,9 +40,9 @@ export class MessageListComponent implements OnInit, OnDestroy {
         this.componentState.next("loading");
         this.exception = null;
 
-        try {
-            this.subs.push(
-                (await this.eugy.getMessageList(this.folder, forceRefresh)).subscribe(x => {
+        this.subs.push(
+            (await this.eugy.getMessageList(this.folder, forceRefresh)).subscribe(
+                x => {
                     this.messages = x;
 
                     if (event) event.target.complete();
@@ -54,16 +54,17 @@ export class MessageListComponent implements OnInit, OnDestroy {
 
                     this.resetDisplay();
                     this.componentState.next("loaded");
-                })
-            );
-        } catch (e) {
-            if (!this.messages) {
-                this.componentState.next("error");
-                this.exception = e;
-                e.handled = true;
-            }
-            throw e;
-        }
+                },
+                e => {
+                    if (!this.messages) {
+                        this.componentState.next("error");
+                        this.exception = e;
+                        e.handled = true;
+                    }
+                    throw e;
+                }
+            )
+        );
     }
 
     public resetDisplay() {

@@ -27,7 +27,9 @@ export class InstituteSelectorModalPage {
         await this.firebase.startTrace("institute_list_loading_time");
 
         this.subs.push(
-            (await this.kreta.getInstituteList()).subscribe(x => {
+            this.kreta.getInstituteList().subscribe(x => {
+                console.log("RESPONSE:", x);
+
                 this.institutes = x;
                 this.filteredInstitutes = x;
                 this.firebase.stopTrace("institute_list_loading_time");

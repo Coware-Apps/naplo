@@ -12,6 +12,7 @@ import {
     MenuController,
     ModalController,
     AlertController,
+    Platform,
 } from "@ionic/angular";
 import { ErrorHelper } from "../_helpers";
 import { InstituteSelectorModalPage } from "./institute-selector-modal/institute-selector-modal.page";
@@ -19,9 +20,15 @@ import { SafariViewController } from "@ionic-native/safari-view-controller/ngx";
 import { StatusBar } from "@ionic-native/status-bar/ngx";
 import { InAppBrowser } from "@ionic-native/in-app-browser/ngx";
 import { Market } from "@ionic-native/market/ngx";
-import { KretaMissingRoleException, KretaInvalidPasswordException } from "../_exceptions";
+import {
+    KretaMissingRoleException,
+    KretaInvalidPasswordException,
+    KretaInvalidResponseException,
+} from "../_exceptions";
 import { TranslateService } from "@ngx-translate/core";
 import { Subscription } from "rxjs";
+import { HTTP } from "@ionic-native/http/ngx";
+import { HttpClient } from "@angular/common/http";
 
 @Component({
     selector: "app-login",
@@ -53,7 +60,9 @@ export class LoginPage {
         private iab: InAppBrowser,
         private market: Market,
         private alertController: AlertController,
-        private translate: TranslateService
+        private translate: TranslateService,
+
+        private http: HttpClient
     ) {}
 
     async ionViewWillEnter() {
@@ -90,24 +99,22 @@ export class LoginPage {
         try {
             const response = await this.kreta.loginWithUsername(this.username, this.password);
 
-            if (response && response.status == 200) {
-                console.log("Sikeres bejelentkezés, átirányítás: ", this.returnUrl);
+            console.log("Sikeres bejelentkezés, átirányítás: ", this.returnUrl);
 
-                this.kreta.deleteInstituteListFromStorage();
-                this.firebase.logEvent("login", { method: "kreta" });
+            this.kreta.deleteInstituteListFromStorage();
+            this.firebase.logEvent("login", { method: "kreta" });
 
-                await Promise.all([
-                    this.menuController.enable(true),
-                    loading.dismiss(),
-                    this.config.applyTheme("light"),
-                ]);
+            await Promise.all([
+                this.menuController.enable(true),
+                loading.dismiss(),
+                this.config.applyTheme("light"),
+            ]);
 
-                this.loading = false;
-                this.firebase.stopTrace("login_time");
-                await this.router.navigate([this.returnUrl], { replaceUrl: true });
-            }
+            this.loading = false;
+            this.firebase.stopTrace("login_time");
+            await this.router.navigate([this.returnUrl], { replaceUrl: true });
         } catch (e) {
-            console.log("Hiba a felhasználóneves bejelentkezés során: ", e.message);
+            console.log("Hiba a felhasználóneves bejelentkezés során: ", e);
 
             if (e instanceof KretaInvalidPasswordException) {
                 this.firebase.logEvent("login_bad_credentials", {});
@@ -135,16 +142,9 @@ export class LoginPage {
                 });
 
                 await alert.present();
-            } else if (e.error) {
-                this.firebase.logError("login error with msg: " + e.error);
-                const data = JSON.parse(e.error);
-                await this.error.presentAlert(data.error_description, data.error);
-            } else {
-                this.firebase.logError("login error with invalid msg: " + e);
-                await this.error.presentAlert(
-                    (await this.translate.get("kreta.api-error").toPromise()) + " (" + e + ")"
-                );
             }
+
+            throw new KretaInvalidResponseException(e);
         } finally {
             loading.dismiss();
             this.loading = false;

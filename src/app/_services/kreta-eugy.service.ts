@@ -15,6 +15,7 @@ import {
     KretaEUgyMessageAttachmentDownloadException,
     KretaEUgyNotLoggedInException,
     KretaEUgyException,
+    KretaInvalidPasswordException,
 } from "../_exceptions";
 
 import { File } from "@ionic-native/file/ngx";
@@ -23,8 +24,8 @@ import { FileTransfer } from "@ionic-native/file-transfer/ngx";
 import { HTTPResponse } from "@ionic-native/http/ngx";
 import { DataService } from "./data.service";
 import { KretaService } from "./kreta.service";
-import { map } from "rxjs/operators";
-import { Observable } from "rxjs";
+import { map, catchError } from "rxjs/operators";
+import { Observable, ObservableInput } from "rxjs";
 
 @Injectable({
     providedIn: "root",
@@ -226,10 +227,7 @@ export class KretaEUgyService {
         } catch (error) {
             if (error instanceof SyntaxError) throw new KretaEUgyInvalidResponseException();
             if (error.status == 400) {
-                await Promise.all([
-                    this.data.removeItem("eugy_access_token"),
-                    this.data.removeItem("eugy_refresh_token"),
-                ]);
+                await this.logout();
 
                 throw new KretaEUgyInvalidPasswordException();
             }
@@ -238,6 +236,13 @@ export class KretaEUgyService {
         } finally {
             this.loginInProgress = false;
         }
+    }
+
+    public logout(): Promise<any> {
+        return Promise.all([
+            this.data.removeItem("eugy_access_token"),
+            this.data.removeItem("eugy_refresh_token"),
+        ]);
     }
 
     /**
@@ -314,7 +319,8 @@ export class KretaEUgyService {
                     x.uzenetKuldesDatum = new Date(x.uzenetKuldesDatum);
                     return x;
                 })
-            )
+            ),
+            catchError(e => this.handleErrors(e))
         );
     }
 
@@ -598,5 +604,15 @@ export class KretaEUgyService {
         }
 
         return this.file.dataDirectory;
+    }
+
+    private handleErrors(error: any): ObservableInput<any> {
+        if (error instanceof SyntaxError) throw new KretaEUgyInvalidResponseException();
+        if (error.status == 401 || error.status == 403) {
+            this.logout();
+            throw new KretaEUgyNotLoggedInException();
+        }
+        console.log("HANDLEERROR: ", error.constructor.name, error);
+        throw error;
     }
 }

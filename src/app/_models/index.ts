@@ -1,6 +1,7 @@
 export * from "./feljegyzes";
 export * from "./javasolt-jelenlet-template";
 export * from "./jwt";
+export * from "./token-response";
 export * from "./kreta-enum";
 export * from "./lesson";
 export * from "./mulasztas";
