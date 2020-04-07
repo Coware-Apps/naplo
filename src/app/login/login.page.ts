@@ -12,7 +12,6 @@ import {
     MenuController,
     ModalController,
     AlertController,
-    Platform,
 } from "@ionic/angular";
 import { ErrorHelper } from "../_helpers";
 import { InstituteSelectorModalPage } from "./institute-selector-modal/institute-selector-modal.page";
@@ -27,8 +26,6 @@ import {
 } from "../_exceptions";
 import { TranslateService } from "@ngx-translate/core";
 import { Subscription } from "rxjs";
-import { HTTP } from "@ionic-native/http/ngx";
-import { HttpClient } from "@angular/common/http";
 
 @Component({
     selector: "app-login",
@@ -60,9 +57,7 @@ export class LoginPage {
         private iab: InAppBrowser,
         private market: Market,
         private alertController: AlertController,
-        private translate: TranslateService,
-
-        private http: HttpClient
+        private translate: TranslateService
     ) {}
 
     async ionViewWillEnter() {
@@ -92,12 +87,12 @@ export class LoginPage {
         await this.firebase.startTrace("login_time");
         this.loading = true;
         const loading = await this.loadingController.create({
-            message: await this.translate.get("login.logging-in").toPromise(),
+            message: this.translate.instant("login.logging-in"),
         });
         await loading.present();
 
         try {
-            const response = await this.kreta.loginWithUsername(this.username, this.password);
+            await this.kreta.loginWithUsername(this.username, this.password);
 
             console.log("Sikeres bejelentkezés, átirányítás: ", this.returnUrl);
 
@@ -119,20 +114,20 @@ export class LoginPage {
             if (e instanceof KretaInvalidPasswordException) {
                 this.firebase.logEvent("login_bad_credentials", {});
                 return await this.error.presentAlert(
-                    await this.translate.get("login.bad-credentials").toPromise()
+                    this.translate.instant("login.bad-credentials")
                 );
             } else if (e instanceof KretaMissingRoleException) {
                 this.firebase.logEvent("login_missing_role", {});
                 const alert = await this.alertController.create({
-                    header: await this.translate.get("login.permission-needed").toPromise(),
-                    message: await this.translate.get("login.teacher-role-needed").toPromise(),
+                    header: this.translate.instant("login.permission-needed"),
+                    message: this.translate.instant("login.teacher-role-needed"),
                     buttons: [
                         {
-                            text: await this.translate.get("common.no").toPromise(),
+                            text: this.translate.instant("common.no"),
                             role: "cancel",
                         },
                         {
-                            text: await this.translate.get("common.yes").toPromise(),
+                            text: this.translate.instant("common.yes"),
                             handler: async () => {
                                 await this.firebase.logEvent("login_ariszto_opened");
                                 await this.market.open("hu.coware.ellenorzo");
@@ -141,7 +136,7 @@ export class LoginPage {
                     ],
                 });
 
-                await alert.present();
+                return await alert.present();
             }
 
             throw new KretaInvalidResponseException(e);
@@ -154,7 +149,7 @@ export class LoginPage {
     async showInstituteModal() {
         if (this.networkStatus.getCurrentNetworkStatus() === ConnectionStatus.Offline)
             return await this.error.presentAlert(
-                await this.translate.get("login.no-internet-institute-list").toPromise()
+                this.translate.instant("login.no-internet-institute-list")
             );
 
         const modal = await this.modalController.create({
@@ -166,7 +161,7 @@ export class LoginPage {
     }
 
     openPrivacy() {
-        this.firebase.logEvent("login_privacypolicy_opened", {});
+        this.firebase.logEvent("login_privacypolicy_opened");
         this.safariViewController.isAvailable().then(async (available: boolean) => {
             if (available) {
                 this.subs.push(
@@ -192,7 +187,7 @@ export class LoginPage {
 
                 this.iab.create("https://coware-apps.github.io/naplo/privacy", "_blank", {
                     location: "yes",
-                    closebuttoncaption: await this.translate.get("common.back").toPromise(),
+                    closebuttoncaption: this.translate.instant("common.back"),
                     closebuttoncolor: "#ffffff",
                     toolbarcolor: "#3880ff",
                     zoom: "no",

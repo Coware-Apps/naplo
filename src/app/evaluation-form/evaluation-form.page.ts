@@ -53,9 +53,9 @@ export class EvaluationFormPage implements IDirty {
 
                 await this.firebase.startTrace("evaluation_modal_load_time");
                 this.subs.push(
-                    (
-                        await this.kreta.getOsztalyTanuloi(this.tanitottCsoport.OsztalyCsoportId)
-                    ).subscribe(x => (this.osztalyTanuloi = x))
+                    this.kreta
+                        .getOsztalyTanuloi(this.tanitottCsoport.OsztalyCsoportId)
+                        .subscribe(x => (this.osztalyTanuloi = x))
                 );
                 this.firebase.stopTrace("evaluation_modal_load_time");
             })

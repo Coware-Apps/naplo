@@ -62,7 +62,7 @@ export class NotloggedPage {
         for (let i = 0; i < this.napToCheck; i++) {
             let d = new Date(this.dateHelper.getDayFromToday(-i));
             this.subs.push(
-                (await this.kreta.getTimetable(d, forceRefresh)).subscribe(
+                this.kreta.getTimetable(d, forceRefresh).subscribe(
                     x => {
                         x.forEach(ora => {
                             if (
@@ -84,7 +84,7 @@ export class NotloggedPage {
                         }
                     },
                     e => {
-                        if (this.config.debugging) this.errorHelper.presentAlert(e);
+                        throw e;
                     }
                 )
             );

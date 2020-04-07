@@ -13,6 +13,8 @@ export class InstituteSelectorModalPage {
     public institutes: Institute[];
     public filteredInstitutes: Institute[];
 
+    public componentState: "loading" | "loaded" | "empty" | "error" = "loading";
+    public exception: Error;
     private subs: Subscription[] = [];
 
     constructor(

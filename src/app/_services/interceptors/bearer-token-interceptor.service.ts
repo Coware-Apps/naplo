@@ -11,8 +11,13 @@ export class BearerTokenInterceptorService implements HttpInterceptor {
     constructor(private kreta: KretaService, private eugy: KretaEUgyService) {}
 
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+        // do not set UA on ngx-translator requests
+        if (!req.url.startsWith("https")) {
+            return next.handle(req);
+        }
+
         // add token to kreta mobile api requests
-        if (req.url.startsWith(this.kreta.institute.Url)) {
+        if (this.kreta.institute && req.url.startsWith(this.kreta.institute.Url)) {
             return from(this.kreta.getValidAccessToken()).pipe(
                 mergeMap(token => {
                     req = req.clone({
@@ -20,6 +25,8 @@ export class BearerTokenInterceptorService implements HttpInterceptor {
                             Authorization: `Bearer ${token}`,
                         },
                     });
+
+                    console.debug("[TOKEN INTERC] Kreta Token applied:", req);
 
                     return next.handle(req);
                 })
@@ -40,6 +47,8 @@ export class BearerTokenInterceptorService implements HttpInterceptor {
                 })
             );
         }
+
+        console.debug("[TOKEN INTERC] Token NOT applied:", req);
 
         return next.handle(req);
     }

@@ -36,7 +36,7 @@ export class CurriculumModalPage {
                 ? this.lesson.EvesOraszam
                 : this.lesson.EvesOraszam + 1;
 
-        (await this.kreta.getTanmenet(this.lesson)).subscribe(x => (this.tanmenet = x));
+        this.kreta.getTanmenet(this.lesson).subscribe(x => (this.tanmenet = x));
 
         this.subs.push(
             this.networkStatus.onNetworkChange().subscribe(status => {

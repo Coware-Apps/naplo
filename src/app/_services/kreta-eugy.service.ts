@@ -325,11 +325,12 @@ export class KretaEUgyService {
      * @param messageIdList The `uzenetAzonosito` fields of the messages to perform the operation on
      */
     public deleteMessages(messageIdList: number[]): Observable<any> {
-        const params = {
-            postaladaElemAzonositok: messageIdList,
-        };
+        const params = new HttpParams();
+        messageIdList.forEach(messageId =>
+            params.append("postaladaElemAzonositok", messageId.toString())
+        );
 
-        return this.data.deleteUrl<any>(this.host + this.endpoints.delete, params);
+        return this.data.deleteUrl<any>(this.host + this.endpoints.delete, null, params);
     }
 
     /**

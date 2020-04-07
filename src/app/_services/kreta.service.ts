@@ -382,7 +382,7 @@ export class KretaService {
     }
 
     postErtekeles(data: object): Observable<any> {
-        const response = this.data.postUrl(
+        const response = this.data.postUrl<any>(
             this.institute.Url + "/Naplo/v2/Ertekeles/OsztalyCsoportErtekeles",
             data
         );

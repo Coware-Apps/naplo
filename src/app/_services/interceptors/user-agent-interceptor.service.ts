@@ -22,8 +22,6 @@ export class UserAgentInterceptorService implements HttpInterceptor {
                     },
                 });
 
-                console.debug("[HTTP INTERCEPTOR] UA set to req:", req);
-
                 return next.handle(req);
             })
         );

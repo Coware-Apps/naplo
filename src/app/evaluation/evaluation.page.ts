@@ -54,7 +54,7 @@ export class EvaluationPage {
         for (let i = 0; i < this.napToCheck; i++) {
             let d = new Date(this.dateHelper.getDayFromToday(-i));
             this.subs.push(
-                (await this.kreta.getTimetable(d)).subscribe(
+                this.kreta.getTimetable(d).subscribe(
                     x => {
                         x.forEach(ora => {
                             const id = ora.TantargyId + "-" + ora.OsztalyCsoportId;
@@ -81,7 +81,7 @@ export class EvaluationPage {
                         }
                     },
                     e => {
-                        if (this.config.debugging) this.errorHelper.presentAlert(e);
+                        throw e;
                     }
                 )
             );

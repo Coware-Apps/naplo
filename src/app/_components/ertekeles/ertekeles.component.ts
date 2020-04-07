@@ -22,6 +22,7 @@ import { DateHelper, ErrorHelper } from "src/app/_helpers";
 import { PickerController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { stringify } from "flatted/esm";
+import { KretaException } from "src/app/_exceptions";
 
 @Component({
     selector: "app-ertekeles",
@@ -83,7 +84,7 @@ export class ErtekelesComponent implements OnInit, OnChanges {
         const picker = await this.picker.create({
             buttons: [
                 {
-                    text: await this.translate.get("common.done").toPromise(),
+                    text: this.translate.instant("common.done"),
                     handler: value => {
                         const v = value.ertekelesMod.value;
                         this.ertekelesMod = this.ertekelesModLista.find(i => i.Id == v);
@@ -136,17 +137,13 @@ export class ErtekelesComponent implements OnInit, OnChanges {
 
         // értékelés dátuma kötelező
         if (!this.ertekelesDatum) {
-            await this.error.presentAlert(
-                await this.translate.get("eval.date-required").toPromise()
-            );
+            await this.error.presentAlert(this.translate.instant("eval.date-required"));
             return false;
         }
 
         // értékelési mód kötelező
         if (!this.ertekelesMod) {
-            await this.error.presentAlert(
-                await this.translate.get("eval.mode-required").toPromise()
-            );
+            await this.error.presentAlert(this.translate.instant("eval.mode-required"));
             return false;
         }
 
@@ -171,7 +168,9 @@ export class ErtekelesComponent implements OnInit, OnChanges {
 
         if (ertekelesLista.length > 0) {
             try {
-                const ertekelesResponse = await this.kreta.postErtekeles(ertekelesRequest);
+                const ertekelesResponse = await this.kreta
+                    .postErtekeles(ertekelesRequest)
+                    .toPromise();
 
                 if (
                     ertekelesResponse &&
@@ -186,7 +185,7 @@ export class ErtekelesComponent implements OnInit, OnChanges {
                     await this.error.presentAlert(
                         hibak,
                         ertekelesResponse[0].Exception.Message,
-                        await this.translate.get("eval.error-saving").toPromise()
+                        this.translate.instant("eval.error-saving")
                     );
 
                     return false;
@@ -195,15 +194,13 @@ export class ErtekelesComponent implements OnInit, OnChanges {
                 if (e.error) {
                     let err = JSON.parse(e.error);
                     await this.error.presentAlert(
-                        (await this.translate.get("eval.error-saving").toPromise()) +
-                            ":<br>" +
-                            err.Message
+                        this.translate.instant("eval.error-saving") + ":<br>" + err.Message
                     );
                 } else console.error("Unhandled exception: ", e);
 
                 this.firebase.logError("[EVALUATION] save(): " + stringify(e));
 
-                return false;
+                throw new KretaException(e);
             }
         }
 

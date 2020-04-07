@@ -11,7 +11,6 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { ErrorHelper, DateHelper } from "../_helpers";
 import { DatePicker } from "@ionic-native/date-picker/ngx";
 import { ModalController } from "@ionic/angular";
-import { stringify } from "flatted/esm";
 import { TranslateService } from "@ngx-translate/core";
 import { Location } from "@angular/common";
 import { Subscription } from "rxjs";
@@ -104,8 +103,6 @@ export class TimetablePage implements OnInit {
                     this.firebase.stopTrace("timetable_day_load_time");
                 },
                 e => {
-                    if (this.config.debugging) this.error.presentAlert(e);
-
                     this.loading = false;
                     throw e;
                 }
@@ -114,7 +111,7 @@ export class TimetablePage implements OnInit {
     }
 
     public async doRefresh($event?) {
-        await this.loadTimetable(false, true);
+        this.loadTimetable(false, true);
         if ($event) {
             this.firebase.logEvent("timetable_pull2refresh", {});
             $event.target.complete();
@@ -125,23 +122,21 @@ export class TimetablePage implements OnInit {
         this.firebase.logEvent("timetable_lesson_clicked", {});
 
         if (this.networkStatus.getCurrentNetworkStatus() === ConnectionStatus.Offline)
-            return await this.error.presentToast(
-                await this.translate.get("timetable.error-offline").toPromise()
-            );
+            return await this.error.presentToast(this.translate.instant("timetable.error-offline"));
         if (this.dateHelper.isInFuture(l.KezdeteUtc))
             return await this.error.presentToast(
-                await this.translate.get("timetable.error-in-future").toPromise()
+                this.translate.instant("timetable.error-in-future")
             );
         if (l.IsElmaradt)
             return await this.error.presentToast(
-                await this.translate.get("timetable.error-cancelled").toPromise()
+                this.translate.instant("timetable.error-cancelled")
             );
         if (
             l.HelyettesitoId &&
             l.HelyettesitoId != this.kreta.currentUser["kreta:institute_user_id"]
         )
             return await this.error.presentToast(
-                await this.translate.get("timetable.error-substituted").toPromise()
+                this.translate.instant("timetable.error-substituted")
             );
 
         this.router.navigate(["/logging-form"], {
@@ -161,11 +156,11 @@ export class TimetablePage implements OnInit {
                 locale: this.config.locale,
 
                 // android
-                okText: await this.translate.get("common.done").toPromise(),
-                cancelText: await this.translate.get("common.cancel").toPromise(),
+                okText: this.translate.instant("common.done"),
+                cancelText: this.translate.instant("common.cancel"),
                 // ios
-                doneButtonLabel: await this.translate.get("common.done").toPromise(),
-                cancelButtonLabel: await this.translate.get("common.cancel").toPromise(),
+                doneButtonLabel: this.translate.instant("common.done"),
+                cancelButtonLabel: this.translate.instant("common.cancel"),
 
                 androidTheme: this.datePicker.ANDROID_THEMES.THEME_DEVICE_DEFAULT_DARK,
             })
@@ -178,8 +173,7 @@ export class TimetablePage implements OnInit {
                 },
                 err => {
                     if (err != "cancel") {
-                        console.log("Error occurred while getting date: ", err);
-                        this.firebase.logError("timetable datepicker error: " + stringify(err));
+                        throw err;
                     }
                 }
             );

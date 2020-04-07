@@ -61,21 +61,12 @@ export class DataService {
         url: string,
         body?: any,
         headers?: HttpHeaders,
-        dataSerializer: "json" | "urlencoded" | "utf8" | "multipart" = "urlencoded",
         params?: HttpParams
     ): Observable<T> {
-        // this.http.setDataSerializer(dataSerializer);
         return this.http.post<T>(url, body, { params: params, headers: headers });
     }
 
-    public deleteUrl<T>(
-        url: string,
-        body?: any,
-        headers?: HttpHeaders,
-        dataSerializer: "json" | "urlencoded" | "utf8" | "multipart" = "urlencoded",
-        params?: HttpParams
-    ): Observable<T> {
-        // this.http.setDataSerializer(dataSerializer);
+    public deleteUrl<T>(url: string, headers?: HttpHeaders, params?: HttpParams): Observable<T> {
         return this.http.delete<T>(url, { params: params, headers: headers });
     }
 
