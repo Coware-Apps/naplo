@@ -101,6 +101,7 @@
         "textual-placeholder": "Ide írj szöveges értékelést...",
         "date-required": "Az értékelés dátumának kiválasztása kötelező!",
         "mode-required": "Az értékelés módjának kiválasztása kötelező!",
+        "saved-successfully": "Az értékelés sikeresen elmentve",
         "error-saving": "Hiba az értékelések mentésekor",
         "error-no-connection": "Nincs internetkapcsolat, ezért a csoport most nem értékelhető!"
     },

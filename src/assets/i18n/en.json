@@ -99,6 +99,7 @@
         "textual-placeholder": "Enter your evaluation here...",
         "date-required": "Please select an evaluation date!",
         "mode-required": "Please select a method!",
+        "saved-successfully": "Evaluation saved successfully",
         "error-saving": "An error occurred during saving",
         "error-no-connection": "There's no internet, therefore the group cannot be evaluated right now."
     },

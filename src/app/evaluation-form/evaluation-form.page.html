@@ -29,11 +29,11 @@
 </ion-header>
 
 <ion-content>
-    <app-ertekeles
+    <app-evaluation
         [lesson]="tanitottCsoport"
-        [osztalyTanuloi]="osztalyTanuloi"
+        [studentsOfGroup]="osztalyTanuloi"
         (onSelectionChange)="makeItDirty()"
-    ></app-ertekeles>
+    ></app-evaluation>
 
     <div *ngIf="!osztalyTanuloi">
         <ion-progress-bar type="indeterminate" color="warning"></ion-progress-bar>
@@ -44,8 +44,8 @@
         >
             <ion-item>
                 <ion-label>
-                    <ion-skeleton-text style="width: 50%; height: 14px"></ion-skeleton-text>
-                    <ion-skeleton-text style="width: 100%; height: 27px"></ion-skeleton-text>
+                    <ion-skeleton-text style="width: 50%; height: 14px;"></ion-skeleton-text>
+                    <ion-skeleton-text style="width: 100%; height: 27px;"></ion-skeleton-text>
                 </ion-label>
             </ion-item>
         </ion-list>

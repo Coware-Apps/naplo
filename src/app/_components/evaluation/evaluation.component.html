@@ -4,7 +4,7 @@
         displayFormat="YYYY. MM. DD."
         [min]="this.dateHelper.getMonthFromToday(-3)"
         [max]="this.dateHelper.getTodayString()"
-        [(ngModel)]="ertekelesDatum"
+        [(ngModel)]="evaluationDate"
         cancelText="{{ 'common.cancel' | translate }}"
         doneText="{{ 'common.done' | translate }}"
         (ionFocus)="onSelectionChange.emit($event)"
@@ -16,7 +16,7 @@
     <ion-label position="stacked" translate="eval.field-topic"></ion-label>
     <ion-input
         type="text"
-        [(ngModel)]="ertekelesTema"
+        [(ngModel)]="evaluationTopic"
         (ionInput)="onSelectionChange.emit($event)"
     ></ion-input>
 </ion-item>
@@ -25,7 +25,7 @@
     <ion-label position="stacked" translate="eval.field-mode"></ion-label>
     <ion-input
         type="text"
-        [value]="ertekelesMod?.Nev"
+        [value]="evaluationMode?.Nev"
         (click)="presentErtekelesModPicker()"
         (ionInput)="onSelectionChange.emit($event)"
         readonly
@@ -33,31 +33,31 @@
 </ion-item>
 
 <ion-item class="tipusSegmentItem">
-    <ion-segment (ionChange)="changeErtekelesTipus($event)" [value]="ertekelesTipus">
-        <ion-segment-button [value]="ertekelesTipusok.Osztalyzat">
+    <ion-segment (ionChange)="changeEvaluationType($event)" [value]="evaluationType">
+        <ion-segment-button value="MARK">
             <ion-label translate="evaluation-types.mark"></ion-label>
         </ion-segment-button>
-        <ion-segment-button [value]="ertekelesTipusok.Szoveg">
+        <ion-segment-button value="TEXTUAL">
             <ion-label translate="evaluation-types.textual"></ion-label>
         </ion-segment-button>
-        <ion-segment-button [value]="ertekelesTipusok.Szazalek">
+        <ion-segment-button value="PERCENTAGE">
             <ion-label translate="evaluation-types.percentage"></ion-label>
         </ion-segment-button>
     </ion-segment>
 </ion-item>
 
-<ion-list *ngIf="osztalyTanuloi" class="ion-no-padding ion-no-margin" lines="full">
-    <ion-item *ngFor="let t of osztalyTanuloi?.TanuloLista">
+<ion-list *ngIf="studentsOfGroup" class="ion-no-padding ion-no-margin" lines="full">
+    <ion-item *ngFor="let t of studentsOfGroup?.TanuloLista">
         <app-tanulo-ertekeles
             [tanulo]="t"
-            (click)="updateAtlag()"
-            [tipus]="ertekelesTipus"
+            (click)="updateAverage()"
+            [tipus]="evaluationType"
             (onSelectionChange)="onSelectionChange.emit($event)"
         ></app-tanulo-ertekeles>
     </ion-item>
 </ion-list>
 
-<ion-item *ngIf="ertekelesTipus != ertekelesTipusok.Szoveg">
+<ion-item *ngIf="evaluationType != 'TEXTUAL'">
     <ion-label translate="eval.average-of"></ion-label>
-    <ion-note slot="end">{{ atlag ? (atlag | localNumber) : "--" }}</ion-note>
+    <ion-note slot="end">{{ average ? (average | localNumber) : "--" }}</ion-note>
 </ion-item>

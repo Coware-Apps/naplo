@@ -1,5 +1,5 @@
 export enum ErtekelesTipus {
-    Osztalyzat,
-    Szazalek,
-    Szoveg,
+    Osztalyzat = "MARK",
+    Szazalek = "PERCENTAGE",
+    Szoveg = "TEXTUAL",
 }

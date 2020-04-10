@@ -20,7 +20,7 @@ import {
     MenuController,
 } from "@ionic/angular";
 import {
-    ErtekelesComponent,
+    EvaluationComponent,
     TanuloJelenletComponent,
     TanuloFeljegyzesComponent,
 } from "../_components";
@@ -60,7 +60,7 @@ export class LoggingFormPage implements IDirty {
 
     // tabs
     public topic: string;
-    public studentsOfClass: OsztalyTanuloi;
+    public studentsOfGroup: OsztalyTanuloi;
     public absences: Mulasztas[];
     public javasoltJelenlet: JavasoltJelenletTemplate;
     public homeworkDeadline: string;
@@ -69,8 +69,8 @@ export class LoggingFormPage implements IDirty {
 
     @ViewChild(IonSlides, { static: false })
     private slides: IonSlides;
-    @ViewChild(ErtekelesComponent, { static: false })
-    private evaluation: ErtekelesComponent;
+    @ViewChild(EvaluationComponent, { static: false })
+    private evaluation: EvaluationComponent;
     @ViewChild(IonContent, { static: false })
     private content: IonContent;
     @ViewChildren(TanuloJelenletComponent)
@@ -135,9 +135,9 @@ export class LoggingFormPage implements IDirty {
 
                         this.subs.push(
                             this.kreta.getOsztalyTanuloi(this.lesson.OsztalyCsoportId).subscribe({
-                                next: x => (this.studentsOfClass = x),
+                                next: x => (this.studentsOfGroup = x),
                                 error: error => {
-                                    if (!this.studentsOfClass) {
+                                    if (!this.studentsOfGroup) {
                                         this.pageState = PageState.Error;
                                         this.exception = error;
                                         error.handled = true;

@@ -1,6 +1,6 @@
 import { Component, ViewChild, ChangeDetectorRef } from "@angular/core";
 import { TanitottCsoport, OsztalyTanuloi, IDirty } from "../_models";
-import { ErtekelesComponent } from "../_components";
+import { EvaluationComponent } from "../_components";
 import { Subscription } from "rxjs";
 import {
     KretaService,
@@ -20,8 +20,8 @@ import { map } from "rxjs/operators";
     styleUrls: ["./evaluation-form.page.scss"],
 })
 export class EvaluationFormPage implements IDirty {
-    @ViewChild(ErtekelesComponent, { static: true })
-    private ertekeles: ErtekelesComponent;
+    @ViewChild(EvaluationComponent, { static: true })
+    private ertekeles: EvaluationComponent;
 
     public tanitottCsoport: TanitottCsoport;
     public osztalyTanuloi: OsztalyTanuloi;

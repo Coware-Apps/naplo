@@ -84,11 +84,11 @@
                 </ion-item>
 
                 <ion-list
-                    *ngIf="studentsOfClass && loading.length == 0"
+                    *ngIf="studentsOfGroup && loading.length == 0"
                     class="ion-no-padding ion-no-margin"
                     lines="full"
                 >
-                    <ion-item *ngFor="let t of studentsOfClass?.TanuloLista">
+                    <ion-item *ngFor="let t of studentsOfGroup?.TanuloLista">
                         <app-tanulo-jelenlet
                             [tanulo]="t"
                             [mulasztasok]="absences"
@@ -101,8 +101,8 @@
         </ion-slide>
 
         <ion-slide>
-            <ion-list *ngIf="studentsOfClass" class="ion-no-padding ion-no-margin" lines="full">
-                <ion-item *ngFor="let t of studentsOfClass?.TanuloLista">
+            <ion-list *ngIf="studentsOfGroup" class="ion-no-padding ion-no-margin" lines="full">
+                <ion-item *ngFor="let t of studentsOfGroup?.TanuloLista">
                     <app-tanulo-feljegyzes
                         [tanulo]="t"
                         [allapot]="memos"
@@ -139,11 +139,11 @@
         </ion-slide>
 
         <ion-slide>
-            <app-ertekeles
+            <app-evaluation
                 [lesson]="lesson"
-                [osztalyTanuloi]="studentsOfClass"
+                [studentsOfGroup]="studentsOfGroup"
                 (onSelectionChange)="makeItDirty()"
-            ></app-ertekeles>
+            ></app-evaluation>
         </ion-slide>
     </ion-slides>
 

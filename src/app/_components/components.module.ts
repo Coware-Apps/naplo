@@ -8,7 +8,7 @@ import { PipesModule } from "../_pipes/pipes.module";
 import { TanuloJelenletComponent } from "./tanulo-jelenlet/tanulo-jelenlet.component";
 import { TanuloFeljegyzesComponent } from "./tanulo-feljegyzes/tanulo-feljegyzes.component";
 import { TanuloErtekelesComponent } from "./tanulo-ertekeles/tanulo-ertekeles.component";
-import { ErtekelesComponent } from "./ertekeles/ertekeles.component";
+import { EvaluationComponent } from "./evaluation/evaluation.component";
 import { OrarendiOraComponent } from "./orarendi-ora/orarendi-ora.component";
 import { OfflineWarningBarComponent } from "./offline-warning-bar/offline-warning-bar.component";
 import { PasswordConfirmRequiredComponent } from "./password-confirm-required/password-confirm-required.component";
@@ -19,7 +19,7 @@ import { PageStateDisplayComponent } from "./page-state-display/page-state-displ
         TanuloJelenletComponent,
         TanuloFeljegyzesComponent,
         TanuloErtekelesComponent,
-        ErtekelesComponent,
+        EvaluationComponent,
         OrarendiOraComponent,
         OfflineWarningBarComponent,
         PasswordConfirmRequiredComponent,
@@ -29,7 +29,7 @@ import { PageStateDisplayComponent } from "./page-state-display/page-state-displ
         TanuloJelenletComponent,
         TanuloFeljegyzesComponent,
         TanuloErtekelesComponent,
-        ErtekelesComponent,
+        EvaluationComponent,
         OrarendiOraComponent,
         OfflineWarningBarComponent,
         PasswordConfirmRequiredComponent,
