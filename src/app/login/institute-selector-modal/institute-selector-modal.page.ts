@@ -31,20 +31,15 @@ export class InstituteSelectorModalPage {
         this.exception = null;
 
         this.subs.push(
-            this.kreta.getInstituteList().subscribe(
-                x => {
+            this.kreta.getInstituteList().subscribe({
+                next: x => {
                     this.institutes = x;
-
-                    if (this.institutes.length == 0) {
-                        this.pageState = PageState.Empty;
-                        return;
-                    }
-
-                    this.pageState = PageState.Loaded;
                     this.filteredInstitutes = x;
+
+                    this.pageState = x.length == 0 ? PageState.Empty : PageState.Loaded;
                     this.firebase.stopTrace("institute_list_loading_time");
                 },
-                error => {
+                error: error => {
                     if (!this.institutes) {
                         this.pageState = PageState.Error;
                         this.exception = error;
@@ -52,8 +47,8 @@ export class InstituteSelectorModalPage {
                     }
 
                     throw error;
-                }
-            )
+                },
+            })
         );
     }
 

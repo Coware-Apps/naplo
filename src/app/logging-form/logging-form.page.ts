@@ -7,6 +7,7 @@ import {
     JavasoltJelenletTemplate,
     Feljegyzes,
     IDirty,
+    PageState,
 } from "../_models";
 import { Subscription } from "rxjs";
 import {
@@ -36,7 +37,6 @@ import { CurriculumModalPage } from "./curriculum-modal/curriculum-modal.page";
 import { TopicOptionsComponent } from "./topic-options/topic-options.component";
 import { map } from "rxjs/operators";
 import { Location } from "@angular/common";
-import { KretaException } from "../_exceptions";
 
 @Component({
     selector: "app-logging",
@@ -49,37 +49,40 @@ export class LoggingFormPage implements IDirty {
 
     public lesson: Lesson;
 
+    public pageState: PageState = PageState.Loading;
+    public exception: Error;
     public loading: string[];
-    public kezdete: Date;
-    public evesOraSorszam: number = 0;
+
+    public startDate: Date;
+    public yearlyLessonCount: number = 0;
     public activeTabIndex: number = 0;
     public currentlyOffline: boolean;
 
     // tabs
-    public tema: string;
-    public osztalyTanuloi: OsztalyTanuloi;
-    public mulasztasok: Mulasztas[];
+    public topic: string;
+    public studentsOfClass: OsztalyTanuloi;
+    public absences: Mulasztas[];
     public javasoltJelenlet: JavasoltJelenletTemplate;
-    public hfHatarido: string;
-    public hfSzoveg: string;
-    public feljegyzesek: Feljegyzes[];
+    public homeworkDeadline: string;
+    public homeworkDescription: string;
+    public memos: Feljegyzes[];
 
     @ViewChild(IonSlides, { static: false })
     private slides: IonSlides;
     @ViewChild(ErtekelesComponent, { static: false })
-    private ertekeles: ErtekelesComponent;
+    private evaluation: ErtekelesComponent;
     @ViewChild(IonContent, { static: false })
     private content: IonContent;
     @ViewChildren(TanuloJelenletComponent)
-    private jelenletComponents: QueryList<TanuloJelenletComponent>;
+    private presenceComponents: QueryList<TanuloJelenletComponent>;
     @ViewChildren(TanuloFeljegyzesComponent)
-    private feljegyzesComponents: QueryList<TanuloFeljegyzesComponent>;
+    private memoComponents: QueryList<TanuloFeljegyzesComponent>;
 
     constructor(
         public dateHelper: DateHelper,
         public config: ConfigService,
         private kreta: KretaService,
-        private error: ErrorHelper,
+        private errorHelper: ErrorHelper,
         private loadingController: LoadingController,
         private modalController: ModalController,
         private menuController: MenuController,
@@ -99,76 +102,121 @@ export class LoggingFormPage implements IDirty {
         this.menuController.swipeGesture(false);
 
         this.subs.push(
-            this.route.paramMap.pipe(map(() => window.history.state)).subscribe(async state => {
-                this.lesson = state.lesson;
+            this.route.paramMap.pipe(map(() => window.history.state)).subscribe({
+                next: async state => {
+                    this.lesson = state.lesson;
+                    this.pageState = PageState.Loading;
 
-                if (!this.lesson) {
-                    this.router.navigate(["/timetable"]);
-                    throw new Error(
-                        "No lesson found in the route state, redirecting to timetable..."
-                    );
-                }
-
-                this._isDirty = false;
-                this.loading = ["osztalyTanuloi", "javasoltJelenlet"];
-
-                if (this.lesson && this.lesson.KezdeteUtc) {
-                    this.kezdete = new Date(this.lesson.KezdeteUtc);
-                    this.tema = this.lesson.Tema;
-                    this.hfHatarido = this.lesson.HazifeladatHataridoUtc
-                        ? new Date(this.lesson.HazifeladatHataridoUtc).toISOString()
-                        : null;
-                    this.hfSzoveg = this.lesson.HazifeladatSzovege
-                        ? this.lesson.HazifeladatSzovege.replace(/\<br \/\>/g, "\n")
-                        : null;
-                    this.evesOraSorszam =
-                        this.lesson.Allapot.Nev == "Naplozott"
-                            ? this.lesson.EvesOraszam
-                            : this.lesson.EvesOraszam + 1;
-
-                    await this.firebase.startTrace("logging_modal_load_time");
-
-                    this.subs.push(
-                        this.kreta.getOsztalyTanuloi(this.lesson.OsztalyCsoportId).subscribe(x => {
-                            this.osztalyTanuloi = x;
-                            this.loadingDone("osztalyTanuloi");
-                        })
-                    );
-
-                    if (this.lesson.Allapot.Nev == "Naplozott") {
-                        this.loading.push("mulasztas");
-                        this.subs.push(
-                            this.kreta.getMulasztas(this.lesson.TanitasiOraId).subscribe(x => {
-                                this.mulasztasok = x;
-                                this.loadingDone("mulasztas");
-                            })
-                        );
-
-                        this.loading.push("feljegyzesek");
-                        this.subs.push(
-                            this.kreta.getFeljegyzes(this.lesson.TanitasiOraId).subscribe(x => {
-                                this.feljegyzesek = x;
-                                this.loadingDone("feljegyzesek");
-                            })
+                    if (!this.lesson) {
+                        this.router.navigate(["/timetable"]);
+                        throw new Error(
+                            "No lesson found in the route state, redirecting to timetable..."
                         );
                     }
 
-                    this.subs.push(
-                        this.kreta.getJavasoltJelenlet(this.lesson).subscribe(x => {
-                            this.javasoltJelenlet = x;
-                            this.loadingDone("javasoltJelenlet");
-                        })
-                    );
+                    this._isDirty = false;
+                    this.loading = ["osztalyTanuloi", "javasoltJelenlet"];
 
-                    this.firebase.stopTrace("logging_modal_load_time");
-                }
+                    if (this.lesson && this.lesson.KezdeteUtc) {
+                        this.startDate = new Date(this.lesson.KezdeteUtc);
+                        this.topic = this.lesson.Tema;
+                        this.homeworkDeadline = this.lesson.HazifeladatHataridoUtc
+                            ? new Date(this.lesson.HazifeladatHataridoUtc).toISOString()
+                            : null;
+                        this.homeworkDescription = this.lesson.HazifeladatSzovege
+                            ? this.lesson.HazifeladatSzovege.replace(/\<br \/\>/g, "\n")
+                            : null;
+                        this.yearlyLessonCount =
+                            this.lesson.Allapot.Nev == "Naplozott"
+                                ? this.lesson.EvesOraszam
+                                : this.lesson.EvesOraszam + 1;
+
+                        await this.firebase.startTrace("logging_modal_load_time");
+
+                        this.subs.push(
+                            this.kreta.getOsztalyTanuloi(this.lesson.OsztalyCsoportId).subscribe({
+                                next: x => (this.studentsOfClass = x),
+                                error: error => {
+                                    if (!this.studentsOfClass) {
+                                        this.pageState = PageState.Error;
+                                        this.exception = error;
+                                        error.handled = true;
+                                    }
+
+                                    this.loadingDone("osztalyTanuloi");
+                                    throw error;
+                                },
+                                complete: () => this.loadingDone("osztalyTanuloi"),
+                            })
+                        );
+
+                        if (this.lesson.Allapot.Nev == "Naplozott") {
+                            this.loading.push("mulasztas");
+                            this.subs.push(
+                                this.kreta.getMulasztas(this.lesson.TanitasiOraId).subscribe({
+                                    next: x => (this.absences = x),
+                                    error: error => {
+                                        if (!this.absences) {
+                                            this.pageState = PageState.Error;
+                                            this.exception = error;
+                                            error.handled = true;
+                                        }
+
+                                        this.loadingDone("mulasztas");
+                                        throw error;
+                                    },
+                                    complete: () => this.loadingDone("mulasztas"),
+                                })
+                            );
+
+                            this.loading.push("feljegyzesek");
+                            this.subs.push(
+                                this.kreta.getFeljegyzes(this.lesson.TanitasiOraId).subscribe({
+                                    next: x => (this.memos = x),
+                                    error: error => {
+                                        if (!this.memos) {
+                                            this.pageState = PageState.Error;
+                                            this.exception = error;
+                                            error.handled = true;
+                                        }
+
+                                        this.loadingDone("feljegyzesek");
+                                        throw error;
+                                    },
+                                    complete: () => this.loadingDone("feljegyzesek"),
+                                })
+                            );
+                        }
+
+                        this.subs.push(
+                            this.kreta.getJavasoltJelenlet(this.lesson).subscribe({
+                                next: x => (this.javasoltJelenlet = x),
+                                error: error => {
+                                    if (!this.javasoltJelenlet) {
+                                        this.pageState = PageState.Error;
+                                        this.exception = error;
+                                        error.handled = true;
+                                    }
+
+                                    this.loadingDone("javasoltJelenlet");
+                                    throw error;
+                                },
+                                complete: () => this.loadingDone("javasoltJelenlet"),
+                            })
+                        );
+
+                        this.firebase.stopTrace("logging_modal_load_time");
+                    }
+                },
             })
         );
 
         this.subs.push(
-            this.networkStatus.onNetworkChange().subscribe(status => {
-                this.currentlyOffline = status === ConnectionStatus.Offline;
-                this.cd.detectChanges();
+            this.networkStatus.onNetworkChange().subscribe({
+                next: status => {
+                    this.currentlyOffline = status === ConnectionStatus.Offline;
+                    this.cd.detectChanges();
+                },
             })
         );
     }
@@ -194,6 +242,8 @@ export class LoggingFormPage implements IDirty {
     private loadingDone(key: string) {
         var index = this.loading.indexOf(key);
         if (index !== -1) this.loading.splice(index, 1);
+
+        if (this.loading.length == 0) this.pageState = PageState.Loaded;
     }
 
     public async onSlideChange() {
@@ -206,17 +256,19 @@ export class LoggingFormPage implements IDirty {
     }
 
     public async save() {
-        // ellenőrzés
-        if (this.tema.trim().length <= 0) {
-            await this.error.presentAlert(this.translate.instant("logging.required-topic"));
+        // validation
+        if (this.topic.trim().length <= 0) {
+            await this.errorHelper.presentAlert(this.translate.instant("logging.required-topic"));
             return;
         }
-        if (this.hfHatarido && this.hfSzoveg.trim().length <= 0) {
-            await this.error.presentAlert(this.translate.instant("logging.required-homework-desc"));
+        if (this.homeworkDeadline && this.homeworkDescription.trim().length <= 0) {
+            await this.errorHelper.presentAlert(
+                this.translate.instant("logging.required-homework-desc")
+            );
             return;
         }
 
-        let tanuloLista = this.getTanuloLista();
+        let tanuloLista = this.getStudentList();
 
         let request = [
             {
@@ -228,17 +280,17 @@ export class LoggingFormPage implements IDirty {
                 RogzitesDatumUtc: new Date().toISOString(),
                 OraVegDatumaUtc: this.lesson.VegeUtc,
                 IsElmaradt: false,
-                Tema: this.tema,
-                Hazifeladat: this.hfSzoveg ? this.hfSzoveg : null,
+                Tema: this.topic,
+                Hazifeladat: this.homeworkDescription ? this.homeworkDescription : null,
                 HazifeladatId: this.lesson.HazifeladatId ? this.lesson.HazifeladatId : null,
-                HazifeladatHataridoUtc: this.hfHatarido
-                    ? new Date(this.hfHatarido).toISOString()
+                HazifeladatHataridoUtc: this.homeworkDeadline
+                    ? new Date(this.homeworkDeadline).toISOString()
                     : null,
                 TanuloLista: tanuloLista,
             },
         ];
 
-        if (!(await this.ertekeles.isValid())) return;
+        if (!(await this.evaluation.isValid())) return;
 
         const loading = await this.loadingController.create({
             message: this.translate.instant("logging.saving"),
@@ -246,33 +298,42 @@ export class LoggingFormPage implements IDirty {
         await loading.present();
         await this.firebase.startTrace("lesson_logging_post_time");
 
-        const result = await this.kreta.postLesson(request).toPromise();
-        const ertekelesSaveResult = await this.ertekeles.save();
+        try {
+            const result = await this.kreta.postLesson(request).toPromise();
 
-        this.firebase.stopTrace("lesson_logging_post_time");
-        await loading.dismiss();
+            // form validation errors - we do not log these
+            if (result && result[0] && result[0].Exception) {
+                await this.errorHelper.presentAlert(
+                    result[0].Exception.Message,
+                    this.translate.instant("logging.couldnt-save")
+                );
 
-        if (result && result[0] && result[0].Exception != null) {
-            this.firebase.logError(
-                "logging_modal postLesson error: " + result[0].Exception.Message
-            );
-            await this.error.presentAlert(result[0].Exception.Message);
-            console.error(result);
-            throw new KretaException(result[0].Exception.Message);
-        }
+                console.error("Form validation error:", result[0].Exception.Message, result);
+                return;
+            }
 
-        this.firebase.logEvent("lesson_logged");
+            this.firebase.logEvent("lesson_logged");
 
-        // sikeres naplózás
-        await Promise.all([
-            this.kreta.removeDayFromCache(this.lesson.KezdeteUtc),
-            this.kreta.removeMulasztasFromCache(this.lesson.TanitasiOraId),
-            this.kreta.removeFeljegyzesFromCache(this.lesson.TanitasiOraId),
-        ]);
+            // successful logging
+            await Promise.all([
+                this.kreta.removeDayFromCache(this.lesson.KezdeteUtc),
+                this.kreta.removeMulasztasFromCache(this.lesson.TanitasiOraId),
+                this.kreta.removeFeljegyzesFromCache(this.lesson.TanitasiOraId),
+            ]);
 
-        if (ertekelesSaveResult) {
-            this._isDirty = false;
-            this.location.back();
+            const ertekelesSaveResult = await this.evaluation.save();
+            if (result && ertekelesSaveResult) {
+                this._isDirty = false;
+                this.location.back();
+            }
+        } catch (error) {
+            this.errorHelper.presentAlertFromError(error);
+            error.handled = true;
+
+            throw error;
+        } finally {
+            this.firebase.stopTrace("lesson_logging_post_time");
+            await loading.dismiss();
         }
     }
 
@@ -301,45 +362,53 @@ export class LoggingFormPage implements IDirty {
         await loading.present();
         await this.firebase.startTrace("lesson_logging_post_time");
 
-        const result = await this.kreta.postLesson(request).toPromise();
+        try {
+            const result = await this.kreta.postLesson(request).toPromise();
 
-        this.firebase.stopTrace("lesson_logging_post_time");
-        await loading.dismiss();
+            // form validation errors - we do not log these
+            if (result && result[0] && result[0].Exception) {
+                await this.errorHelper.presentAlert(
+                    result[0].Exception.Message,
+                    this.translate.instant("logging.couldnt-save")
+                );
 
-        if (result && result[0] && result[0].Exception != null) {
-            this.firebase.logError(
-                "logging_modal postLesson error: " + result[0].Exception.Message
-            );
-            await this.error.presentAlert(result[0].Exception.Message);
-            throw new KretaException(result);
+                console.error("Form validation error:", result[0].Exception.Message, result);
+                return;
+            }
+
+            this.firebase.logEvent("lesson_logged");
+
+            // successful logging
+            await this.kreta.removeDayFromCache(this.lesson.KezdeteUtc);
+            this._isDirty = false;
+            this.location.back();
+        } catch (error) {
+            this.errorHelper.presentAlertFromError(error);
+            error.handled = true;
+
+            throw error;
+        } finally {
+            this.firebase.stopTrace("lesson_logging_post_time");
+            await loading.dismiss();
         }
-
-        this.firebase.logEvent("lesson_logged");
-
-        // sikeres naplózás
-        await this.kreta.removeDayFromCache(this.lesson.KezdeteUtc);
-        this._isDirty = false;
-        this.location.back();
     }
 
-    private getTanuloLista() {
-        let tanuloLista = [];
-        this.jelenletComponents.forEach(t => {
-            let tanuloKivalasztottFeljegyzesei = this.feljegyzesComponents.find(
-                x => x.tanulo.Id == t.tanulo.Id
-            );
+    private getStudentList() {
+        let studentList = [];
+        this.presenceComponents.forEach(t => {
+            let studentsSelectedMemos = this.memoComponents.find(x => x.tanulo.Id == t.tanulo.Id);
 
-            tanuloLista.push({
+            studentList.push({
                 Id: t.tanulo.Id,
                 Mulasztas: t.getJsonOutput(),
-                FeljegyzesTipusLista: tanuloKivalasztottFeljegyzesei.getJsonOutput(),
+                FeljegyzesTipusLista: studentsSelectedMemos.getJsonOutput(),
             });
         });
 
-        return tanuloLista;
+        return studentList;
     }
 
-    private async openTanmenet() {
+    private async openCurriculum() {
         const modal = await this.modalController.create({
             component: CurriculumModalPage,
             componentProps: {
@@ -350,7 +419,7 @@ export class LoggingFormPage implements IDirty {
         await modal.present();
         const { data } = await modal.onWillDismiss();
 
-        if (data && data.tanmenetElem) this.tema = data.tanmenetElem.Tema;
+        if (data && data.tanmenetElem) this.topic = data.tanmenetElem.Tema;
     }
 
     public async openTopicOptionsPopover(ev: any) {
@@ -384,6 +453,6 @@ export class LoggingFormPage implements IDirty {
 
             await alert.present();
         }
-        if (data.result == "curriculum") this.openTanmenet();
+        if (data.result == "curriculum") this.openCurriculum();
     }
 }

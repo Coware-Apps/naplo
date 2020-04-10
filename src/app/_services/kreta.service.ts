@@ -16,7 +16,11 @@ import {
     TokenResponse,
 } from "../_models";
 import { ErrorHelper, JwtDecodeHelper } from "../_helpers";
-import { KretaMissingRoleException, KretaInvalidPasswordException } from "../_exceptions";
+import {
+    KretaMissingRoleException,
+    KretaInvalidPasswordException,
+    KretaInvalidResponseException,
+} from "../_exceptions";
 import { stringify } from "flatted/esm";
 import { FirebaseService } from "./firebase.service";
 import { HttpHeaders, HttpParams } from "@angular/common/http";
@@ -91,7 +95,6 @@ export class KretaService {
     }
 
     async loginWithUsername(username: string, password: string): Promise<TokenResponse> {
-        // try {
         if (!this.institute || !this.institute.Url)
             throw Error("Nincs intézmény kiválasztva! (loginWithUsername())");
 
@@ -244,19 +247,23 @@ export class KretaService {
     ): Observable<T> {
         return this.data
             .getUrlWithCache<{ Adatcsomag: T }>(
-                // this.institute.Url + url,
-                "***REMOVED***?error=401&origurl=" + url,
+                this.institute.Url + url,
+                // "***REMOVED***?error=invalid&origurl=" + url,
 
                 null,
                 null,
                 cacheSecs,
                 forceRefresh
             )
-            .pipe(map(x => x.Adatcsomag));
+            .pipe(
+                map(x => {
+                    if (!x || !x.Adatcsomag) throw new KretaInvalidResponseException();
+                    return x.Adatcsomag;
+                })
+            );
     }
 
     getTanarProfil(): Observable<TanarProfil> {
-        console.log("getTanarProfil()");
         return this.getAuthenticatedAdatcsomag<TanarProfil>(
             "/Naplo/v2/Tanar/Profil",
             this.longtermStorageExpiry
@@ -270,9 +277,7 @@ export class KretaService {
         ).toPromise();
     }
 
-    getTimetable(day: Date, forceRefresh: boolean = false): Observable<Lesson[]> {
-        console.log("getTimetable()");
-
+    getOraLista(day: Date, forceRefresh: boolean = false): Observable<Lesson[]> {
         day.setUTCHours(0, 0, 0, 0);
         return this.getAuthenticatedAdatcsomag<Lesson[]>(
             "/Naplo/v2/Orarend/OraLista?datumUtc=" + day.toISOString(),
@@ -282,8 +287,6 @@ export class KretaService {
     }
 
     getOsztalyTanuloi(osztalyCsoportId: number): Observable<OsztalyTanuloi> {
-        console.log("getOsztalyTanuloi()");
-
         return this.getAuthenticatedAdatcsomag<OsztalyTanuloi>(
             "/Naplo/v2/Ora/OsztalyTanuloi?osztalyCsoportId=" + osztalyCsoportId,
             60 * 60 * 24 * 3
@@ -291,8 +294,6 @@ export class KretaService {
     }
 
     getJavasoltJelenlet(ora: Lesson): Observable<JavasoltJelenletTemplate> {
-        console.log("getJavasoltJelenlet()");
-
         let url = "";
         if (ora.OrarendiOraId)
             url =
@@ -315,22 +316,18 @@ export class KretaService {
     }
 
     getMulasztas(tanoraid: number): Observable<Mulasztas[]> {
-        console.log("getMulasztas()");
-
         return this.getAuthenticatedAdatcsomag(
             "/Naplo/v2/Ora/Mulasztas?hash=&tanoraId=" + tanoraid
         );
     }
 
     getFeljegyzes(tanoraid: number): Observable<Feljegyzes[]> {
-        console.log("getFeljegyzes()");
-
         return this.getAuthenticatedAdatcsomag(
             "/Naplo/v2/Ora/Feljegyzes?hash=&tanoraId=" + tanoraid
         );
     }
 
-    getTanmenet(lesson: Lesson): Observable<Tanmenet> {
+    getTanmenet(lesson: Lesson, forceRefresh?: boolean): Observable<Tanmenet> {
         return this.data
             .getUrlWithCache<Tanmenet[]>(
                 this.institute.Url +
@@ -342,14 +339,22 @@ export class KretaService {
                     this.currentUser["kreta:institute_user_id"],
                 null,
                 null,
-                60 * 60 * 24
+                60 * 60 * 24,
+                forceRefresh
             )
-            .pipe(map(x => x[0]));
+            .pipe(
+                map(x => {
+                    if (!x || !x[0] || !x[0].Items) throw new KretaInvalidResponseException(x);
+                    return x[0];
+                })
+            );
     }
 
     postLesson(data: object): Observable<any> {
         const response = this.data.postUrl<any>(
             this.institute.Url + "/Naplo/v2/Orarend/OraNaplozas",
+
+            // "***REMOVED***?error=403&origurl=x",
             data
         );
 
@@ -359,7 +364,7 @@ export class KretaService {
         return response;
     }
 
-    postErtekeles(data: object): Observable<any> {
+    postEvaluation(data: object): Observable<any> {
         const response = this.data.postUrl<any>(
             this.institute.Url + "/Naplo/v2/Ertekeles/OsztalyCsoportErtekeles",
             data
@@ -371,22 +376,22 @@ export class KretaService {
         return response;
     }
 
-    async removeDayFromCache(day: Date) {
+    removeDayFromCache(day: Date): Promise<any> {
         let date = new Date(day);
         date.setUTCHours(0, 0, 0, 0);
-        await this.data.removeItem(
+        return this.data.removeItem(
             this.institute.Url + "/Naplo/v2/Orarend/OraLista?datumUtc=" + date.toISOString()
         );
     }
 
-    async removeMulasztasFromCache(tanoraid: number) {
-        await this.data.removeItem(
+    removeMulasztasFromCache(tanoraid: number): Promise<any> {
+        return this.data.removeItem(
             this.institute.Url + "/Naplo/v2/Ora/Mulasztas?hash=&tanoraId=" + tanoraid
         );
     }
 
-    async removeFeljegyzesFromCache(tanoraid: number) {
-        await this.data.removeItem(
+    removeFeljegyzesFromCache(tanoraid: number): Promise<any> {
+        return this.data.removeItem(
             this.institute.Url + "/Naplo/v2/Ora/Feljegyzes?hash=&tanoraId=" + tanoraid
         );
     }

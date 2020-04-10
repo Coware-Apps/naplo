@@ -169,15 +169,15 @@ export class LoginPage {
                             toolbarColor: "#3880ff",
                             controlTintColor: "#ffffff",
                         })
-                        .subscribe(
-                            (result: any) => {},
-                            (error: any) => {
+                        .subscribe({
+                            next: (result: any) => {},
+                            error: (error: any) => {
                                 console.error(error);
                                 this.firebase.logError(
                                     "login privacypolicy subscription error: " + error
                                 );
-                            }
-                        )
+                            },
+                        })
                 );
             } else {
                 console.log("browser tab not supported");

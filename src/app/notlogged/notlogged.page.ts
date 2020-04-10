@@ -62,7 +62,7 @@ export class NotloggedPage {
         for (let i = 0; i < this.napToCheck; i++) {
             let d = new Date(this.dateHelper.getDayFromToday(-i));
             this.subs.push(
-                this.kreta.getTimetable(d, forceRefresh).subscribe(
+                this.kreta.getOraLista(d, forceRefresh).subscribe(
                     x => {
                         x.forEach(ora => {
                             if (

@@ -3,7 +3,6 @@ import {
     KretaService,
     NetworkStatusService,
     ConnectionStatus,
-    ConfigService,
     FirebaseService,
 } from "../_services";
 import { TanitottCsoport } from "../_models";
@@ -24,7 +23,6 @@ export class EvaluationPage {
         private networkStatus: NetworkStatusService,
         private errorHelper: ErrorHelper,
         private cd: ChangeDetectorRef,
-        private config: ConfigService,
         private firebase: FirebaseService,
         private translate: TranslateService,
         private router: Router
@@ -54,7 +52,7 @@ export class EvaluationPage {
         for (let i = 0; i < this.napToCheck; i++) {
             let d = new Date(this.dateHelper.getDayFromToday(-i));
             this.subs.push(
-                this.kreta.getTimetable(d).subscribe(
+                this.kreta.getOraLista(d).subscribe(
                     x => {
                         x.forEach(ora => {
                             const id = ora.TantargyId + "-" + ora.OsztalyCsoportId;

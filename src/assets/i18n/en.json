@@ -54,6 +54,7 @@
     },
     "timetable": {
         "title": "Timetable",
+        "list-empty": "The list is empty",
         "no-lesson-today": "You don't have any lessons on this day",
         "error-offline": "There's no internet, therefore the lesson can't be logged right now.",
         "error-in-future": "Future lessons can't be logged.",
@@ -77,6 +78,7 @@
         "required-topic": "Please enter the topic of the lesson",
         "required-homework-desc": "You must provide a description for the homework",
         "saving": "Saving...",
+        "couldnt-save": "The server responded with the following error:",
         "cancelled-alert-title": "Are you sure?",
         "cancelled-alert-desc": "The evaluations, memos, and homeworks you entered will not be saved if you continue."
     },

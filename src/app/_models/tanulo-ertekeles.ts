@@ -1,6 +1,6 @@
 import { KretaEnum } from "./kreta-enum";
 
-export interface KretaTanuloErtekeles {
+export interface TanuloErtekeles {
     MobilId: number;
     TanuloId: number;
     Ertekeles: {

@@ -60,7 +60,7 @@ export class NaploHttpInvalidResponseException extends NaploHttpException {
             response,
             "exceptions.invalid-response.message",
             "exceptions.server-error",
-            null
+            "hammer-outline"
         );
     }
 }

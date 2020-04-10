@@ -19,33 +19,27 @@
 
     <ion-toolbar color="secondary" class="ion-text-center">
         {{lesson.TantargyNev}}<br />
-        <span translate="logging.lesson-seqnum" [translateParams]="{value: evesOraSorszam}"></span>
+        <span
+            translate="logging.lesson-seqnum"
+            [translateParams]="{value: yearlyLessonCount}"
+        ></span>
     </ion-toolbar>
+
+    <ion-progress-bar
+        type="indeterminate"
+        color="warning"
+        *ngIf="loadingInProgress"
+    ></ion-progress-bar>
 </ion-header>
 
 <ion-content>
-    <ion-list *ngIf="tanmenet && tanmenet.Items.length > 0" lines="full">
-        <ion-item *ngFor="let t of tanmenet.Items" (click)="save(t)">
+    <ion-list *ngIf="pageState == 'LOADED'" lines="full">
+        <ion-item *ngFor="let t of curriculum.Items" (click)="save(t)">
             <ion-text>{{ t.Nev }}</ion-text>
         </ion-item>
     </ion-list>
 
-    <div
-        *ngIf="tanmenet && tanmenet.Items.length == 0"
-        class="ion-padding-horizontal ion-text-center list-empty-placeholder"
-    >
-        <ion-icon
-            slot="icon-only"
-            name="information-circle-outline"
-            style="font-size: 128px;"
-        ></ion-icon>
-        <p><strong translate="curriculum.list-empty"></strong></p>
-        <p translate="curriculum.list-empty-desc"></p>
-    </div>
-
-    <ion-list *ngIf="!tanmenet">
-        <ion-progress-bar type="indeterminate" color="warning"></ion-progress-bar>
-
+    <ion-list *ngIf="pageState == 'LOADING'">
         <ion-item>
             <ion-label><ion-skeleton-text width="80%" animated></ion-skeleton-text></ion-label>
             <ion-label><ion-skeleton-text width="40%" animated></ion-skeleton-text></ion-label>
@@ -71,4 +65,18 @@
             <ion-label><ion-skeleton-text width="40%" animated></ion-skeleton-text></ion-label>
         </ion-item>
     </ion-list>
+
+    <app-page-state-display
+        *ngIf="pageState == 'ERROR'"
+        [exception]="exception"
+        buttonTextKey="common.retry"
+        (onButtonClicked)="loadData(true)"
+    ></app-page-state-display>
+
+    <app-page-state-display
+        *ngIf="pageState == 'EMPTY'"
+        iconName="clipboard-outline"
+        [header]="'curriculum.list-empty'|translate"
+        [message]="'curriculum.list-empty-desc'|translate"
+    ></app-page-state-display>
 </ion-content>

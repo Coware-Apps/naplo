@@ -13,7 +13,7 @@ import {
     KretaEnum,
     Lesson,
     OsztalyTanuloi,
-    KretaTanuloErtekeles,
+    TanuloErtekeles,
     ErtekelesTipus,
 } from "src/app/_models";
 import { TanuloErtekelesComponent } from "../tanulo-ertekeles/tanulo-ertekeles.component";
@@ -113,7 +113,7 @@ export class ErtekelesComponent implements OnInit, OnChanges {
         picker.present();
     }
 
-    public getErtekelesLista(): KretaTanuloErtekeles[] {
+    public getErtekelesLista(): TanuloErtekeles[] {
         let ertekelesLista = [];
         let i = 1;
         this.ertekelesComponents.forEach(t => {
@@ -169,7 +169,7 @@ export class ErtekelesComponent implements OnInit, OnChanges {
         if (ertekelesLista.length > 0) {
             try {
                 const ertekelesResponse = await this.kreta
-                    .postErtekeles(ertekelesRequest)
+                    .postEvaluation(ertekelesRequest)
                     .toPromise();
 
                 if (

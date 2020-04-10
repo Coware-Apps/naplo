@@ -6,7 +6,7 @@ import {
     ConnectionStatus,
     FirebaseService,
 } from "../_services";
-import { Lesson } from "../_models";
+import { Lesson, PageState } from "../_models";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ErrorHelper, DateHelper } from "../_helpers";
 import { DatePicker } from "@ionic-native/date-picker/ngx";
@@ -37,9 +37,12 @@ export class TimetablePage implements OnInit {
         private location: Location
     ) {}
 
-    public orarend: Lesson[];
+    public timetable: Lesson[];
     public datum: Date;
-    public loading: boolean;
+
+    public pageState: PageState = PageState.Loading;
+    public exception: Error;
+    public loadingInProgress: boolean;
 
     private subs: Subscription[] = [];
 
@@ -62,7 +65,7 @@ export class TimetablePage implements OnInit {
     }
 
     public ionViewWillLeave() {
-        this.orarend = undefined;
+        this.timetable = undefined;
         this.subs.forEach((s, index, object) => {
             s.unsubscribe();
             object.splice(index, 1);
@@ -86,32 +89,40 @@ export class TimetablePage implements OnInit {
         );
     }
 
-    async loadTimetable(showLoading: boolean = true, forceRefresh: boolean = false) {
-        if (showLoading) this.loading = true;
-
-        this.orarend = undefined;
+    async loadTimetable(forceRefresh: boolean = false) {
+        this.timetable = undefined;
+        this.pageState = PageState.Loading;
+        this.loadingInProgress = true;
 
         await this.firebase.startTrace("timetable_day_load_time");
         this.subs.push(
-            this.kreta.getTimetable(this.datum, forceRefresh).subscribe(
-                x => {
-                    console.log("timetable result:", x);
+            this.kreta.getOraLista(this.datum, forceRefresh).subscribe({
+                next: x => {
+                    this.pageState = x.length == 0 ? PageState.Empty : PageState.Loaded;
+                    this.timetable = x;
 
-                    this.orarend = x;
-                    this.loading = false;
                     this.cd.detectChanges();
                     this.firebase.stopTrace("timetable_day_load_time");
                 },
-                e => {
-                    this.loading = false;
-                    throw e;
-                }
-            )
+                error: error => {
+                    if (!this.timetable) {
+                        this.pageState = PageState.Error;
+                        this.exception = error;
+                        error.handled = true;
+                    }
+
+                    this.loadingInProgress = false;
+                    throw error;
+                },
+                complete: () => {
+                    this.loadingInProgress = false;
+                },
+            })
         );
     }
 
     public async doRefresh($event?) {
-        this.loadTimetable(false, true);
+        this.loadTimetable(true);
         if ($event) {
             this.firebase.logEvent("timetable_pull2refresh", {});
             $event.target.complete();

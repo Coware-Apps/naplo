@@ -24,7 +24,7 @@
                 [translate]="buttonTextKey"
             ></ion-button>
 
-            <ng-container class="debug-info" *ngIf="config.debugging">
+            <ng-container class="debug-info" *ngIf="exception">
                 <ion-button
                     (click)="toggleDebuggingInfo()"
                     color="danger"
@@ -38,6 +38,7 @@
                         <br />
                         <em>{{ exception?.message }}</em>
                     </p>
+                    <pre>{{ exceptionToString }}</pre>
                     <pre>{{ exception?.stack }}</pre>
                 </div>
             </ng-container>

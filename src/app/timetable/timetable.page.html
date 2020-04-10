@@ -30,6 +30,12 @@
             (click)="changeDate('forward')"
         ></ion-icon>
     </ion-toolbar>
+
+    <ion-progress-bar
+        type="indeterminate"
+        color="warning"
+        *ngIf="loadingInProgress"
+    ></ion-progress-bar>
 </ion-header>
 
 <ion-content>
@@ -39,27 +45,20 @@
         pullFactor="0.8"
         pullMin="60"
         pullMax="120"
-        [disabled]="loading"
+        [disabled]="loadingInProgress"
     >
         <ion-refresher-content></ion-refresher-content>
     </ion-refresher>
 
-    <ng-container *ngIf="!loading">
-        <div *ngIf="orarend?.length == 0" class="ion-text-center list-empty-placeholder">
-            <ion-icon slot="icon-only" name="sunny-outline" style="font-size: 128px;"></ion-icon>
-            <p translate="timetable.no-lesson-today"></p>
-        </div>
-
-        <ion-list id="ion-list-orarend" *ngIf="orarend">
-            <ng-container *ngFor="let l of orarend">
+    <ng-container *ngIf="pageState == 'LOADED'">
+        <ion-list id="ion-list-orarend" *ngIf="timetable">
+            <ng-container *ngFor="let l of timetable">
                 <app-orarendi-ora [lesson]="l" (click)="lessonClick(l)"></app-orarendi-ora>
             </ng-container>
         </ion-list>
     </ng-container>
 
-    <ng-container *ngIf="!orarend || loading">
-        <ion-progress-bar type="indeterminate" color="warning"></ion-progress-bar>
-
+    <ng-container *ngIf="pageState == 'LOADING'">
         <ion-list>
             <ion-item>
                 <ion-avatar slot="start" class="oraszamContainer">
@@ -103,4 +102,18 @@
             </ion-item>
         </ion-list>
     </ng-container>
+
+    <app-page-state-display
+        *ngIf="pageState == 'ERROR'"
+        [exception]="exception"
+        buttonTextKey="common.retry"
+        (onButtonClicked)="loadTimetable(true)"
+    ></app-page-state-display>
+
+    <app-page-state-display
+        *ngIf="pageState == 'EMPTY'"
+        iconName="sunny-outline"
+        [header]="'timetable.list-empty'|translate"
+        [message]="'timetable.no-lesson-today'|translate"
+    ></app-page-state-display>
 </ion-content>

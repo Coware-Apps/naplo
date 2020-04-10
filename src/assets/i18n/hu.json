@@ -55,6 +55,7 @@
     },
     "timetable": {
         "title": "Óra naplózása",
+        "list-empty": "The list is empty",
         "no-lesson-today": "Ezen a napon nincs órád",
         "error-offline": "Nincs internetkapcsolat, ezért az óra most nem naplózható!",
         "error-in-future": "Jövőbeni óra nem naplózható!",
@@ -79,6 +80,7 @@
         "required-topic": "Az óra témáját kötelező kitölteni!",
         "required-homework-desc": "A házi feladat leírását kötelező megadni, ha ki lett választva határidő!",
         "saving": "Mentés...",
+        "couldnt-save": "A szerver az alábbi hibát jelezte:",
         "cancelled-alert-title": "Elmaradtnak jelölöd az órát?",
         "cancelled-alert-desc": "A megadott értékelések, feljegyzések, házi feladatok nem kerülnek mentésre."
     },

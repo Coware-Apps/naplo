@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from "@angular/core";
-import { Tanulo, KretaTanuloErtekeles, KretaEnum, ErtekelesTipus } from "src/app/_models";
+import { Tanulo, TanuloErtekeles, KretaEnum, ErtekelesTipus } from "src/app/_models";
 import { KretaService } from "src/app/_services";
 
 @Component({
@@ -45,7 +45,7 @@ export class TanuloErtekelesComponent implements OnInit {
         this.onSelectionChange.emit();
     }
 
-    public getJsonOutput(): KretaTanuloErtekeles {
+    public getJsonOutput(): TanuloErtekeles {
         if (this.tipus == ErtekelesTipus.Osztalyzat && this.jegy == 0) return null;
         if (this.tipus == ErtekelesTipus.Szoveg && !this.szoveges) return null;
         if (this.tipus == ErtekelesTipus.Szazalek && !this.szazalek) return null;

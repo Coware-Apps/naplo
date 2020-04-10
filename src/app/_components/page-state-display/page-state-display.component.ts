@@ -1,5 +1,4 @@
 import { Component, OnInit, Input, Output, EventEmitter } from "@angular/core";
-import { ConfigService } from "src/app/_services";
 import { NaploException } from "src/app/_exceptions";
 
 @Component({
@@ -17,12 +16,15 @@ export class PageStateDisplayComponent implements OnInit {
     @Output() onButtonClicked: EventEmitter<void> = new EventEmitter<void>();
 
     public debuggingShown: boolean = false;
+    public exceptionToString: string;
 
-    constructor(public config: ConfigService) {}
+    constructor() {}
 
     ngOnInit() {}
 
     public toggleDebuggingInfo() {
+        if (this.exception) this.exceptionToString = this.exception.toString();
+
         this.debuggingShown = !this.debuggingShown;
     }
 }
