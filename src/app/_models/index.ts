@@ -15,4 +15,5 @@ export * from "./ertekeles-tipus";
 export * from "./tanmenet";
 export * from "./message";
 
+export * from "./page-state";
 export * from "./idirty";

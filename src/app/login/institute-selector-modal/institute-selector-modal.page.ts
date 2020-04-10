@@ -1,6 +1,6 @@
 import { Component } from "@angular/core";
 import { KretaService, FirebaseService } from "../../_services";
-import { Institute } from "../../_models";
+import { Institute, PageState } from "../../_models";
 import { ModalController, Platform } from "@ionic/angular";
 import { Subscription } from "rxjs";
 
@@ -13,7 +13,7 @@ export class InstituteSelectorModalPage {
     public institutes: Institute[];
     public filteredInstitutes: Institute[];
 
-    public componentState: "loading" | "loaded" | "empty" | "error" = "loading";
+    public pageState: PageState = PageState.Loading;
     public exception: Error;
     private subs: Subscription[] = [];
 
@@ -27,15 +27,33 @@ export class InstituteSelectorModalPage {
     async ionViewWillEnter() {
         this.firebase.setScreenName("institute_selector_modal");
         await this.firebase.startTrace("institute_list_loading_time");
+        this.pageState = PageState.Loading;
+        this.exception = null;
 
         this.subs.push(
-            this.kreta.getInstituteList().subscribe(x => {
-                console.log("RESPONSE:", x);
+            this.kreta.getInstituteList().subscribe(
+                x => {
+                    this.institutes = x;
 
-                this.institutes = x;
-                this.filteredInstitutes = x;
-                this.firebase.stopTrace("institute_list_loading_time");
-            })
+                    if (this.institutes.length == 0) {
+                        this.pageState = PageState.Empty;
+                        return;
+                    }
+
+                    this.pageState = PageState.Loaded;
+                    this.filteredInstitutes = x;
+                    this.firebase.stopTrace("institute_list_loading_time");
+                },
+                error => {
+                    if (!this.institutes) {
+                        this.pageState = PageState.Error;
+                        this.exception = error;
+                        error.handled = true;
+                    }
+
+                    throw error;
+                }
+            )
         );
     }
 

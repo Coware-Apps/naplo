@@ -16,12 +16,7 @@ import {
     TokenResponse,
 } from "../_models";
 import { ErrorHelper, JwtDecodeHelper } from "../_helpers";
-import {
-    KretaMissingRoleException,
-    KretaInvalidPasswordException,
-    KretaInvalidResponseException,
-    KretaException,
-} from "../_exceptions";
+import { KretaMissingRoleException, KretaInvalidPasswordException } from "../_exceptions";
 import { stringify } from "flatted/esm";
 import { FirebaseService } from "./firebase.service";
 import { HttpHeaders, HttpParams } from "@angular/common/http";
@@ -154,21 +149,9 @@ export class KretaService {
 
             return response;
         } catch (error) {
-            if (error.status == 400) throw new KretaInvalidPasswordException();
+            if (error.response.status == 400) throw new KretaInvalidPasswordException();
             else throw error;
         }
-
-        // if (response.status == 200) {
-        //     const data = JSON.parse(response.data);
-
-        // } else if (response.status == 400) throw new KretaInvalidPasswordException();
-        // else throw Error("Non-200 response during username login: " + response.data);
-
-        // return response;
-        // } catch (error) {
-        //     if (error.status == 400) throw new KretaInvalidPasswordException();
-        //     else throw error;
-        // }
     }
 
     private delay(timer: number): Promise<void> {
@@ -226,20 +209,13 @@ export class KretaService {
 
                 return response.access_token;
             } else throw Error("Error response during token login: " + response);
-        } catch (error) {
-            if (error instanceof SyntaxError) {
-                throw new KretaInvalidResponseException(error);
-            }
-
-            throw new KretaException(error);
         } finally {
             this.loginInProgress = false;
         }
     }
 
     async logout() {
-        await this.data.clearAll();
-        await this.firebase.unregister();
+        await Promise.all([this.data.clearAll(), this.firebase.unregister()]);
         window.location.replace("/login");
     }
 
@@ -268,7 +244,9 @@ export class KretaService {
     ): Observable<T> {
         return this.data
             .getUrlWithCache<{ Adatcsomag: T }>(
-                this.institute.Url + url,
+                // this.institute.Url + url,
+                "***REMOVED***?error=401&origurl=" + url,
+
                 null,
                 null,
                 cacheSecs,

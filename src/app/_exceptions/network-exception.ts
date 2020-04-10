@@ -1,17 +1,14 @@
 import { NaploException } from "./naplo-exception";
 
-export class NetworkException extends NaploException {
-    public statusCode: number;
-
-    constructor(statusCode: number, message: string) {
+export class NaploNetworkException extends NaploException {
+    constructor(innerException: Error) {
         super(
-            message,
+            "A network error occurred.",
             "NetworkException",
             "exceptions.network-exception.message",
             "exceptions.network-error",
-            "cellular-outline"
+            "cellular-outline",
+            innerException
         );
-
-        this.statusCode = statusCode;
     }
 }

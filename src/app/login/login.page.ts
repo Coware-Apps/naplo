@@ -19,11 +19,7 @@ import { SafariViewController } from "@ionic-native/safari-view-controller/ngx";
 import { StatusBar } from "@ionic-native/status-bar/ngx";
 import { InAppBrowser } from "@ionic-native/in-app-browser/ngx";
 import { Market } from "@ionic-native/market/ngx";
-import {
-    KretaMissingRoleException,
-    KretaInvalidPasswordException,
-    KretaInvalidResponseException,
-} from "../_exceptions";
+import { KretaMissingRoleException, KretaInvalidPasswordException } from "../_exceptions";
 import { TranslateService } from "@ngx-translate/core";
 import { Subscription } from "rxjs";
 
@@ -48,7 +44,7 @@ export class LoginPage {
         private loadingController: LoadingController,
         private menuController: MenuController,
         private modalController: ModalController,
-        private error: ErrorHelper,
+        private errorHelper: ErrorHelper,
         private safariViewController: SafariViewController,
         private statusBar: StatusBar,
         private config: ConfigService,
@@ -112,12 +108,10 @@ export class LoginPage {
             console.log("Hiba a felhasználóneves bejelentkezés során: ", e);
 
             if (e instanceof KretaInvalidPasswordException) {
-                this.firebase.logEvent("login_bad_credentials", {});
-                return await this.error.presentAlert(
-                    this.translate.instant("login.bad-credentials")
-                );
+                this.firebase.logEvent("login_bad_credentials");
+                return await this.errorHelper.presentAlertFromError(e);
             } else if (e instanceof KretaMissingRoleException) {
-                this.firebase.logEvent("login_missing_role", {});
+                this.firebase.logEvent("login_missing_role");
                 const alert = await this.alertController.create({
                     header: this.translate.instant("login.permission-needed"),
                     message: this.translate.instant("login.teacher-role-needed"),
@@ -139,7 +133,10 @@ export class LoginPage {
                 return await alert.present();
             }
 
-            throw new KretaInvalidResponseException(e);
+            await this.errorHelper.presentAlertFromError(e);
+            e.handled = true;
+
+            throw e;
         } finally {
             loading.dismiss();
             this.loading = false;
@@ -148,7 +145,7 @@ export class LoginPage {
 
     async showInstituteModal() {
         if (this.networkStatus.getCurrentNetworkStatus() === ConnectionStatus.Offline)
-            return await this.error.presentAlert(
+            return await this.errorHelper.presentAlert(
                 this.translate.instant("login.no-internet-institute-list")
             );
 

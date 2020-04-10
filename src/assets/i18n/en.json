@@ -5,6 +5,8 @@
         "done": "Done",
         "save": "Save",
         "error": "Error",
+        "details": "Details",
+        "retry": "Retry",
         "ok": "OK",
         "comm-error": "Communication error",
         "yes": "Yes",
@@ -42,8 +44,9 @@
         "logging-in": "Logging in...",
         "pp-and-tos": "Privacy policy and terms of service",
         "bad-credentials": "Wrong username or password",
-        "permission-needed": "Permission needed",
-        "teacher-role-needed": "You need to have 'Teacher' role to be able to log in.<br>For students and their parents, we recommend the Arisztokreta app. Do you want to open it in the store?",
+        "forgot-password": "If you forgot your credentials, contact your institution's KRETA administrator.",
+        "permission-needed": "Permission denied",
+        "teacher-role-needed": "Only teachers can log in to this app.<br><br>For students and their parents, we recommend the Arisztokreta app. Do you want to open it in the store?",
         "no-internet-institute-list": "The institute list can't be loaded, because there's no internet connection."
     },
     "institute-selector": {
@@ -104,7 +107,25 @@
         "info-days-limit-empty": "Due to technical reasons, we can only check the last {{value}} days lessons."
     },
     "messages": {
-        "title": "Messages"
+        "title": "Üzenetek",
+        "not-enabled": {
+            "header": "Az üzenetküldés ki van kapcsolva az intézményben",
+            "message": "Vedd fel a kapcsolatot az intézményi KRÉTA adminisztrátorral, ha használni szeretnéd."
+        },
+        "tab": {
+            "inbox": "Beérkezett",
+            "sent": "Elküldött",
+            "trash": "Törölt"
+        },
+        "inbox": {
+            "title": "Beérkezett üzenetek"
+        },
+        "sent": {
+            "title": "Elküldött üzenetek"
+        },
+        "trash": {
+            "title": "Törölt üzenetek"
+        }
     },
     "settings": {
         "title": "Settings",
@@ -129,8 +150,14 @@
     "os-components": {
         "title": "Open source components"
     },
-    "kreta": {
-        "api-error": "The KRETA server sent an invalid response. It's probably under maintenance.",
-        "login-unknown-error": "Unknown error occurred during login."
+    "exceptions": {
+        "error-occurred": "An error occurred",
+        "server-error": "Server-side error",
+        "network-error": "Network error",
+        "invalid-response.message": "The KRETA server sent an invalid response. It's probably under maintenance.",
+        "network-exception.message": "A network error occurred. Please check your internet connection!",
+        "server-side-error.message": "The server indicated, that it has an internal error. This usually occurs when the KRETA is under maintenance.",
+        "logged-out.title": "KRETA logged you out",
+        "logged-out.message": "The server ended your login session. Please log in again."
     }
 }

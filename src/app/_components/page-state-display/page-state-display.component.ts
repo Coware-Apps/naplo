@@ -3,16 +3,16 @@ import { ConfigService } from "src/app/_services";
 import { NaploException } from "src/app/_exceptions";
 
 @Component({
-    selector: "app-error-display",
-    templateUrl: "./error-display.component.html",
-    styleUrls: ["./error-display.component.scss"],
+    selector: "app-page-state-display",
+    templateUrl: "./page-state-display.component.html",
+    styleUrls: ["./page-state-display.component.scss"],
 })
-export class ErrorDisplayComponent implements OnInit {
+export class PageStateDisplayComponent implements OnInit {
     @Input() public iconName: string = "bug-outline";
     @Input() public header: string = "Hiba történt";
     @Input() public message: string;
     @Input() public exception: NaploException;
-    @Input() public buttonText: string;
+    @Input() public buttonTextKey: string;
 
     @Output() onButtonClicked: EventEmitter<void> = new EventEmitter<void>();
 

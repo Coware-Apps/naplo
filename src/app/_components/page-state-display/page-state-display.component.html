@@ -17,13 +17,19 @@
                 ></p>
                 <p *ngIf="!exception?.messageTranslationKey">{{ message || exception.message }}</p>
             </ion-text>
-            <ion-button color="primary" (click)="onButtonClicked.emit()" *ngIf="buttonText">
-                {{ buttonText }}
-            </ion-button>
+            <ion-button
+                color="primary"
+                (click)="onButtonClicked.emit()"
+                *ngIf="buttonTextKey"
+                [translate]="buttonTextKey"
+            ></ion-button>
 
             <ng-container class="debug-info" *ngIf="config.debugging">
-                <ion-button (click)="toggleDebuggingInfo()" color="danger">
-                    Részletek
+                <ion-button
+                    (click)="toggleDebuggingInfo()"
+                    color="danger"
+                    translate="common.details"
+                >
                 </ion-button>
 
                 <div class="debug-info ion-text-left" *ngIf="debuggingShown">
