@@ -5,7 +5,7 @@ import { FormsModule } from "@angular/forms";
 import { TranslateModule } from "@ngx-translate/core";
 import { PipesModule } from "../_pipes/pipes.module";
 
-import { TanuloJelenletComponent } from "./tanulo-jelenlet/tanulo-jelenlet.component";
+import { StudentAttendanceComponent } from "./student-attendance/student-attendance.component";
 import { StudentMemoComponent } from "./student-memo/student-memo.component";
 import { StudentEvaluationComponent } from "./student-evaluation/student-evaluation.component";
 import { EvaluationComponent } from "./evaluation/evaluation.component";
@@ -16,7 +16,7 @@ import { PageStateDisplayComponent } from "./page-state-display/page-state-displ
 
 @NgModule({
     declarations: [
-        TanuloJelenletComponent,
+        StudentAttendanceComponent,
         StudentMemoComponent,
         StudentEvaluationComponent,
         EvaluationComponent,
@@ -26,7 +26,7 @@ import { PageStateDisplayComponent } from "./page-state-display/page-state-displ
         PageStateDisplayComponent,
     ],
     exports: [
-        TanuloJelenletComponent,
+        StudentAttendanceComponent,
         StudentMemoComponent,
         StudentEvaluationComponent,
         EvaluationComponent,

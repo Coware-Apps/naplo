@@ -89,12 +89,12 @@
                     lines="full"
                 >
                     <ion-item *ngFor="let t of studentsOfGroup?.TanuloLista">
-                        <app-tanulo-jelenlet
-                            [tanulo]="t"
-                            [mulasztasok]="absences"
-                            [javasoltJelenlet]="javasoltJelenlet"
+                        <app-student-attendance
+                            [student]="t"
+                            [absences]="absences"
+                            [suggestedAttendanceState]="suggestedAttendanceState"
                             (onSelectionChange)="makeItDirty()"
-                        ></app-tanulo-jelenlet>
+                        ></app-student-attendance>
                     </ion-item>
                 </ion-list>
             </ng-container>

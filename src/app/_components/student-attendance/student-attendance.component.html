@@ -1,30 +1,30 @@
 <div size="12" class="nev">
-    {{ tanulo.Nev }}
-    <span class="javasolt-jelenlet-ok" *ngIf="javasoltJelenletOk">
+    {{ student.Nev }}
+    <span class="javasolt-jelenlet-ok" *ngIf="suggestedAttendanceReason">
         <ion-icon slot="start" name="warning"></ion-icon>
-        {{ javasoltJelenletOk }}
+        {{ suggestedAttendanceReason }}
     </span>
 </div>
-<div class="jelenlet-row" *ngIf="!magantanulo">
+<div class="jelenlet-row" *ngIf="!privateStudent">
     <ion-button
         (click)="changed('Jelenlét')"
         expand="block"
-        [fill]="jelenletAllapot == 'Jelenlét' ? 'outline' : 'clear'"
+        [fill]="attendanceState == 'Jelenlét' ? 'outline' : 'clear'"
     >
         {{ "presence-states.present" | translate }}
     </ion-button>
     <ion-button
         (click)="changed('Késés')"
         expand="block"
-        [fill]="jelenletAllapot == 'Késés' ? 'outline' : 'clear'"
+        [fill]="attendanceState == 'Késés' ? 'outline' : 'clear'"
     >
         {{ "presence-states.late" | translate }}
-        {{ keses > 0 ? ("logging.lateness-min" | translate: { value: keses }) : "" }}
+        {{ lateness > 0 ? ("logging.lateness-min" | translate: { value: lateness }) : "" }}
     </ion-button>
     <ion-button
         (click)="changed('Hiányzás')"
         expand="block"
-        [fill]="jelenletAllapot == 'Hiányzás' ? 'outline' : 'clear'"
+        [fill]="attendanceState == 'Hiányzás' ? 'outline' : 'clear'"
     >
         {{ "presence-states.absent" | translate }}
     </ion-button>

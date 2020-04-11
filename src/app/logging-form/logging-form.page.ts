@@ -19,7 +19,11 @@ import {
     AlertController,
     MenuController,
 } from "@ionic/angular";
-import { EvaluationComponent, TanuloJelenletComponent, StudentMemoComponent } from "../_components";
+import {
+    EvaluationComponent,
+    StudentAttendanceComponent,
+    StudentMemoComponent,
+} from "../_components";
 import {
     KretaService,
     ConfigService,
@@ -58,7 +62,7 @@ export class LoggingFormPage implements IDirty {
     public topic: string;
     public studentsOfGroup: OsztalyTanuloi;
     public absences: Mulasztas[];
-    public javasoltJelenlet: JavasoltJelenletTemplate;
+    public suggestedAttendanceState: JavasoltJelenletTemplate;
     public homeworkDeadline: string;
     public homeworkDescription: string;
     public memos: Feljegyzes[];
@@ -69,8 +73,8 @@ export class LoggingFormPage implements IDirty {
     private evaluation: EvaluationComponent;
     @ViewChild(IonContent, { static: false })
     private content: IonContent;
-    @ViewChildren(TanuloJelenletComponent)
-    private presenceComponents: QueryList<TanuloJelenletComponent>;
+    @ViewChildren(StudentAttendanceComponent)
+    private presenceComponents: QueryList<StudentAttendanceComponent>;
     @ViewChildren(StudentMemoComponent)
     private memoComponents: QueryList<StudentMemoComponent>;
 
@@ -186,9 +190,9 @@ export class LoggingFormPage implements IDirty {
 
                         this.subs.push(
                             this.kreta.getJavasoltJelenlet(this.lesson).subscribe({
-                                next: x => (this.javasoltJelenlet = x),
+                                next: x => (this.suggestedAttendanceState = x),
                                 error: error => {
-                                    if (!this.javasoltJelenlet) {
+                                    if (!this.suggestedAttendanceState) {
                                         this.pageState = PageState.Error;
                                         this.exception = error;
                                         error.handled = true;
@@ -392,10 +396,10 @@ export class LoggingFormPage implements IDirty {
     private getStudentList() {
         let studentList = [];
         this.presenceComponents.forEach(t => {
-            let studentsSelectedMemos = this.memoComponents.find(x => x.student.Id == t.tanulo.Id);
+            let studentsSelectedMemos = this.memoComponents.find(x => x.student.Id == t.student.Id);
 
             studentList.push({
-                Id: t.tanulo.Id,
+                Id: t.student.Id,
                 Mulasztas: t.getJsonOutput(),
                 FeljegyzesTipusLista: studentsSelectedMemos.getJsonOutput(),
             });
