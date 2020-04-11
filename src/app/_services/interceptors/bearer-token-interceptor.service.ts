@@ -11,7 +11,7 @@ export class BearerTokenInterceptorService implements HttpInterceptor {
     constructor(private kreta: KretaService, private eugy: KretaEUgyService) {}
 
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-        // do not set UA on ngx-translator requests
+        // do not set token on ngx-translator requests
         if (!req.url.startsWith("https")) {
             return next.handle(req);
         }
