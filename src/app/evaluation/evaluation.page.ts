@@ -5,7 +5,7 @@ import {
     ConnectionStatus,
     FirebaseService,
 } from "../_services";
-import { TanitottCsoport } from "../_models";
+import { TanitottCsoport, PageState } from "../_models";
 import { DateHelper, ErrorHelper } from "../_helpers";
 import { TranslateService } from "@ngx-translate/core";
 import { Subscription } from "rxjs";
@@ -28,15 +28,18 @@ export class EvaluationPage {
         private router: Router
     ) {}
 
-    public csoportok: TanitottCsoport[] = [];
-    public loading: boolean;
-    public napToCheck = 10;
+    public groups: TanitottCsoport[] = [];
+    public daysToCheck = 10;
 
+    public pageState: PageState = PageState.Loading;
+    public exception: Error;
+    public loadingInProgress: boolean;
     private subs: Subscription[] = [];
 
-    async ionViewWillEnter() {
-        this.csoportok = []; // refreshkor fontos
-        this.loading = true;
+    ionViewWillEnter() {
+        this.groups = [];
+        this.loadingInProgress = true;
+        this.pageState = PageState.Loading;
 
         this.firebase.setScreenName("evaluation");
 
@@ -46,42 +49,56 @@ export class EvaluationPage {
             })
         );
 
-        await this.firebase.startTrace("evaluation_page_load_time");
+        this.firebase.startTrace("evaluation_page_load_time");
 
         const map = new Map();
-        for (let i = 0; i < this.napToCheck; i++) {
+        for (let i = 0; i < this.daysToCheck; i++) {
             let d = new Date(this.dateHelper.getDayFromToday(-i));
             this.subs.push(
-                this.kreta.getOraLista(d).subscribe(
-                    x => {
-                        x.forEach(ora => {
-                            const id = ora.TantargyId + "-" + ora.OsztalyCsoportId;
+                this.kreta.getOraLista(d).subscribe({
+                    next: x => {
+                        x.forEach(lesson => {
+                            const id = lesson.TantargyId + "-" + lesson.OsztalyCsoportId;
 
                             if (!map.has(id)) {
                                 map.set(id, true);
-                                this.csoportok.push({
-                                    TantargyId: ora.TantargyId,
-                                    TantargyNev: ora.TantargyNev,
-                                    TantargyKategoria: ora.TantargyKategoria,
-                                    OsztalyCsoportId: ora.OsztalyCsoportId,
-                                    OsztalyCsoportNev: ora.OsztalyCsoportNev,
+                                this.groups.push({
+                                    TantargyId: lesson.TantargyId,
+                                    TantargyNev: lesson.TantargyNev,
+                                    TantargyKategoria: lesson.TantargyKategoria,
+                                    OsztalyCsoportId: lesson.OsztalyCsoportId,
+                                    OsztalyCsoportNev: lesson.OsztalyCsoportNev,
                                 });
                             }
                         });
 
-                        if (i == this.napToCheck - 1) {
-                            this.csoportok.sort((a, b) =>
+                        if (i == this.daysToCheck - 1) {
+                            this.groups.sort((a, b) =>
                                 a.OsztalyCsoportNev.localeCompare(b.OsztalyCsoportNev)
                             );
-                            this.loading = false;
+                            this.pageState =
+                                this.groups.length == 0 ? PageState.Empty : PageState.Loaded;
                             this.cd.detectChanges();
                             this.firebase.stopTrace("evaluation_page_load_time");
                         }
                     },
-                    e => {
-                        throw e;
-                    }
-                )
+                    error: error => {
+                        if (!this.groups || this.groups.length == 0) {
+                            this.pageState = PageState.Error;
+                            this.exception = error;
+                            error.handled = true;
+                        }
+
+                        this.loadingInProgress = false;
+                        this.firebase.stopTrace("evaluation_page_load_time");
+
+                        throw error;
+                    },
+                    complete: () => {
+                        this.loadingInProgress = false;
+                        this.firebase.stopTrace("evaluation_page_load_time");
+                    },
+                })
             );
         }
     }
@@ -93,12 +110,12 @@ export class EvaluationPage {
         });
     }
 
-    async onCsoportClick(c: TanitottCsoport) {
+    onGroupClick(c: TanitottCsoport) {
         this.firebase.logEvent("evaluation_page_group_clicked", {});
 
         if (this.networkStatus.getCurrentNetworkStatus() === ConnectionStatus.Offline)
-            return await this.errorHelper.presentToast(
-                await this.translate.get("eval.error-no-connection").toPromise()
+            return this.errorHelper.presentToast(
+                this.translate.instant("eval.error-no-connection")
             );
 
         this.router.navigate(["/evaluation-form"], { state: { tanitottCsoport: c } });

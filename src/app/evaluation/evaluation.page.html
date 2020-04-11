@@ -8,12 +8,15 @@
     </ion-toolbar>
 
     <app-offline-warning-bar></app-offline-warning-bar>
+    <ion-progress-bar
+        type="indeterminate"
+        color="warning"
+        *ngIf="loadingInProgress"
+    ></ion-progress-bar>
 </ion-header>
 
 <ion-content>
-    <div *ngIf="loading">
-        <ion-progress-bar type="indeterminate" color="warning"></ion-progress-bar>
-
+    <div *ngIf="pageState == 'LOADING'">
         <ion-list>
             <ion-item>
                 <ion-label>
@@ -45,9 +48,9 @@
         </ion-list>
     </div>
 
-    <div *ngIf="csoportok.length > 0 && !loading">
+    <div *ngIf="pageState == 'LOADED'">
         <ion-list>
-            <ion-item *ngFor="let c of csoportok" (click)="onCsoportClick(c)" button="true">
+            <ion-item *ngFor="let c of groups" (click)="onGroupClick(c)" button="true">
                 <ion-label>
                     <h2>{{c.OsztalyCsoportNev}}</h2>
                     <p>{{c.TantargyNev}}</p>
@@ -58,21 +61,22 @@
         <ion-item lines="none" class="note">
             <ion-icon name="information-circle-outline" slot="start"></ion-icon>
             <ion-note
-                [innerHTML]="'eval.info-days-limit' | translate:{value: napToCheck}"
+                [innerHTML]="'eval.info-days-limit' | translate:{value: daysToCheck}"
             ></ion-note>
         </ion-item>
     </div>
 
-    <div
-        *ngIf="csoportok.length == 0 && !loading"
-        class="ion-padding-horizontal ion-text-center list-empty-placeholder"
-    >
-        <ion-icon
-            slot="icon-only"
-            name="information-circle-outline"
-            style="font-size: 128px;"
-        ></ion-icon>
-        <p><strong translate="eval.list-empty"></strong></p>
-        <p [innerHTML]="'eval.info-days-limit-empty' | translate:{value: napToCheck}"></p>
-    </div>
+    <app-page-state-display
+        *ngIf="pageState == 'ERROR'"
+        [exception]="exception"
+        buttonTextKey="common.retry"
+        (onButtonClicked)="ionViewWillEnter()"
+    ></app-page-state-display>
+
+    <app-page-state-display
+        *ngIf="pageState == 'EMPTY'"
+        iconName="sunny-outline"
+        [header]="'eval.list-empty'|translate"
+        [message]="'eval.info-days-limit-empty'|translate:{value: daysToCheck}"
+    ></app-page-state-display>
 </ion-content>

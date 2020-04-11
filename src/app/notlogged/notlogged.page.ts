@@ -98,12 +98,14 @@ export class NotloggedPage {
 
                         this.loadingInProgress = false;
                         if ($event) $event.target.complete();
+                        this.firebase.stopTrace("not_logged_lessons_load_time");
 
                         throw error;
                     },
                     complete: () => {
                         this.loadingInProgress = false;
                         if ($event) $event.target.complete();
+                        this.firebase.stopTrace("not_logged_lessons_load_time");
                     },
                 })
             );
