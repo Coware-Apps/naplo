@@ -109,7 +109,8 @@
         "title": "Nem naplózott órák",
         "info-days-limit": "Ez a lista technikai okokból csak az elmúlt {{value}} nap nem naplózott óráit tartalmazza.",
         "list-empty": "A lista üres",
-        "info-days-limit-empty": "Technikai okokból csak az elmúlt {{value}} nap óráit tudjuk ellenőrizni."
+        "info-days-limit-empty": "Technikai okokból csak az elmúlt {{value}} nap óráit tudjuk ellenőrizni.",
+        "error-offline": "Nincs internetkapcsolat, ezért az óra most nem naplózható!"
     },
     "messages": {
         "title": "Üzenetek",

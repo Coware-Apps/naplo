@@ -107,7 +107,8 @@
         "title": "Not logged lessons",
         "info-days-limit": "Due to technical reasons this list only includes the non-logged lessons of the last {{value}} days.",
         "list-empty": "The list is empty",
-        "info-days-limit-empty": "Due to technical reasons, we can only check the last {{value}} days lessons."
+        "info-days-limit-empty": "Due to technical reasons, we can only check the last {{value}} days lessons.",
+        "error-offline": "There's no internet, therefore the lesson can't be logged right now."
     },
     "messages": {
         "title": "Üzenetek",

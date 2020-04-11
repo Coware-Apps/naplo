@@ -248,8 +248,6 @@ export class KretaService {
         return this.data
             .getUrlWithCache<{ Adatcsomag: T }>(
                 this.institute.Url + url,
-                // "***REMOVED***?error=invalid&origurl=" + url,
-
                 null,
                 null,
                 cacheSecs,
@@ -353,8 +351,6 @@ export class KretaService {
     postLesson(data: object): Observable<any> {
         const response = this.data.postUrl<any>(
             this.institute.Url + "/Naplo/v2/Orarend/OraNaplozas",
-
-            // "***REMOVED***?error=403&origurl=x",
             data
         );
 

@@ -8,12 +8,18 @@
     </ion-toolbar>
 
     <app-offline-warning-bar></app-offline-warning-bar>
+
+    <ion-progress-bar
+        type="indeterminate"
+        color="warning"
+        *ngIf="loadingInProgress"
+    ></ion-progress-bar>
 </ion-header>
 
 <ion-content>
     <ion-refresher
         slot="fixed"
-        (ionRefresh)="loadHianyzoOrak(true, $event)"
+        (ionRefresh)="loadNotLoggedLessons(true, $event)"
         pullFactor="0.8"
         pullMin="60"
         pullMax="120"
@@ -21,13 +27,13 @@
         <ion-refresher-content></ion-refresher-content>
     </ion-refresher>
 
-    <ng-container *ngIf="orak.length > 0 && !loading">
+    <ng-container *ngIf="pageState == 'LOADED'">
         <ion-list>
-            <ng-container *ngFor="let o of orak">
+            <ng-container *ngFor="let l of lessons">
                 <app-timetable-lesson
-                    [lesson]="o"
+                    [lesson]="l"
                     showDate="true"
-                    (click)="onLessonClick(o)"
+                    (click)="onLessonClick(l)"
                 ></app-timetable-lesson>
             </ng-container>
         </ion-list>
@@ -36,27 +42,12 @@
             <ion-icon name="information-circle-outline" slot="start"></ion-icon>
             <ion-note
                 translate="notlogged.info-days-limit"
-                [translateParams]="{value: napToCheck}"
+                [translateParams]="{value: daysToCheck}"
             ></ion-note>
         </ion-item>
     </ng-container>
 
-    <div
-        *ngIf="orak.length == 0 && !loading"
-        class="ion-padding-horizontal ion-text-center list-empty-placeholder"
-    >
-        <ion-icon
-            slot="icon-only"
-            name="information-circle-outline"
-            style="font-size: 128px;"
-        ></ion-icon>
-        <p><strong>{{'notlogged.list-empty'|translate}}</strong></p>
-        <p translate="notlogged.info-days-limit-empty" [translateParams]="{value: napToCheck}"></p>
-    </div>
-
-    <div *ngIf="loading">
-        <ion-progress-bar type="indeterminate" color="warning"></ion-progress-bar>
-
+    <div *ngIf="pageState == 'LOADING'">
         <ion-list>
             <ion-item>
                 <ion-label>
@@ -87,4 +78,18 @@
             </ion-item>
         </ion-list>
     </div>
+
+    <app-page-state-display
+        *ngIf="pageState == 'ERROR'"
+        [exception]="exception"
+        buttonTextKey="common.retry"
+        (onButtonClicked)="loadNotLoggedLessons(true)"
+    ></app-page-state-display>
+
+    <app-page-state-display
+        *ngIf="pageState == 'EMPTY'"
+        iconName="sunny-outline"
+        [header]="'notlogged.list-empty'|translate"
+        [message]="'notlogged.info-days-limit-empty'|translate:{value: daysToCheck}"
+    ></app-page-state-display>
 </ion-content>
