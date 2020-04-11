@@ -5,6 +5,7 @@ import {
     NetworkStatusService,
     ConnectionStatus,
     FirebaseService,
+    HwButtonService,
 } from "../_services";
 import { ActivatedRoute, Router } from "@angular/router";
 import {
@@ -21,7 +22,8 @@ import { InAppBrowser } from "@ionic-native/in-app-browser/ngx";
 import { Market } from "@ionic-native/market/ngx";
 import { KretaMissingRoleException, KretaInvalidPasswordException } from "../_exceptions";
 import { TranslateService } from "@ngx-translate/core";
-import { Subscription } from "rxjs";
+import { Subject } from "rxjs";
+import { takeUntil } from "rxjs/operators";
 
 @Component({
     selector: "app-login",
@@ -35,7 +37,7 @@ export class LoginPage {
     private returnUrl: string;
     public loading: boolean;
 
-    private subs: Subscription[] = [];
+    private unsubscribe$: Subject<void>;
 
     constructor(
         private kreta: KretaService,
@@ -53,10 +55,12 @@ export class LoginPage {
         private iab: InAppBrowser,
         private market: Market,
         private alertController: AlertController,
-        private translate: TranslateService
+        private translate: TranslateService,
+        private hwButton: HwButtonService
     ) {}
 
     async ionViewWillEnter() {
+        this.unsubscribe$ = new Subject<void>();
         this.config.applyTheme("light", false);
         this.statusBar.styleDefault();
         this.statusBar.backgroundColorByHexString("#FDEC5D"); // sárga
@@ -70,13 +74,13 @@ export class LoginPage {
             await this.router.navigate(["/timetable"]);
             return;
         }
+
+        this.hwButton.registerHwBackButton(this.unsubscribe$, true);
     }
 
     ionViewWillLeave() {
-        this.subs.forEach((s, index, object) => {
-            s.unsubscribe();
-            object.splice(index, 1);
-        });
+        this.unsubscribe$.next();
+        this.unsubscribe$.complete();
     }
 
     async doLogin() {
@@ -161,24 +165,23 @@ export class LoginPage {
         this.firebase.logEvent("login_privacypolicy_opened");
         this.safariViewController.isAvailable().then(async (available: boolean) => {
             if (available) {
-                this.subs.push(
-                    this.safariViewController
-                        .show({
-                            url: "https://coware-apps.github.io/naplo/privacy",
-                            barColor: "#3880ff",
-                            toolbarColor: "#3880ff",
-                            controlTintColor: "#ffffff",
-                        })
-                        .subscribe({
-                            next: (result: any) => {},
-                            error: (error: any) => {
-                                console.error(error);
-                                this.firebase.logError(
-                                    "login privacypolicy subscription error: " + error
-                                );
-                            },
-                        })
-                );
+                this.safariViewController
+                    .show({
+                        url: "https://coware-apps.github.io/naplo/privacy",
+                        barColor: "#3880ff",
+                        toolbarColor: "#3880ff",
+                        controlTintColor: "#ffffff",
+                    })
+                    .pipe(takeUntil(this.unsubscribe$))
+                    .subscribe({
+                        next: (result: any) => {},
+                        error: (error: any) => {
+                            console.error(error);
+                            this.firebase.logError(
+                                "login privacypolicy subscription error: " + error
+                            );
+                        },
+                    });
             } else {
                 console.log("browser tab not supported");
 

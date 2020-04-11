@@ -6,10 +6,12 @@ import {
     NetworkStatusService,
     ConnectionStatus,
     FirebaseService,
+    HwButtonService,
 } from "../_services";
-import { Subscription } from "rxjs";
+import { Subject } from "rxjs";
 import { Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
+import { takeUntil } from "rxjs/operators";
 
 @Component({
     selector: "app-notlogged",
@@ -24,7 +26,7 @@ export class NotloggedPage {
     public pageState: PageState = PageState.Loading;
     public exception: Error;
     public loadingInProgress: boolean;
-    private subs: Subscription[] = [];
+    private unsubscribe$: Subject<void>;
 
     constructor(
         private dateHelper: DateHelper,
@@ -34,27 +36,30 @@ export class NotloggedPage {
         private cd: ChangeDetectorRef,
         private firebase: FirebaseService,
         private router: Router,
-        private translate: TranslateService
+        private translate: TranslateService,
+        private hwButton: HwButtonService
     ) {}
 
     async ionViewWillEnter() {
+        this.unsubscribe$ = new Subject<void>();
         this.firebase.setScreenName("not_logged_lessons");
         this.loadNotLoggedLessons();
 
-        this.subs.push(
-            this.networkStatus.onNetworkChangeOnly().subscribe({
+        this.networkStatus
+            .onNetworkChangeOnly()
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe({
                 next: x => {
                     if (x === ConnectionStatus.Online) this.loadNotLoggedLessons();
                 },
-            })
-        );
+            });
+
+        this.hwButton.registerHwBackButton(this.unsubscribe$);
     }
 
     ionViewWillLeave() {
-        this.subs.forEach((s, index, object) => {
-            s.unsubscribe();
-            object.splice(index, 1);
-        });
+        this.unsubscribe$.next();
+        this.unsubscribe$.complete();
     }
 
     loadNotLoggedLessons(forceRefresh: boolean = false, $event?) {
@@ -66,8 +71,11 @@ export class NotloggedPage {
         let map = new Map();
         for (let i = 0; i < this.daysToCheck; i++) {
             let d = new Date(this.dateHelper.getDayFromToday(-i));
-            this.subs.push(
-                this.kreta.getOraLista(d, forceRefresh).subscribe({
+
+            this.kreta
+                .getOraLista(d, forceRefresh)
+                .pipe(takeUntil(this.unsubscribe$))
+                .subscribe({
                     next: x => {
                         x.forEach(lesson => {
                             if (
@@ -107,8 +115,7 @@ export class NotloggedPage {
                         if ($event) $event.target.complete();
                         this.firebase.stopTrace("not_logged_lessons_load_time");
                     },
-                })
-            );
+                });
         }
     }
 

@@ -1,5 +1,6 @@
 import { Component } from "@angular/core";
-import { KretaEUgyService } from "../_services";
+import { KretaEUgyService, HwButtonService } from "../_services";
+import { Subject } from "rxjs";
 
 @Component({
     selector: "app-messages",
@@ -9,14 +10,23 @@ import { KretaEUgyService } from "../_services";
 export class MessagesPage {
     public eugyLoggedIn: boolean;
     public messagingEnabled: boolean;
+    private unsubscribe$: Subject<void>;
 
-    constructor(public eugy: KretaEUgyService) {}
+    constructor(public eugy: KretaEUgyService, private hwButton: HwButtonService) {}
 
     public async ionViewWillEnter() {
+        this.unsubscribe$ = new Subject<void>();
         this.eugyLoggedIn = await this.eugy.isAuthenticated();
         if (this.eugyLoggedIn) {
             this.messagingEnabled = await this.eugy.isMessagingEnabled();
         }
+
+        this.hwButton.registerHwBackButton(this.unsubscribe$);
+    }
+
+    public ionviewWillLeave() {
+        this.unsubscribe$.next();
+        this.unsubscribe$.complete();
     }
 
     public async onSuccessfulLogin() {

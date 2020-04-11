@@ -9,7 +9,7 @@ import {
     IDirty,
     PageState,
 } from "../_models";
-import { Subscription } from "rxjs";
+import { Subject } from "rxjs";
 import {
     IonSlides,
     IonContent,
@@ -35,7 +35,7 @@ import { ErrorHelper, DateHelper } from "../_helpers";
 import { TranslateService } from "@ngx-translate/core";
 import { CurriculumModalPage } from "./curriculum-modal/curriculum-modal.page";
 import { TopicOptionsComponent } from "./topic-options/topic-options.component";
-import { map } from "rxjs/operators";
+import { map, takeUntil } from "rxjs/operators";
 import { Location } from "@angular/common";
 
 @Component({
@@ -44,7 +44,7 @@ import { Location } from "@angular/common";
     styleUrls: ["./logging-form.page.scss"],
 })
 export class LoggingFormPage implements IDirty {
-    private subs: Subscription[] = [];
+    private unsubscribe$: Subject<void>;
     private _isDirty: boolean;
 
     public lesson: Lesson;
@@ -98,11 +98,14 @@ export class LoggingFormPage implements IDirty {
     ) {}
 
     public async ionViewWillEnter() {
+        this.unsubscribe$ = new Subject<void>();
         this.firebase.setScreenName("logging");
         this.menuController.swipeGesture(false);
 
-        this.subs.push(
-            this.route.paramMap.pipe(map(() => window.history.state)).subscribe({
+        this.route.paramMap
+            .pipe(map(() => window.history.state))
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe({
                 next: async state => {
                     this.lesson = state.lesson;
                     this.pageState = PageState.Loading;
@@ -133,8 +136,10 @@ export class LoggingFormPage implements IDirty {
 
                         await this.firebase.startTrace("logging_modal_load_time");
 
-                        this.subs.push(
-                            this.kreta.getOsztalyTanuloi(this.lesson.OsztalyCsoportId).subscribe({
+                        this.kreta
+                            .getOsztalyTanuloi(this.lesson.OsztalyCsoportId)
+                            .pipe(takeUntil(this.unsubscribe$))
+                            .subscribe({
                                 next: x => (this.studentsOfGroup = x),
                                 error: error => {
                                     if (!this.studentsOfGroup) {
@@ -147,13 +152,14 @@ export class LoggingFormPage implements IDirty {
                                     throw error;
                                 },
                                 complete: () => this.loadingDone("osztalyTanuloi"),
-                            })
-                        );
+                            });
 
                         if (this.lesson.Allapot.Nev == "Naplozott") {
                             this.loading.push("mulasztas");
-                            this.subs.push(
-                                this.kreta.getMulasztas(this.lesson.TanitasiOraId).subscribe({
+                            this.kreta
+                                .getMulasztas(this.lesson.TanitasiOraId)
+                                .pipe(takeUntil(this.unsubscribe$))
+                                .subscribe({
                                     next: x => (this.absences = x),
                                     error: error => {
                                         if (!this.absences) {
@@ -166,12 +172,13 @@ export class LoggingFormPage implements IDirty {
                                         throw error;
                                     },
                                     complete: () => this.loadingDone("mulasztas"),
-                                })
-                            );
+                                });
 
                             this.loading.push("feljegyzesek");
-                            this.subs.push(
-                                this.kreta.getFeljegyzes(this.lesson.TanitasiOraId).subscribe({
+                            this.kreta
+                                .getFeljegyzes(this.lesson.TanitasiOraId)
+                                .pipe(takeUntil(this.unsubscribe$))
+                                .subscribe({
                                     next: x => (this.memos = x),
                                     error: error => {
                                         if (!this.memos) {
@@ -184,12 +191,13 @@ export class LoggingFormPage implements IDirty {
                                         throw error;
                                     },
                                     complete: () => this.loadingDone("feljegyzesek"),
-                                })
-                            );
+                                });
                         }
 
-                        this.subs.push(
-                            this.kreta.getJavasoltJelenlet(this.lesson).subscribe({
+                        this.kreta
+                            .getJavasoltJelenlet(this.lesson)
+                            .pipe(takeUntil(this.unsubscribe$))
+                            .subscribe({
                                 next: x => (this.suggestedAttendanceState = x),
                                 error: error => {
                                     if (!this.suggestedAttendanceState) {
@@ -202,30 +210,27 @@ export class LoggingFormPage implements IDirty {
                                     throw error;
                                 },
                                 complete: () => this.loadingDone("javasoltJelenlet"),
-                            })
-                        );
+                            });
 
                         this.firebase.stopTrace("logging_modal_load_time");
                     }
                 },
-            })
-        );
+            });
 
-        this.subs.push(
-            this.networkStatus.onNetworkChange().subscribe({
+        this.networkStatus
+            .onNetworkChange()
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe({
                 next: status => {
                     this.currentlyOffline = status === ConnectionStatus.Offline;
                     this.cd.detectChanges();
                 },
-            })
-        );
+            });
     }
 
     public async ionViewWillLeave() {
-        this.subs.forEach((s, index, object) => {
-            s.unsubscribe();
-            object.splice(index, 1);
-        });
+        this.unsubscribe$.next();
+        this.unsubscribe$.complete();
         this.config.swipeGestureEnabled = true;
         this.menuController.swipeGesture(true);
     }

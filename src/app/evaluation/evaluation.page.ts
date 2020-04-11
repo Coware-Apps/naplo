@@ -4,12 +4,14 @@ import {
     NetworkStatusService,
     ConnectionStatus,
     FirebaseService,
+    HwButtonService,
 } from "../_services";
 import { TanitottCsoport, PageState } from "../_models";
 import { DateHelper, ErrorHelper } from "../_helpers";
 import { TranslateService } from "@ngx-translate/core";
-import { Subscription } from "rxjs";
+import { Subject } from "rxjs";
 import { Router } from "@angular/router";
+import { takeUntil } from "rxjs/operators";
 
 @Component({
     selector: "app-evaluation",
@@ -25,7 +27,8 @@ export class EvaluationPage {
         private cd: ChangeDetectorRef,
         private firebase: FirebaseService,
         private translate: TranslateService,
-        private router: Router
+        private router: Router,
+        private hwButton: HwButtonService
     ) {}
 
     public groups: TanitottCsoport[] = [];
@@ -34,28 +37,34 @@ export class EvaluationPage {
     public pageState: PageState = PageState.Loading;
     public exception: Error;
     public loadingInProgress: boolean;
-    private subs: Subscription[] = [];
+    private unsubscribe$: Subject<void>;
 
     ionViewWillEnter() {
+        this.unsubscribe$ = new Subject<void>();
         this.groups = [];
         this.loadingInProgress = true;
         this.pageState = PageState.Loading;
 
         this.firebase.setScreenName("evaluation");
 
-        this.subs.push(
-            this.networkStatus.onNetworkChangeOnly().subscribe(x => {
+        this.networkStatus
+            .onNetworkChangeOnly()
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe(x => {
                 if (x === ConnectionStatus.Online) this.ionViewWillEnter();
-            })
-        );
+            });
+
+        this.hwButton.registerHwBackButton(this.unsubscribe$);
 
         this.firebase.startTrace("evaluation_page_load_time");
 
         const map = new Map();
         for (let i = 0; i < this.daysToCheck; i++) {
             let d = new Date(this.dateHelper.getDayFromToday(-i));
-            this.subs.push(
-                this.kreta.getOraLista(d).subscribe({
+            this.kreta
+                .getOraLista(d)
+                .pipe(takeUntil(this.unsubscribe$))
+                .subscribe({
                     next: x => {
                         x.forEach(lesson => {
                             const id = lesson.TantargyId + "-" + lesson.OsztalyCsoportId;
@@ -98,16 +107,13 @@ export class EvaluationPage {
                         this.loadingInProgress = false;
                         this.firebase.stopTrace("evaluation_page_load_time");
                     },
-                })
-            );
+                });
         }
     }
 
     ionViewWillLeave() {
-        this.subs.forEach((s, index, object) => {
-            s.unsubscribe();
-            object.splice(index, 1);
-        });
+        this.unsubscribe$.next();
+        this.unsubscribe$.complete();
     }
 
     onGroupClick(c: TanitottCsoport) {

@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, ChangeDetectorRef, OnDestroy } from "@angular/core";
 import { NetworkStatusService, ConnectionStatus } from "src/app/_services";
-import { Subscription } from "rxjs";
+import { Subject } from "rxjs";
+import { takeUntil } from "rxjs/operators";
 
 @Component({
     selector: "app-offline-warning-bar",
@@ -13,21 +14,20 @@ export class OfflineWarningBarComponent implements OnInit, OnDestroy {
     constructor(private networkStatus: NetworkStatusService, private cd: ChangeDetectorRef) {}
 
     public currentlyOffline: boolean;
-    private subs: Subscription[] = [];
+    private unsubscribe$: Subject<void> = new Subject<void>();
 
     ngOnInit() {
-        this.subs.push(
-            this.networkStatus.onNetworkChange().subscribe(status => {
+        this.networkStatus
+            .onNetworkChange()
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe(status => {
                 this.currentlyOffline = status === ConnectionStatus.Offline;
                 this.cd.detectChanges();
-            })
-        );
+            });
     }
 
     ngOnDestroy() {
-        this.subs.forEach((s, index, object) => {
-            s.unsubscribe();
-            object.splice(index, 1);
-        });
+        this.unsubscribe$.next();
+        this.unsubscribe$.complete();
     }
 }

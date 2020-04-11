@@ -2,7 +2,8 @@ import { Component } from "@angular/core";
 import { KretaService, FirebaseService } from "../../_services";
 import { Institute, PageState } from "../../_models";
 import { ModalController, Platform } from "@ionic/angular";
-import { Subscription } from "rxjs";
+import { Subject } from "rxjs";
+import { takeUntil } from "rxjs/operators";
 
 @Component({
     selector: "app-institute-selector-modal",
@@ -15,7 +16,7 @@ export class InstituteSelectorModalPage {
 
     public pageState: PageState = PageState.Loading;
     public exception: Error;
-    private subs: Subscription[] = [];
+    private unsubscribe$: Subject<void>;
 
     constructor(
         public platform: Platform,
@@ -25,13 +26,16 @@ export class InstituteSelectorModalPage {
     ) {}
 
     async ionViewWillEnter() {
+        this.unsubscribe$ = new Subject<void>();
         this.firebase.setScreenName("institute_selector_modal");
         await this.firebase.startTrace("institute_list_loading_time");
         this.pageState = PageState.Loading;
         this.exception = null;
 
-        this.subs.push(
-            this.kreta.getInstituteList().subscribe({
+        this.kreta
+            .getInstituteList()
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe({
                 next: x => {
                     this.institutes = x;
                     this.filteredInstitutes = x;
@@ -48,15 +52,12 @@ export class InstituteSelectorModalPage {
 
                     throw error;
                 },
-            })
-        );
+            });
     }
 
     ionViewWillLeave() {
-        this.subs.forEach((s, index, object) => {
-            s.unsubscribe();
-            object.splice(index, 1);
-        });
+        this.unsubscribe$.next();
+        this.unsubscribe$.complete();
     }
 
     doFilter($event) {

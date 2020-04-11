@@ -1,7 +1,8 @@
 import { Component, OnInit, Input, OnDestroy } from "@angular/core";
 import { MessageListItem } from "src/app/_models";
 import { ConfigService, KretaEUgyService } from "src/app/_services";
-import { BehaviorSubject, Subscription } from "rxjs";
+import { BehaviorSubject, Subject } from "rxjs";
+import { takeUntil } from "rxjs/operators";
 
 @Component({
     selector: "app-message-list-component",
@@ -21,7 +22,7 @@ export class MessageListComponent implements OnInit, OnDestroy {
         "loading" | "loaded" | "empty" | "error"
     > = new BehaviorSubject("loading");
     public exception: Error;
-    private subs: Subscription[] = [];
+    private unsubscribe$: Subject<void> = new Subject<void>();
 
     constructor(public config: ConfigService, private eugy: KretaEUgyService) {}
 
@@ -30,18 +31,18 @@ export class MessageListComponent implements OnInit, OnDestroy {
     }
 
     public ngOnDestroy() {
-        this.subs.forEach((s, index, object) => {
-            s.unsubscribe();
-            object.splice(index, 1);
-        });
+        this.unsubscribe$.next();
+        this.unsubscribe$.complete();
     }
 
     public async loadMessages(forceRefresh: boolean = false, event?) {
         this.componentState.next("loading");
         this.exception = null;
 
-        this.subs.push(
-            (await this.eugy.getMessageList(this.folder, forceRefresh)).subscribe(
+        this.eugy
+            .getMessageList(this.folder, forceRefresh)
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe(
                 x => {
                     this.messages = x;
 
@@ -63,8 +64,7 @@ export class MessageListComponent implements OnInit, OnDestroy {
                     }
                     throw e;
                 }
-            )
-        );
+            );
     }
 
     public resetDisplay() {

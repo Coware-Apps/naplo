@@ -1,5 +1,5 @@
-import { Component, OnInit } from "@angular/core";
-import { ConfigService, FirebaseService, KretaService } from "../_services";
+import { Component } from "@angular/core";
+import { ConfigService, FirebaseService, KretaService, HwButtonService } from "../_services";
 import { languages } from "../_languages";
 import { themes } from "../../theme/themes";
 import { AppVersion } from "@ionic-native/app-version/ngx";
@@ -8,7 +8,8 @@ import { ModalController } from "@ionic/angular";
 import { OsComponentsPage } from "./os-components/os-components.page";
 import { InAppBrowser } from "@ionic-native/in-app-browser/ngx";
 import { ErtekelesTipus } from "../_models";
-import { Subscription } from "rxjs";
+import { Subject } from "rxjs";
+import { takeUntil } from "rxjs/operators";
 
 @Component({
     selector: "app-settings",
@@ -22,28 +23,29 @@ export class SettingsPage {
     public appversionnumber: string;
     public ErtekelesTipus = ErtekelesTipus;
 
-    private subs: Subscription[] = [];
+    private unsubscribe$: Subject<void>;
 
     constructor(
         public config: ConfigService,
         public appVersion: AppVersion,
-        private safariViewController: SafariViewController,
         public modalController: ModalController,
         private firebase: FirebaseService,
         private iab: InAppBrowser,
-        private kreta: KretaService
+        private safariViewController: SafariViewController,
+        private kreta: KretaService,
+        private hwButton: HwButtonService
     ) {}
 
     async ionViewWillEnter() {
+        this.unsubscribe$ = new Subject<void>();
         this.firebase.setScreenName("settings");
         this.appversionnumber = await this.appVersion.getVersionNumber();
+        this.hwButton.registerHwBackButton(this.unsubscribe$);
     }
 
     ionViewWillLeave() {
-        this.subs.forEach((s, index, object) => {
-            s.unsubscribe();
-            object.splice(index, 1);
-        });
+        this.unsubscribe$.next();
+        this.unsubscribe$.complete();
     }
 
     changeTheme($event) {
@@ -83,24 +85,23 @@ export class SettingsPage {
         this.firebase.logEvent("settings_privacypolicy_opened", {});
         this.safariViewController.isAvailable().then((available: boolean) => {
             if (available) {
-                this.subs.push(
-                    this.safariViewController
-                        .show({
-                            url: "https://coware-apps.github.io/naplo/privacy",
-                            barColor: "#3880ff",
-                            toolbarColor: "#3880ff",
-                            controlTintColor: "#ffffff",
-                        })
-                        .subscribe(
-                            (result: any) => {},
-                            (error: any) => {
-                                this.firebase.logError(
-                                    "settings privacy policy modal subscribe error: " + error
-                                );
-                                console.error(error);
-                            }
-                        )
-                );
+                this.safariViewController
+                    .show({
+                        url: "https://coware-apps.github.io/naplo/privacy",
+                        barColor: "#3880ff",
+                        toolbarColor: "#3880ff",
+                        controlTintColor: "#ffffff",
+                    })
+                    .pipe(takeUntil(this.unsubscribe$))
+                    .subscribe(
+                        (result: any) => {},
+                        (error: any) => {
+                            this.firebase.logError(
+                                "settings privacy policy modal subscribe error: " + error
+                            );
+                            console.error(error);
+                        }
+                    );
             } else {
                 console.log("browser tab not supported");
 

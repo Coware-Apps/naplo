@@ -1,7 +1,7 @@
 import { Component, ViewChild, ChangeDetectorRef } from "@angular/core";
 import { TanitottCsoport, OsztalyTanuloi, IDirty } from "../_models";
 import { EvaluationComponent } from "../_components";
-import { Subscription } from "rxjs";
+import { Subject } from "rxjs";
 import {
     KretaService,
     NetworkStatusService,
@@ -12,7 +12,7 @@ import {
 import { LoadingController, MenuController } from "@ionic/angular";
 import { Location } from "@angular/common";
 import { ActivatedRoute } from "@angular/router";
-import { map } from "rxjs/operators";
+import { map, takeUntil } from "rxjs/operators";
 
 @Component({
     selector: "app-evaluation-form",
@@ -27,7 +27,7 @@ export class EvaluationFormPage implements IDirty {
     public osztalyTanuloi: OsztalyTanuloi;
     public currentlyOffline: boolean;
 
-    private subs: Subscription[] = [];
+    private unsubscribe$: Subject<void>;
     private _isDirty: boolean;
 
     constructor(
@@ -43,37 +43,37 @@ export class EvaluationFormPage implements IDirty {
     ) {}
 
     async ionViewWillEnter() {
+        this.unsubscribe$ = new Subject<void>();
         this.firebase.setScreenName("evaluation_modal");
         this.menuController.swipeGesture(false);
 
-        this.subs.push(
-            this.route.paramMap.pipe(map(() => window.history.state)).subscribe(async state => {
+        this.route.paramMap
+            .pipe(map(() => window.history.state))
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe(async state => {
                 this.tanitottCsoport = state.tanitottCsoport;
                 this._isDirty = false;
 
                 await this.firebase.startTrace("evaluation_modal_load_time");
-                this.subs.push(
-                    this.kreta
-                        .getOsztalyTanuloi(this.tanitottCsoport.OsztalyCsoportId)
-                        .subscribe(x => (this.osztalyTanuloi = x))
-                );
+                this.kreta
+                    .getOsztalyTanuloi(this.tanitottCsoport.OsztalyCsoportId)
+                    .pipe(takeUntil(this.unsubscribe$))
+                    .subscribe(x => (this.osztalyTanuloi = x));
                 this.firebase.stopTrace("evaluation_modal_load_time");
-            })
-        );
+            });
 
-        this.subs.push(
-            this.networkStatus.onNetworkChange().subscribe(status => {
+        this.networkStatus
+            .onNetworkChange()
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe(status => {
                 this.currentlyOffline = status === ConnectionStatus.Offline;
                 this.cd.detectChanges();
-            })
-        );
+            });
     }
 
     ionViewWillLeave() {
-        this.subs.forEach((s, index, object) => {
-            s.unsubscribe();
-            object.splice(index, 1);
-        });
+        this.unsubscribe$.next();
+        this.unsubscribe$.complete();
         this.config.swipeGestureEnabled = true;
         this.menuController.swipeGesture(true);
     }

@@ -3,7 +3,8 @@ import { ModalController, Platform } from "@ionic/angular";
 import { SafariViewController } from "@ionic-native/safari-view-controller/ngx";
 import { InAppBrowser } from "@ionic-native/in-app-browser/ngx";
 import { FirebaseService } from "src/app/_services";
-import { Subscription } from "rxjs";
+import { Subject } from "rxjs";
+import { takeUntil } from "rxjs/operators";
 
 @Component({
     selector: "app-os-components",
@@ -70,7 +71,7 @@ export class OsComponentsPage {
         },
     ];
 
-    private subs: Subscription[] = [];
+    private unsubscribe$: Subject<void>;
 
     constructor(
         public platform: Platform,
@@ -81,39 +82,35 @@ export class OsComponentsPage {
     ) {}
 
     ionViewWillEnter() {
+        this.unsubscribe$ = new Subject<void>();
         this.componentList = this.componentList.sort((a, b) => a.name.localeCompare(b.name));
         this.firebase.setScreenName("os_components");
     }
 
     ionViewWillLeave() {
-        this.subs.forEach((s, index, object) => {
-            s.unsubscribe();
-            object.splice(index, 1);
-        });
+        this.unsubscribe$.next();
+        this.unsubscribe$.complete();
     }
 
     openLink(url: string) {
         this.firebase.logEvent("os_component_opened", { url: url });
         this.safariViewController.isAvailable().then((available: boolean) => {
             if (available) {
-                this.subs.push(
-                    this.safariViewController
-                        .show({
-                            url: url,
-                            barColor: "#3880ff",
-                            toolbarColor: "#3880ff",
-                            controlTintColor: "#ffffff",
-                        })
-                        .subscribe(
-                            (result: any) => {},
-                            (error: any) => {
-                                this.firebase.logError(
-                                    "os_components modal subscribe error: " + error
-                                );
-                                console.error(error);
-                            }
-                        )
-                );
+                this.safariViewController
+                    .show({
+                        url: url,
+                        barColor: "#3880ff",
+                        toolbarColor: "#3880ff",
+                        controlTintColor: "#ffffff",
+                    })
+                    .pipe(takeUntil(this.unsubscribe$))
+                    .subscribe(
+                        (result: any) => {},
+                        (error: any) => {
+                            this.firebase.logError("os_components modal subscribe error: " + error);
+                            console.error(error);
+                        }
+                    );
             } else {
                 console.log("browser tab not supported");
 

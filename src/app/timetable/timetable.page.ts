@@ -5,6 +5,7 @@ import {
     NetworkStatusService,
     ConnectionStatus,
     FirebaseService,
+    HwButtonService,
 } from "../_services";
 import { Lesson, PageState } from "../_models";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -13,7 +14,8 @@ import { DatePicker } from "@ionic-native/date-picker/ngx";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { Location } from "@angular/common";
-import { Subscription } from "rxjs";
+import { Subject } from "rxjs";
+import { takeUntil } from "rxjs/operators";
 
 @Component({
     selector: "app-timetable",
@@ -34,7 +36,8 @@ export class TimetablePage implements OnInit {
         private firebase: FirebaseService,
         private translate: TranslateService,
         private router: Router,
-        private location: Location
+        private location: Location,
+        private hwButton: HwButtonService
     ) {}
 
     public timetable: Lesson[];
@@ -44,7 +47,7 @@ export class TimetablePage implements OnInit {
     public exception: Error;
     public loadingInProgress: boolean;
 
-    private subs: Subscription[] = [];
+    private unsubscribe$: Subject<void>;
 
     // debug - live reload miatt van csak param
     public ngOnInit() {
@@ -54,22 +57,24 @@ export class TimetablePage implements OnInit {
     }
 
     public ionViewWillEnter() {
+        this.unsubscribe$ = new Subject<void>();
         this.firebase.setScreenName("timetable");
         this.loadTimetable();
 
-        this.subs.push(
-            this.networkStatus.onNetworkChangeOnly().subscribe(x => {
+        this.networkStatus
+            .onNetworkChangeOnly()
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe(x => {
                 if (x === ConnectionStatus.Online) this.loadTimetable();
-            })
-        );
+            });
+
+        this.hwButton.registerHwBackButton(this.unsubscribe$, true);
     }
 
     public ionViewWillLeave() {
         this.timetable = undefined;
-        this.subs.forEach((s, index, object) => {
-            s.unsubscribe();
-            object.splice(index, 1);
-        });
+        this.unsubscribe$.next();
+        this.unsubscribe$.complete();
     }
 
     async changeDate(direction: string) {
@@ -94,9 +99,11 @@ export class TimetablePage implements OnInit {
         this.pageState = PageState.Loading;
         this.loadingInProgress = true;
 
-        await this.firebase.startTrace("timetable_day_load_time");
-        this.subs.push(
-            this.kreta.getOraLista(this.datum, forceRefresh).subscribe({
+        this.firebase.startTrace("timetable_day_load_time");
+        this.kreta
+            .getOraLista(this.datum, forceRefresh)
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe({
                 next: x => {
                     this.pageState = x.length == 0 ? PageState.Empty : PageState.Loaded;
                     this.timetable = x;
@@ -117,8 +124,7 @@ export class TimetablePage implements OnInit {
                 complete: () => {
                     this.loadingInProgress = false;
                 },
-            })
-        );
+            });
     }
 
     public async doRefresh($event?) {

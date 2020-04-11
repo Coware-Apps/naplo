@@ -7,7 +7,8 @@ import {
     KretaService,
     ConfigService,
 } from "../../_services";
-import { Subscription } from "rxjs";
+import { Subject } from "rxjs";
+import { takeUntil } from "rxjs/operators";
 
 @Component({
     selector: "app-curriculum-modal",
@@ -23,7 +24,7 @@ export class CurriculumModalPage {
     public pageState: PageState = PageState.Loading;
     public exception: Error;
     public loadingInProgress: boolean;
-    private subs: Subscription[] = [];
+    private unsubscribe$: Subject<void>;
 
     constructor(
         public config: ConfigService,
@@ -34,6 +35,8 @@ export class CurriculumModalPage {
     ) {}
 
     async ionViewWillEnter() {
+        this.unsubscribe$ = new Subject<void>();
+
         this.yearlyLessonCount =
             this.lesson.Allapot.Nev == "Naplozott"
                 ? this.lesson.EvesOraszam
@@ -41,20 +44,19 @@ export class CurriculumModalPage {
 
         this.loadData();
 
-        this.subs.push(
-            this.networkStatus.onNetworkChange().subscribe({
+        this.networkStatus
+            .onNetworkChange()
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe({
                 next: status => {
                     this.currentlyOffline = status === ConnectionStatus.Offline;
                 },
-            })
-        );
+            });
     }
 
     ionViewWillLeave() {
-        this.subs.forEach((s, index, object) => {
-            s.unsubscribe();
-            object.splice(index, 1);
-        });
+        this.unsubscribe$.next();
+        this.unsubscribe$.complete();
     }
 
     public loadData(forceRefresh: boolean = false) {
