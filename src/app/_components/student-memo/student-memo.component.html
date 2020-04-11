@@ -1,33 +1,33 @@
-<div class="nev">{{ tanulo.Nev }}</div>
+<div class="nev">{{ student.Nev }}</div>
 
 <div class="feljegyzes-row">
     <ion-button
-        (click)="toggleFeljegyzes('hazifeladathiany')"
-        [fill]="hazifeladathiany ? 'outline' : 'clear'"
+        (click)="toggleMemo('homework')"
+        [fill]="homeworkMissing ? 'outline' : 'clear'"
         expand="block"
         size="large"
     >
         <ion-icon name="library-outline" size="large"></ion-icon>
     </ion-button>
     <ion-button
-        (click)="toggleFeljegyzes('felszereleshiany')"
-        [fill]="felszereleshiany ? 'outline' : 'clear'"
+        (click)="toggleMemo('equipment')"
+        [fill]="equipmentMissing ? 'outline' : 'clear'"
         expand="block"
         size="large"
     >
         <ion-icon name="briefcase-outline" size="large"></ion-icon>
     </ion-button>
     <ion-button
-        (click)="toggleFeljegyzes('felmentes')"
-        [fill]="felmentes ? 'outline' : 'clear'"
+        (click)="toggleMemo('exemption')"
+        [fill]="exemption ? 'outline' : 'clear'"
         expand="block"
         size="large"
     >
         <ion-icon name="medkit-outline" size="large"></ion-icon>
     </ion-button>
     <ion-button
-        (click)="toggleFeljegyzes('dicseret')"
-        [fill]="dicseret ? 'outline' : 'clear'"
+        (click)="toggleMemo('praise')"
+        [fill]="praise ? 'outline' : 'clear'"
         expand="block"
         size="large"
     >

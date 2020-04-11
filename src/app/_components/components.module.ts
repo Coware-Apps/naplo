@@ -6,7 +6,7 @@ import { TranslateModule } from "@ngx-translate/core";
 import { PipesModule } from "../_pipes/pipes.module";
 
 import { TanuloJelenletComponent } from "./tanulo-jelenlet/tanulo-jelenlet.component";
-import { TanuloFeljegyzesComponent } from "./tanulo-feljegyzes/tanulo-feljegyzes.component";
+import { StudentMemoComponent } from "./student-memo/student-memo.component";
 import { StudentEvaluationComponent } from "./student-evaluation/student-evaluation.component";
 import { EvaluationComponent } from "./evaluation/evaluation.component";
 import { OrarendiOraComponent } from "./orarendi-ora/orarendi-ora.component";
@@ -17,7 +17,7 @@ import { PageStateDisplayComponent } from "./page-state-display/page-state-displ
 @NgModule({
     declarations: [
         TanuloJelenletComponent,
-        TanuloFeljegyzesComponent,
+        StudentMemoComponent,
         StudentEvaluationComponent,
         EvaluationComponent,
         OrarendiOraComponent,
@@ -27,7 +27,7 @@ import { PageStateDisplayComponent } from "./page-state-display/page-state-displ
     ],
     exports: [
         TanuloJelenletComponent,
-        TanuloFeljegyzesComponent,
+        StudentMemoComponent,
         StudentEvaluationComponent,
         EvaluationComponent,
         OrarendiOraComponent,

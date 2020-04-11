@@ -19,11 +19,7 @@ import {
     AlertController,
     MenuController,
 } from "@ionic/angular";
-import {
-    EvaluationComponent,
-    TanuloJelenletComponent,
-    TanuloFeljegyzesComponent,
-} from "../_components";
+import { EvaluationComponent, TanuloJelenletComponent, StudentMemoComponent } from "../_components";
 import {
     KretaService,
     ConfigService,
@@ -75,8 +71,8 @@ export class LoggingFormPage implements IDirty {
     private content: IonContent;
     @ViewChildren(TanuloJelenletComponent)
     private presenceComponents: QueryList<TanuloJelenletComponent>;
-    @ViewChildren(TanuloFeljegyzesComponent)
-    private memoComponents: QueryList<TanuloFeljegyzesComponent>;
+    @ViewChildren(StudentMemoComponent)
+    private memoComponents: QueryList<StudentMemoComponent>;
 
     constructor(
         public dateHelper: DateHelper,
@@ -396,7 +392,7 @@ export class LoggingFormPage implements IDirty {
     private getStudentList() {
         let studentList = [];
         this.presenceComponents.forEach(t => {
-            let studentsSelectedMemos = this.memoComponents.find(x => x.tanulo.Id == t.tanulo.Id);
+            let studentsSelectedMemos = this.memoComponents.find(x => x.student.Id == t.tanulo.Id);
 
             studentList.push({
                 Id: t.tanulo.Id,

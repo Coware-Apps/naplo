@@ -61,7 +61,7 @@
             </ng-container>
 
             <ng-container *ngIf="pageState == 'LOADED'">
-                <ion-item id="oratemaja">
+                <ion-item id="lesson-topic">
                     <ion-label position="stacked" translate="logging.lesson-topic"></ion-label>
                     <ion-textarea
                         [(ngModel)]="topic"
@@ -103,11 +103,11 @@
         <ion-slide>
             <ion-list *ngIf="studentsOfGroup" class="ion-no-padding ion-no-margin" lines="full">
                 <ion-item *ngFor="let t of studentsOfGroup?.TanuloLista">
-                    <app-tanulo-feljegyzes
-                        [tanulo]="t"
-                        [allapot]="memos"
+                    <app-student-memo
+                        [student]="t"
+                        [state]="memos"
                         (onSelectionChange)="makeItDirty()"
-                    ></app-tanulo-feljegyzes>
+                    ></app-student-memo>
                 </ion-item>
             </ion-list>
         </ion-slide>
