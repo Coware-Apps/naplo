@@ -53,7 +53,7 @@
     <ng-container *ngIf="pageState == 'LOADED'">
         <ion-list id="ion-list-orarend" *ngIf="timetable">
             <ng-container *ngFor="let l of timetable">
-                <app-orarendi-ora [lesson]="l" (click)="lessonClick(l)"></app-orarendi-ora>
+                <app-timetable-lesson [lesson]="l" (click)="lessonClick(l)"></app-timetable-lesson>
             </ng-container>
         </ion-list>
     </ng-container>

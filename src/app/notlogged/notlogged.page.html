@@ -24,11 +24,11 @@
     <ng-container *ngIf="orak.length > 0 && !loading">
         <ion-list>
             <ng-container *ngFor="let o of orak">
-                <app-orarendi-ora
+                <app-timetable-lesson
                     [lesson]="o"
                     showDate="true"
                     (click)="onLessonClick(o)"
-                ></app-orarendi-ora>
+                ></app-timetable-lesson>
             </ng-container>
         </ion-list>
 

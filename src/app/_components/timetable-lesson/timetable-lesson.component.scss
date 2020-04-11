@@ -3,14 +3,14 @@ ion-thumbnail {
     text-align: center;
     position: relative;
 
-    .oraszam {
+    .lesson-number {
         font-weight: bold;
         font-size: 18pt;
         margin-top: 14px;
         margin-left: 10px;
     }
 
-    .datum {
+    .date {
         font-weight: bold;
         margin-left: 10px;
         font-size: 1.26rem;
@@ -21,21 +21,21 @@ ion-thumbnail {
     }
 }
 
-.naplozott ion-thumbnail {
+.logged ion-thumbnail {
     border-color: green;
 }
-.nemnaplozott ion-thumbnail {
+.non-logged ion-thumbnail {
     border-color: red;
 }
-.jovobeni ion-thumbnail {
+.in-future ion-thumbnail {
     border-color: grey;
 }
-.elmaradt,
-.helyettesitett {
+.cancelled,
+.substituted {
     ion-thumbnail {
         border-color: grey;
     }
-    .targynev {
+    .subject-name {
         text-decoration: line-through;
     }
 }

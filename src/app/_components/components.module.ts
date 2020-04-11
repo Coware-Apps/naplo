@@ -9,7 +9,7 @@ import { StudentAttendanceComponent } from "./student-attendance/student-attenda
 import { StudentMemoComponent } from "./student-memo/student-memo.component";
 import { StudentEvaluationComponent } from "./student-evaluation/student-evaluation.component";
 import { EvaluationComponent } from "./evaluation/evaluation.component";
-import { OrarendiOraComponent } from "./orarendi-ora/orarendi-ora.component";
+import { TimetableLessonComponent } from "./timetable-lesson/timetable-lesson.component";
 import { OfflineWarningBarComponent } from "./offline-warning-bar/offline-warning-bar.component";
 import { PasswordConfirmRequiredComponent } from "./password-confirm-required/password-confirm-required.component";
 import { PageStateDisplayComponent } from "./page-state-display/page-state-display.component";
@@ -20,7 +20,7 @@ import { PageStateDisplayComponent } from "./page-state-display/page-state-displ
         StudentMemoComponent,
         StudentEvaluationComponent,
         EvaluationComponent,
-        OrarendiOraComponent,
+        TimetableLessonComponent,
         OfflineWarningBarComponent,
         PasswordConfirmRequiredComponent,
         PageStateDisplayComponent,
@@ -30,7 +30,7 @@ import { PageStateDisplayComponent } from "./page-state-display/page-state-displ
         StudentMemoComponent,
         StudentEvaluationComponent,
         EvaluationComponent,
-        OrarendiOraComponent,
+        TimetableLessonComponent,
         OfflineWarningBarComponent,
         PasswordConfirmRequiredComponent,
         PageStateDisplayComponent,

@@ -4,15 +4,15 @@ import { ConfigService, KretaService } from "src/app/_services";
 import { DateHelper } from "src/app/_helpers";
 
 @Component({
-    selector: "app-orarendi-ora",
-    templateUrl: "./orarendi-ora.component.html",
-    styleUrls: ["./orarendi-ora.component.scss"],
+    selector: "app-timetable-lesson",
+    templateUrl: "./timetable-lesson.component.html",
+    styleUrls: ["./timetable-lesson.component.scss"],
 })
-export class OrarendiOraComponent implements OnInit {
+export class TimetableLessonComponent implements OnInit {
     @Input() public lesson: Lesson;
     @Input() public showDate: boolean;
 
-    public datum: Date;
+    public date: Date;
 
     constructor(
         public config: ConfigService,
@@ -21,22 +21,22 @@ export class OrarendiOraComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.datum = new Date(this.lesson.KezdeteUtc);
+        this.date = new Date(this.lesson.KezdeteUtc);
     }
 
     public getLessonCssClasses() {
         return {
-            naplozott: this.lesson.Allapot.Nev == "Naplozott",
-            nemnaplozott: this.lesson.Allapot.Nev == "Nem_naplozott",
-            jovobeni: this.dateHelper.isInFuture(this.lesson.KezdeteUtc),
-            elmaradt: this.lesson.IsElmaradt,
-            helyettesitett:
+            logged: this.lesson.Allapot.Nev == "Naplozott",
+            "non-logged": this.lesson.Allapot.Nev == "Nem_naplozott",
+            "in-future": this.dateHelper.isInFuture(this.lesson.KezdeteUtc),
+            cancelled: this.lesson.IsElmaradt,
+            substituted:
                 this.lesson.HelyettesitoId &&
                 this.lesson.HelyettesitoId != this.kreta.currentUser["kreta:institute_user_id"],
         };
     }
 
-    public getMonogram(nev: string) {
+    public getInitials(nev: string) {
         return nev.replace(/[a-zà-ú\- ]/g, "");
     }
 }
