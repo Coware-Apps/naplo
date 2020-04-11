@@ -48,12 +48,12 @@
 
 <ion-list *ngIf="studentsOfGroup" class="ion-no-padding ion-no-margin" lines="full">
     <ion-item *ngFor="let t of studentsOfGroup?.TanuloLista">
-        <app-tanulo-ertekeles
-            [tanulo]="t"
+        <app-student-evaluation
+            [student]="t"
             (click)="updateAverage()"
-            [tipus]="evaluationType"
+            [evaluationType]="evaluationType"
             (onSelectionChange)="onSelectionChange.emit($event)"
-        ></app-tanulo-ertekeles>
+        ></app-student-evaluation>
     </ion-item>
 </ion-list>
 

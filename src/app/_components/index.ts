@@ -1,4 +1,4 @@
-export * from "./tanulo-ertekeles/tanulo-ertekeles.component";
+export * from "./student-evaluation/student-evaluation.component";
 export * from "./tanulo-feljegyzes/tanulo-feljegyzes.component";
 export * from "./tanulo-jelenlet/tanulo-jelenlet.component";
 export * from "./evaluation/evaluation.component";

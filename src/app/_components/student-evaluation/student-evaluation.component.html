@@ -1,0 +1,71 @@
+<ion-label class="nev">{{ student.Nev }}</ion-label>
+
+<div class="ertekeles-row osztalyzat" *ngIf="evaluationType == 'MARK'">
+    <ion-button
+        (click)="setMark(1)"
+        [fill]="mark == 1 ? 'outline' : 'clear'"
+        expand="block"
+        size="large"
+    >
+        <ion-label>1</ion-label>
+    </ion-button>
+    <ion-button
+        (click)="setMark(2)"
+        [fill]="mark == 2 ? 'outline' : 'clear'"
+        expand="block"
+        size="large"
+    >
+        <ion-label>2</ion-label>
+    </ion-button>
+    <ion-button
+        (click)="setMark(3)"
+        [fill]="mark == 3 ? 'outline' : 'clear'"
+        expand="block"
+        size="large"
+    >
+        <ion-label>3</ion-label>
+    </ion-button>
+    <ion-button
+        (click)="setMark(4)"
+        [fill]="mark == 4 ? 'outline' : 'clear'"
+        expand="block"
+        size="large"
+    >
+        <ion-label>4</ion-label>
+    </ion-button>
+    <ion-button
+        (click)="setMark(5)"
+        [fill]="mark == 5 ? 'outline' : 'clear'"
+        expand="block"
+        size="large"
+    >
+        <ion-label>5</ion-label>
+    </ion-button>
+</div>
+
+<div class="ertekeles-row szoveges" *ngIf="evaluationType == 'TEXTUAL'">
+    <ion-input
+        type="text"
+        placeholder="{{ 'eval.textual-placeholder' | translate }}"
+        [(ngModel)]="textual"
+        (ionInput)="onSelectionChange.emit()"
+    ></ion-input>
+</div>
+
+<div class="ertekeles-row szazalek" *ngIf="evaluationType == 'PERCENTAGE'">
+    <ion-button (click)="changePercentage(-10)" size="large" fill="outline">--</ion-button>
+    <ion-button (click)="changePercentage(-1)" size="large" fill="outline">-</ion-button>
+    <ion-input
+        type="number"
+        min="0"
+        max="100"
+        [(ngModel)]="percentage"
+        size="4"
+        placeholder="%"
+    ></ion-input>
+    <ion-button (click)="changePercentage(1)" size="large" fill="outline">+</ion-button>
+    <ion-button (click)="changePercentage(10)" size="large" fill="outline">++</ion-button>
+    <ion-button (click)="deletePercentage()" [disabled]="!percentage" fill="outline" class="trash">
+        <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+    </ion-button>
+</div>

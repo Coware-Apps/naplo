@@ -16,7 +16,7 @@ import {
     TanuloErtekeles,
     ErtekelesTipus,
 } from "src/app/_models";
-import { TanuloErtekelesComponent } from "../tanulo-ertekeles/tanulo-ertekeles.component";
+import { StudentEvaluationComponent } from "../student-evaluation/student-evaluation.component";
 import { KretaService, ConfigService, FirebaseService } from "src/app/_services";
 import { DateHelper, ErrorHelper } from "src/app/_helpers";
 import { PickerController } from "@ionic/angular";
@@ -42,8 +42,8 @@ export class EvaluationComponent implements OnInit, OnChanges {
     public evaluationType: ErtekelesTipus;
     public average: number;
 
-    @ViewChildren(TanuloErtekelesComponent)
-    private evaluationComponents: QueryList<TanuloErtekelesComponent>;
+    @ViewChildren(StudentEvaluationComponent)
+    private evaluationComponents: QueryList<StudentEvaluationComponent>;
 
     constructor(
         private kreta: KretaService,
