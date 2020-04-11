@@ -12,9 +12,11 @@ export class HwButtonService {
 
     public registerHwBackButton(unsubscribe$: Subject<void>, exit: boolean = false): Subscription {
         if (this.platform.is("android")) {
-            return this.platform.backButton.pipe(takeUntil(unsubscribe$)).subscribe(() => {
-                if (exit) navigator["app"].exitApp();
-                else this.router.navigateByUrl("/timetable");
+            return this.platform.backButton.pipe(takeUntil(unsubscribe$)).subscribe({
+                next: () => {
+                    if (exit) navigator["app"].exitApp();
+                    else this.router.navigateByUrl("/timetable");
+                },
             });
         } else {
             return new Subscription();

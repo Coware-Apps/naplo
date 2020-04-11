@@ -64,8 +64,10 @@ export class TimetablePage implements OnInit {
         this.networkStatus
             .onNetworkChangeOnly()
             .pipe(takeUntil(this.unsubscribe$))
-            .subscribe(x => {
-                if (x === ConnectionStatus.Online) this.loadTimetable();
+            .subscribe({
+                next: x => {
+                    if (x === ConnectionStatus.Online) this.loadTimetable();
+                },
             });
 
         this.hwButton.registerHwBackButton(this.unsubscribe$, true);

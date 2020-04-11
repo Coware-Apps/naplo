@@ -93,15 +93,14 @@ export class SettingsPage {
                         controlTintColor: "#ffffff",
                     })
                     .pipe(takeUntil(this.unsubscribe$))
-                    .subscribe(
-                        (result: any) => {},
-                        (error: any) => {
+                    .subscribe({
+                        error: error => {
                             this.firebase.logError(
                                 "settings privacy policy modal subscribe error: " + error
                             );
                             console.error(error);
-                        }
-                    );
+                        },
+                    });
             } else {
                 console.log("browser tab not supported");
 

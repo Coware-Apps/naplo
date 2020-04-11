@@ -104,13 +104,12 @@ export class OsComponentsPage {
                         controlTintColor: "#ffffff",
                     })
                     .pipe(takeUntil(this.unsubscribe$))
-                    .subscribe(
-                        (result: any) => {},
-                        (error: any) => {
+                    .subscribe({
+                        error: error => {
                             this.firebase.logError("os_components modal subscribe error: " + error);
                             console.error(error);
-                        }
-                    );
+                        },
+                    });
             } else {
                 console.log("browser tab not supported");
 

@@ -50,8 +50,10 @@ export class EvaluationPage {
         this.networkStatus
             .onNetworkChangeOnly()
             .pipe(takeUntil(this.unsubscribe$))
-            .subscribe(x => {
-                if (x === ConnectionStatus.Online) this.ionViewWillEnter();
+            .subscribe({
+                next: x => {
+                    if (x === ConnectionStatus.Online) this.ionViewWillEnter();
+                },
             });
 
         this.hwButton.registerHwBackButton(this.unsubscribe$);

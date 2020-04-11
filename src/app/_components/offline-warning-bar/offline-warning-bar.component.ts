@@ -20,9 +20,11 @@ export class OfflineWarningBarComponent implements OnInit, OnDestroy {
         this.networkStatus
             .onNetworkChange()
             .pipe(takeUntil(this.unsubscribe$))
-            .subscribe(status => {
-                this.currentlyOffline = status === ConnectionStatus.Offline;
-                this.cd.detectChanges();
+            .subscribe({
+                next: status => {
+                    this.currentlyOffline = status === ConnectionStatus.Offline;
+                    this.cd.detectChanges();
+                },
             });
     }
 

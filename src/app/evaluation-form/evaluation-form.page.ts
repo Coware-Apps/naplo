@@ -13,6 +13,7 @@ import { LoadingController, MenuController } from "@ionic/angular";
 import { Location } from "@angular/common";
 import { ActivatedRoute } from "@angular/router";
 import { map, takeUntil } from "rxjs/operators";
+import { TranslateService } from "@ngx-translate/core";
 
 @Component({
     selector: "app-evaluation-form",
@@ -21,10 +22,10 @@ import { map, takeUntil } from "rxjs/operators";
 })
 export class EvaluationFormPage implements IDirty {
     @ViewChild(EvaluationComponent, { static: true })
-    private ertekeles: EvaluationComponent;
+    private evaluationComponent: EvaluationComponent;
 
-    public tanitottCsoport: TanitottCsoport;
-    public osztalyTanuloi: OsztalyTanuloi;
+    public studentGroup: TanitottCsoport;
+    public studentsOfGroup: OsztalyTanuloi;
     public currentlyOffline: boolean;
 
     private unsubscribe$: Subject<void>;
@@ -39,7 +40,8 @@ export class EvaluationFormPage implements IDirty {
         private cd: ChangeDetectorRef,
         private firebase: FirebaseService,
         private location: Location,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
+        private translate: TranslateService
     ) {}
 
     async ionViewWillEnter() {
@@ -50,24 +52,28 @@ export class EvaluationFormPage implements IDirty {
         this.route.paramMap
             .pipe(map(() => window.history.state))
             .pipe(takeUntil(this.unsubscribe$))
-            .subscribe(async state => {
-                this.tanitottCsoport = state.tanitottCsoport;
-                this._isDirty = false;
+            .subscribe({
+                next: state => {
+                    this.studentGroup = state.tanitottCsoport;
+                    this._isDirty = false;
 
-                await this.firebase.startTrace("evaluation_modal_load_time");
-                this.kreta
-                    .getOsztalyTanuloi(this.tanitottCsoport.OsztalyCsoportId)
-                    .pipe(takeUntil(this.unsubscribe$))
-                    .subscribe(x => (this.osztalyTanuloi = x));
-                this.firebase.stopTrace("evaluation_modal_load_time");
+                    this.firebase.startTrace("evaluation_modal_load_time");
+                    this.kreta
+                        .getOsztalyTanuloi(this.studentGroup.OsztalyCsoportId)
+                        .pipe(takeUntil(this.unsubscribe$))
+                        .subscribe({ next: x => (this.studentsOfGroup = x) });
+                    this.firebase.stopTrace("evaluation_modal_load_time");
+                },
             });
 
         this.networkStatus
             .onNetworkChange()
             .pipe(takeUntil(this.unsubscribe$))
-            .subscribe(status => {
-                this.currentlyOffline = status === ConnectionStatus.Offline;
-                this.cd.detectChanges();
+            .subscribe({
+                next: status => {
+                    this.currentlyOffline = status === ConnectionStatus.Offline;
+                    this.cd.detectChanges();
+                },
             });
     }
 
@@ -88,12 +94,14 @@ export class EvaluationFormPage implements IDirty {
     }
 
     public async save() {
-        if (!(await this.ertekeles.isValid())) return;
+        if (!(await this.evaluationComponent.isValid())) return;
 
-        const loading = await this.loadingController.create({ message: "Mentés..." });
+        const loading = await this.loadingController.create({
+            message: this.translate.instant("logging.saving"),
+        });
         await loading.present();
         await this.firebase.startTrace("evaluation_modal_post_time");
-        const ertekelesSaveResult = await this.ertekeles.save();
+        const ertekelesSaveResult = await this.evaluationComponent.save();
         this.firebase.stopTrace("evaluation_modal_post_time");
         await loading.dismiss();
 

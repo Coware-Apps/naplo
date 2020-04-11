@@ -17,12 +17,10 @@ import {
     ErtekelesTipus,
 } from "src/app/_models";
 import { StudentEvaluationComponent } from "../student-evaluation/student-evaluation.component";
-import { KretaService, ConfigService, FirebaseService } from "src/app/_services";
+import { KretaService, ConfigService } from "src/app/_services";
 import { DateHelper, ErrorHelper } from "src/app/_helpers";
 import { PickerController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
-import { stringify } from "flatted/esm";
-import { KretaException } from "src/app/_exceptions";
 
 @Component({
     selector: "app-evaluation",
