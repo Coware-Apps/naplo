@@ -35,8 +35,8 @@ export class ErrorHandlerService extends ErrorHandler {
             stackframes = await StackTrace.fromError(error).catch(() => undefined);
         }
 
-        //this.firebase.logError(error.toString(), stackframes);
-        console.log("TO BE SENT TO FIREBASE:", error.toString(), stackframes);
+        this.firebase.logError(error.toString(), stackframes);
+        console.log("SENT TO CRASHLYTICS", error.toString(), stackframes);
 
         // 401 unauthorized logout
         if (error instanceof NaploHttpUnauthorizedException) {
