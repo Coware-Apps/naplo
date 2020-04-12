@@ -26,6 +26,7 @@ export class NaploHttpException extends NaploException {
             output.push(`URL: ${this.request.method} ${this.request.urlWithParams}`);
             this.request.headers
                 .keys()
+                .filter(x => x != "Authorization")
                 .forEach(h =>
                     output.push(`Header: ${h}: ${this.request.headers.getAll(h).join(";; ")}`)
                 );

@@ -43,9 +43,6 @@ export class KretaService {
     public get currentUser(): Jwt {
         return this._currentUser;
     }
-    public set currentUser(v: Jwt) {
-        this._currentUser = v;
-    }
 
     constructor(
         private data: DataService,
@@ -116,7 +113,7 @@ export class KretaService {
                 .toPromise();
 
             if (response.access_token) {
-                this.currentUser = this.jwtHelper.decodeToken(response.access_token);
+                this._currentUser = this.jwtHelper.decodeToken(response.access_token);
 
                 console.debug("[LOGIN] Roles we have: ", this.currentUser.role);
                 if (this.currentUser.role.indexOf("Tanar") === -1) {
@@ -149,7 +146,7 @@ export class KretaService {
                 ]);
 
                 this.firebase.initialize(this.currentUser, this.institute);
-            } else throw Error("Error response during username login: " + response);
+            } else throw new KretaInvalidResponseException(response);
 
             return response;
         } catch (error) {
@@ -163,7 +160,7 @@ export class KretaService {
     }
 
     private async loginWithRefreshToken(refresh_token: string): Promise<string> {
-        // ha épp folyamatban van bejelentkezés, akkor azt megvárjuk és utána annak az eredményét adjuk vissza
+        // wait for a parallel renew process
         if (this.loginInProgress) {
             while (this.loginInProgress) await this.delay(20);
 
@@ -207,12 +204,17 @@ export class KretaService {
                     ),
                 ]);
 
-                console.debug("[LOGIN] AT sikeresen megújítva RT-el");
-                this.currentUser = this.jwtHelper.decodeToken(response.access_token);
+                this._currentUser = this.jwtHelper.decodeToken(response.access_token);
+                console.debug(
+                    "[LOGIN] AT sikeresen megújítva RT-el",
+                    response.access_token,
+                    this._currentUser
+                );
+
                 this.firebase.stopTrace("token_refresh_time");
 
                 return response.access_token;
-            } else throw Error("Error response during token login: " + response);
+            } else throw new KretaInvalidResponseException(response);
         } finally {
             this.loginInProgress = false;
         }
@@ -224,8 +226,7 @@ export class KretaService {
     }
 
     async isAuthenticated(): Promise<boolean> {
-        const loginInfo = await this.data.itemExists("refresh_token");
-        return loginInfo === true;
+        return (await this.data.itemExists("refresh_token")) === true;
     }
 
     getInstituteList(): Observable<Institute[]> {
@@ -237,7 +238,7 @@ export class KretaService {
         );
     }
 
-    async deleteInstituteListFromStorage(): Promise<void> {
+    deleteInstituteListFromStorage(): Promise<void> {
         return this.data.removeItem("https://kretaglobalmobileapi.ekreta.hu/api/v1/Institute");
     }
 

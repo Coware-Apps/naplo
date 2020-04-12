@@ -23,8 +23,6 @@ export class ErrorHandlerService extends ErrorHandler {
     }
 
     async handleError(error: any): Promise<void> {
-        //console.debug("GLOBAL error handler ran.", error);
-
         if (error.promise && error.rejection) {
             // Promise rejection wrapped by zone.js
             error = error.rejection;
@@ -35,8 +33,8 @@ export class ErrorHandlerService extends ErrorHandler {
             stackframes = await StackTrace.fromError(error).catch(() => undefined);
         }
 
-        this.firebase.logError(error.toString(), stackframes);
-        console.log("SENT TO CRASHLYTICS", error.toString(), stackframes);
+        this.firebase.logError(this.appendAuthDebugToError(error), stackframes);
+        console.log("SENT TO CRASHLYTICS", this.appendAuthDebugToError(error), stackframes);
 
         // 401 unauthorized logout
         if (error instanceof NaploHttpUnauthorizedException) {
@@ -61,5 +59,20 @@ export class ErrorHandlerService extends ErrorHandler {
         }
 
         super.handleError(error);
+    }
+
+    private appendAuthDebugToError(error: any): string {
+        let output = typeof error.toString === "function" ? error.toString() : error;
+
+        if (!this.kreta.currentUser) return output;
+
+        output += "\n\n---- Access Token ----\n";
+        output += `Not before: ${new Date(this.kreta.currentUser.nbf * 1000).toISOString()}\n`;
+        output += `Auth time: ${new Date(this.kreta.currentUser.auth_time * 1000).toISOString()}\n`;
+        output += `Expiration: ${new Date(
+            this.kreta.currentUser.auth_time * 1000
+        ).toISOString()}\n`;
+
+        return output;
     }
 }
