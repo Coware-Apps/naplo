@@ -107,7 +107,7 @@
         *ngIf="pageState == 'ERROR'"
         [exception]="exception"
         buttonTextKey="common.retry"
-        (onButtonClicked)="loadTimetable(true)"
+        (onButtonClicked)="ionViewWillEnter()"
     ></app-page-state-display>
 
     <app-page-state-display
