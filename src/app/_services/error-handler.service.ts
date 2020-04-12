@@ -49,9 +49,13 @@ export class ErrorHandlerService extends ErrorHandler {
 
         // display error if needed
         if (this.config.debugging && !error.handled) this.errorHelper.presentAlert(error);
-        if (!error.handled && error.messageTranslationKey) {
+        if (!error.handled) {
             this.errorHelper.presentToast(
-                this.translate.instant(error.messageTranslationKey),
+                this.translate.instant(
+                    error.messageTranslationKey
+                        ? error.messageTranslationKey
+                        : "exceptions.error-occurred"
+                ),
                 10000
             );
         }
