@@ -50,8 +50,14 @@
         "teacher-role-needed": "Only teachers can log in to this app.<br><br>For students and their parents, we recommend the Arisztokreta app. Do you want to open it in the store?",
         "no-internet-institute-list": "The institute list can't be loaded, because there's no internet connection."
     },
+    "password-confirm": {
+        "header": "Log in",
+        "message": "To use this function, you'll have to enter your password again.",
+        "password-required": "Please enter your password!"
+    },
     "institute-selector": {
-        "filter": "Filter institutions..."
+        "filter": "Filter institutions...",
+        "list-empty": "We couldn't download the list of the institutions. KRETA is probably under maintenance."
     },
     "timetable": {
         "title": "Timetable",
@@ -112,24 +118,24 @@
         "error-offline": "There's no internet, therefore the lesson can't be logged right now."
     },
     "messages": {
-        "title": "Üzenetek",
+        "title": "Messages",
         "not-enabled": {
-            "header": "Az üzenetküldés ki van kapcsolva az intézményben",
-            "message": "Vedd fel a kapcsolatot az intézményi KRÉTA adminisztrátorral, ha használni szeretnéd."
+            "header": "Messaging is disabled in your institution",
+            "message": "Please contact your school's KRETA administrator, if you'd like to use it"
         },
         "tab": {
-            "inbox": "Beérkezett",
-            "sent": "Elküldött",
-            "trash": "Törölt"
+            "inbox": "Inbox",
+            "sent": "Sent",
+            "trash": "Trash"
         },
         "inbox": {
-            "title": "Beérkezett üzenetek"
+            "title": "Inbox"
         },
         "sent": {
-            "title": "Elküldött üzenetek"
+            "title": "Sent messages"
         },
         "trash": {
-            "title": "Törölt üzenetek"
+            "title": "Trash"
         }
     },
     "settings": {

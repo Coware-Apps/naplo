@@ -3,6 +3,7 @@ import { Platform } from "@ionic/angular";
 import { KretaService, KretaEUgyService } from "src/app/_services";
 import { ErrorHelper } from "src/app/_helpers";
 import { KretaEUgyInvalidPasswordException } from "src/app/_exceptions";
+import { TranslateService } from "@ngx-translate/core";
 
 @Component({
     selector: "app-password-confirm-required",
@@ -18,14 +19,15 @@ export class PasswordConfirmRequiredComponent implements OnInit {
         public kreta: KretaService,
         public platform: Platform,
         private eugy: KretaEUgyService,
-        private error: ErrorHelper
+        private error: ErrorHelper,
+        private translate: TranslateService
     ) {}
 
     public async ngOnInit() {}
 
     public async onSubmit() {
         if (!this.password) {
-            this.error.presentAlert("Add meg a jelszavad!", null, "Hiba");
+            this.error.presentAlert(this.translate.instant("password-confirm.password-required"));
             return;
         }
 
@@ -34,9 +36,9 @@ export class PasswordConfirmRequiredComponent implements OnInit {
             if (result) this.onSuccessfulLogin.emit(true);
         } catch (error) {
             if (error instanceof KretaEUgyInvalidPasswordException)
-                return this.error.presentAlert("Hibás jelszó!");
+                return this.error.presentAlert(this.translate.instant("login.bad-credentials"));
 
-            this.error.presentAlert(error.message, null, "Ismeretlen hiba");
+            throw error;
         }
     }
 }

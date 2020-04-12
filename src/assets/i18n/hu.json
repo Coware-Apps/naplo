@@ -50,14 +50,19 @@
         "teacher-role-needed": "Az appba csak tanárok jelentkezhetnek be.<br><br>Diákoknak és szülőknek az Arisztokréta alkalmazást ajánljuk. Megnyitod az áruházban?",
         "no-internet-institute-list": "Nincs internetkapcsolat, ezért az intézménylistát most nem lehet letölteni."
     },
+    "password-confirm": {
+        "header": "Bejelentkezés",
+        "message": "A funkció használatához ismét meg kell adnod a jelszavad.",
+        "password-required": "A jelszó mező kitöltése kötelező!"
+    },
     "institute-selector": {
         "filter": "Intézmények szűrése...",
-        "list-empty": "Nem sikerült betölteni az iskolákat."
+        "list-empty": "Nem sikerült betölteni az iskolákat. A KRÉTA valószínűleg karbantartás alatt van."
     },
     "timetable": {
         "title": "Óra naplózása",
-        "list-empty": "The list is empty",
-        "no-lesson-today": "Ezen a napon nincs órád",
+        "list-empty": "A lista üres",
+        "no-lesson-today": "Nincs órád ezen a napon",
         "error-offline": "Nincs internetkapcsolat, ezért az óra most nem naplózható!",
         "error-in-future": "Jövőbeni óra nem naplózható!",
         "error-cancelled": "Az elmaradt órák nem adminisztrálhatók a mobilalkalmazásban.",
@@ -65,7 +70,6 @@
     },
     "logging": {
         "title": "Óra naplózása",
-        "save": "Mentés",
         "lesson-seqnum": "{{value}}. óra",
         "lesson-topic": "Az óra témája",
         "homework-deadline": "A házi feladat határideje",
