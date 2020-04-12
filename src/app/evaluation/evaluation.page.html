@@ -48,7 +48,18 @@
         </ion-list>
     </div>
 
-    <div *ngIf="pageState == 'LOADED'">
+    <ng-container *ngIf="pageState == 'LOADED'">
+        <ion-refresher
+            slot="fixed"
+            (ionRefresh)="loadData(true, $event)"
+            pullFactor="0.8"
+            pullMin="60"
+            pullMax="120"
+            [disabled]="loadingInProgress"
+        >
+            <ion-refresher-content></ion-refresher-content>
+        </ion-refresher>
+
         <ion-list>
             <ion-item *ngFor="let c of groups" (click)="onGroupClick(c)" button="true">
                 <ion-label>
@@ -64,7 +75,7 @@
                 [innerHTML]="'eval.info-days-limit' | translate:{value: daysToCheck}"
             ></ion-note>
         </ion-item>
-    </div>
+    </ng-container>
 
     <app-page-state-display
         *ngIf="pageState == 'ERROR'"

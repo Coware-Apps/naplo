@@ -31,7 +31,7 @@ export class EvaluationPage {
         private hwButton: HwButtonService
     ) {}
 
-    public groups: TanitottCsoport[] = [];
+    public groups: TanitottCsoport[];
     public daysToCheck = 10;
 
     public pageState: PageState = PageState.Loading;
@@ -41,22 +41,28 @@ export class EvaluationPage {
 
     ionViewWillEnter() {
         this.unsubscribe$ = new Subject<void>();
-        this.groups = [];
-        this.loadingInProgress = true;
-        this.pageState = PageState.Loading;
-
         this.firebase.setScreenName("evaluation");
+        this.loadData();
 
         this.networkStatus
             .onNetworkChangeOnly()
             .pipe(takeUntil(this.unsubscribe$))
             .subscribe({
                 next: x => {
-                    if (x === ConnectionStatus.Online) this.ionViewWillEnter();
+                    if (x === ConnectionStatus.Online) this.loadData();
                 },
             });
 
         this.hwButton.registerHwBackButton(this.unsubscribe$);
+    }
+
+    loadData(forceRefresh: boolean = false, $event?) {
+        if (!this.groups) {
+            this.pageState = PageState.Loading;
+            this.groups = [];
+        }
+
+        this.loadingInProgress = true;
 
         this.firebase.startTrace("evaluation_page_load_time");
 
@@ -64,7 +70,7 @@ export class EvaluationPage {
         for (let i = 0; i < this.daysToCheck; i++) {
             let d = new Date(this.dateHelper.getDayFromToday(-i));
             this.kreta
-                .getOraLista(d)
+                .getOraLista(d, forceRefresh)
                 .pipe(takeUntil(this.unsubscribe$))
                 .subscribe({
                     next: x => {
@@ -72,8 +78,7 @@ export class EvaluationPage {
                             const id = lesson.TantargyId + "-" + lesson.OsztalyCsoportId;
 
                             if (!map.has(id)) {
-                                map.set(id, true);
-                                this.groups.push({
+                                map.set(id, {
                                     TantargyId: lesson.TantargyId,
                                     TantargyNev: lesson.TantargyNev,
                                     TantargyKategoria: lesson.TantargyKategoria,
@@ -84,17 +89,20 @@ export class EvaluationPage {
                         });
 
                         if (i == this.daysToCheck - 1) {
-                            this.groups.sort((a, b) =>
+                            this.groups = [...map.values()].sort((a, b) =>
                                 a.OsztalyCsoportNev.localeCompare(b.OsztalyCsoportNev)
                             );
+
                             this.pageState =
                                 this.groups.length == 0 ? PageState.Empty : PageState.Loaded;
                             this.cd.detectChanges();
+                            if ($event) $event.target.complete();
+
                             this.firebase.stopTrace("evaluation_page_load_time");
                         }
                     },
                     error: error => {
-                        if (!this.groups || this.groups.length == 0) {
+                        if (!this.groups) {
                             this.pageState = PageState.Error;
                             this.exception = error;
                             error.handled = true;
@@ -102,12 +110,16 @@ export class EvaluationPage {
 
                         this.loadingInProgress = false;
                         this.firebase.stopTrace("evaluation_page_load_time");
+                        if ($event) $event.target.complete();
 
                         throw error;
                     },
                     complete: () => {
-                        this.loadingInProgress = false;
-                        this.firebase.stopTrace("evaluation_page_load_time");
+                        if (i == this.daysToCheck - 1) {
+                            this.loadingInProgress = false;
+                            this.firebase.stopTrace("evaluation_page_load_time");
+                            if ($event) $event.target.complete();
+                        }
                     },
                 });
         }

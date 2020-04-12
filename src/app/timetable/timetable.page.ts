@@ -74,7 +74,6 @@ export class TimetablePage implements OnInit {
     }
 
     public ionViewWillLeave() {
-        this.timetable = undefined;
         this.unsubscribe$.next();
         this.unsubscribe$.complete();
     }
@@ -84,7 +83,7 @@ export class TimetablePage implements OnInit {
         if (direction == "forward") this.datum.setDate(this.datum.getDate() + 1);
         else this.datum.setDate(this.datum.getDate() - 1);
 
-        this.loadTimetable();
+        this.loadTimetable(false, true);
 
         this.location.go(
             this.router
@@ -96,9 +95,11 @@ export class TimetablePage implements OnInit {
         );
     }
 
-    async loadTimetable(forceRefresh: boolean = false) {
-        this.timetable = undefined;
-        this.pageState = PageState.Loading;
+    async loadTimetable(forceRefresh: boolean = false, resetDisplay: boolean = false) {
+        if (resetDisplay || !this.timetable) {
+            this.timetable = undefined;
+            this.pageState = PageState.Loading;
+        }
         this.loadingInProgress = true;
 
         this.firebase.startTrace("timetable_day_load_time");

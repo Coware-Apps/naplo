@@ -23,20 +23,25 @@
     ></app-offline-warning-bar>
 
     <ion-toolbar color="secondary" class="ion-text-center">
-        {{tanitottCsoport?.OsztalyCsoportNev}}<br />
-        {{tanitottCsoport?.TantargyNev}}
+        {{studentGroup?.OsztalyCsoportNev}}<br />
+        {{studentGroup?.TantargyNev}}
     </ion-toolbar>
+    <ion-progress-bar
+        type="indeterminate"
+        color="warning"
+        *ngIf="loadingInProgress"
+    ></ion-progress-bar>
 </ion-header>
 
 <ion-content>
     <app-evaluation
-        [lesson]="tanitottCsoport"
-        [studentsOfGroup]="osztalyTanuloi"
+        [lesson]="studentGroup"
+        [studentsOfGroup]="studentsOfGroup"
         (onSelectionChange)="makeItDirty()"
+        *ngIf="pageState == 'LOADED'"
     ></app-evaluation>
 
-    <div *ngIf="!osztalyTanuloi">
-        <ion-progress-bar type="indeterminate" color="warning"></ion-progress-bar>
+    <ng-container *ngIf="pageState == 'LOADING'">
         <ion-list
             *ngFor="let i of [].constructor(5)"
             class="ion-no-padding ion-no-margin"
@@ -49,5 +54,12 @@
                 </ion-label>
             </ion-item>
         </ion-list>
-    </div>
+    </ng-container>
+
+    <app-page-state-display
+        *ngIf="pageState == 'ERROR'"
+        [exception]="exception"
+        buttonTextKey="common.retry"
+        (onButtonClicked)="ionViewWillEnter()"
+    ></app-page-state-display>
 </ion-content>

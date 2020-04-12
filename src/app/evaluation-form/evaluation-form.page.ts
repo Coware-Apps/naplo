@@ -1,5 +1,5 @@
 import { Component, ViewChild, ChangeDetectorRef } from "@angular/core";
-import { TanitottCsoport, OsztalyTanuloi, IDirty } from "../_models";
+import { TanitottCsoport, OsztalyTanuloi, IDirty, PageState } from "../_models";
 import { EvaluationComponent } from "../_components";
 import { Subject } from "rxjs";
 import {
@@ -28,6 +28,9 @@ export class EvaluationFormPage implements IDirty {
     public studentsOfGroup: OsztalyTanuloi;
     public currentlyOffline: boolean;
 
+    public pageState: PageState = PageState.Loading;
+    public exception: Error;
+    public loadingInProgress: boolean;
     private unsubscribe$: Subject<void>;
     private _isDirty: boolean;
 
@@ -61,8 +64,28 @@ export class EvaluationFormPage implements IDirty {
                     this.kreta
                         .getOsztalyTanuloi(this.studentGroup.OsztalyCsoportId)
                         .pipe(takeUntil(this.unsubscribe$))
-                        .subscribe({ next: x => (this.studentsOfGroup = x) });
-                    this.firebase.stopTrace("evaluation_modal_load_time");
+                        .subscribe({
+                            next: x => {
+                                this.studentsOfGroup = x;
+                                this.pageState = PageState.Loaded;
+                            },
+                            error: error => {
+                                if (!this.studentsOfGroup) {
+                                    this.pageState = PageState.Error;
+                                    this.exception = error;
+                                    error.handled = true;
+                                }
+
+                                this.loadingInProgress = false;
+                                this.firebase.stopTrace("evaluation_modal_load_time");
+
+                                throw error;
+                            },
+                            complete: () => {
+                                this.loadingInProgress = false;
+                                this.firebase.stopTrace("evaluation_modal_load_time");
+                            },
+                        });
                 },
             });
 

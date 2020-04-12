@@ -19,7 +19,7 @@ import { takeUntil } from "rxjs/operators";
     styleUrls: ["./notlogged.page.scss"],
 })
 export class NotloggedPage {
-    public lessons: Lesson[] = [];
+    public lessons: Lesson[];
 
     public daysToCheck = 10;
 
@@ -65,9 +65,12 @@ export class NotloggedPage {
     loadNotLoggedLessons(forceRefresh: boolean = false, $event?) {
         this.firebase.startTrace("not_logged_lessons_load_time");
 
-        this.pageState = PageState.Loading;
+        if (!this.lessons) {
+            this.pageState = PageState.Loading;
+            this.lessons = [];
+        }
+
         this.loadingInProgress = true;
-        this.lessons = [];
         let map = new Map();
         for (let i = 0; i < this.daysToCheck; i++) {
             let d = new Date(this.dateHelper.getDayFromToday(-i));
@@ -83,12 +86,12 @@ export class NotloggedPage {
                                 !lesson.IsElmaradt &&
                                 !map.has(lesson.OrarendiOraId)
                             ) {
-                                map.set(lesson.OrarendiOraId, true);
-                                this.lessons.push(lesson);
+                                map.set(lesson.OrarendiOraId, lesson);
                             }
                         });
 
                         if (i == this.daysToCheck - 1) {
+                            this.lessons = [...map.values()];
                             this.cd.detectChanges();
                             this.pageState =
                                 this.lessons.length == 0 ? PageState.Empty : PageState.Loaded;
@@ -111,9 +114,11 @@ export class NotloggedPage {
                         throw error;
                     },
                     complete: () => {
-                        this.loadingInProgress = false;
-                        if ($event) $event.target.complete();
-                        this.firebase.stopTrace("not_logged_lessons_load_time");
+                        if (i == this.daysToCheck - 1) {
+                            this.loadingInProgress = false;
+                            if ($event) $event.target.complete();
+                            this.firebase.stopTrace("not_logged_lessons_load_time");
+                        }
                     },
                 });
         }
