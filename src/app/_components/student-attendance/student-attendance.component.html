@@ -5,27 +5,23 @@
         {{ suggestedAttendanceReason }}
     </span>
 </div>
-<div class="jelenlet-row" *ngIf="!privateStudent">
-    <ion-button
-        (click)="changed('Jelenlét')"
-        expand="block"
-        [fill]="attendanceState == 'Jelenlét' ? 'outline' : 'clear'"
-    >
-        {{ "presence-states.present" | translate }}
-    </ion-button>
-    <ion-button
-        (click)="changed('Késés')"
-        expand="block"
-        [fill]="attendanceState == 'Késés' ? 'outline' : 'clear'"
-    >
-        {{ "presence-states.late" | translate }}
-        {{ lateness > 0 ? ("logging.lateness-min" | translate: { value: lateness }) : "" }}
-    </ion-button>
-    <ion-button
-        (click)="changed('Hiányzás')"
-        expand="block"
-        [fill]="attendanceState == 'Hiányzás' ? 'outline' : 'clear'"
-    >
-        {{ "presence-states.absent" | translate }}
-    </ion-button>
+<div class="jelenlet-row">
+    <ng-container *ngFor="let button of attendanceButtons">
+        <ion-button
+            *ngIf="button.MulasztasTipusAdatszotar.Nev != 'ures'"
+            (click)="selectAttendance(button.MulasztasTipusAdatszotar.Id)"
+            expand="block"
+            [fill]="
+                selectedAttendanceCode == button.MulasztasTipusAdatszotar.Id ? 'outline' : 'clear'
+            "
+            [disabled]="!button.IsEnabled"
+        >
+            {{ "attendance-states." + button.MulasztasTipusAdatszotar.Nev | translate }}
+            {{
+                button.MulasztasTipusAdatszotar.Nev == "keses" && lateMinutes > 0
+                    ? ("logging.lateness-min" | translate: { value: lateMinutes })
+                    : ""
+            }}
+        </ion-button>
+    </ng-container>
 </div>

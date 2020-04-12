@@ -1,6 +1,5 @@
 import { Component, OnInit, Input, EventEmitter, Output } from "@angular/core";
 import { Tanulo, KretaEnum, Feljegyzes } from "src/app/_models";
-import { KretaService } from "src/app/_services";
 
 @Component({
     selector: "app-student-memo",
@@ -23,19 +22,18 @@ export class StudentMemoComponent implements OnInit {
             }
         }
     }
+    @Input() memoCodes: KretaEnum[];
+
     @Output() onSelectionChange = new EventEmitter<any>();
 
     public homeworkMissing: boolean;
     public equipmentMissing: boolean;
     public exemption: boolean;
     public praise: boolean;
-    private memoCodes: KretaEnum[];
 
-    constructor(private kreta: KretaService) {}
+    constructor() {}
 
-    async ngOnInit() {
-        this.memoCodes = await this.kreta.getNaploEnum("EsemenyTipusEnum");
-    }
+    ngOnInit() {}
 
     public toggleMemo(tipus: "homework" | "equipment" | "exemption" | "praise") {
         if (tipus == "homework") this.homeworkMissing = !this.homeworkMissing;

@@ -22,10 +22,11 @@
         "percentage": "Percentage",
         "textual": "Textual"
     },
-    "presence-states": {
-        "present": "Present",
-        "late": "Late",
-        "absent": "Absent"
+    "attendance-states": {
+        "jelenlet": "Present",
+        "keses": "Late",
+        "hianyzas": "Absent",
+        "ures": "Empty"
     },
     "themes": {
         "dark": "Dark",

@@ -30,7 +30,7 @@ import { TranslateService } from "@ngx-translate/core";
 export class EvaluationComponent implements OnInit, OnChanges {
     @Input() lesson: Lesson;
     @Input() studentsOfGroup: OsztalyTanuloi;
-    @Output() onSelectionChange = new EventEmitter<any>();
+    @Output() onSelectionChange = new EventEmitter<void>();
 
     // evaluations
     public evaluationDate: string;
@@ -39,6 +39,8 @@ export class EvaluationComponent implements OnInit, OnChanges {
     public evaluationModeList: KretaEnum[];
     public evaluationType: ErtekelesTipus;
     public average: number;
+
+    public markCodes: KretaEnum[];
 
     @ViewChildren(StudentEvaluationComponent)
     private evaluationComponents: QueryList<StudentEvaluationComponent>;
@@ -60,6 +62,9 @@ export class EvaluationComponent implements OnInit, OnChanges {
         this.evaluationModeList = (await this.kreta.getNaploEnum("ErtekelesModEnum")).filter(
             x => x.Nev != "Na"
         );
+
+        // mark codes
+        this.markCodes = await this.kreta.getNaploEnum("OsztalyzatTipusEnum");
     }
 
     ngOnChanges(changes: SimpleChanges) {

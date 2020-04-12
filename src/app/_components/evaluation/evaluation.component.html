@@ -52,7 +52,8 @@
             [student]="t"
             (click)="updateAverage()"
             [evaluationType]="evaluationType"
-            (onSelectionChange)="onSelectionChange.emit($event)"
+            [markCodes]="markCodes"
+            (onSelectionChange)="onSelectionChange.emit()"
         ></app-student-evaluation>
     </ion-item>
 </ion-list>

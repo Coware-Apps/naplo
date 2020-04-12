@@ -83,6 +83,26 @@
                     </ion-button>
                 </ion-item>
 
+                <ion-item lines="none" class="mass-operations">
+                    <ion-icon name="people-outline" slot="end"></ion-icon>
+                    <span slot="end">
+                        <ion-button
+                            (click)="massSetAttendance('Jelenlét')"
+                            fill="outline"
+                            size="default"
+                            translate="attendance-states.jelenlet"
+                        >
+                        </ion-button>
+                        <ion-button
+                            (click)="massSetAttendance('Üres')"
+                            fill="outline"
+                            size="default"
+                            translate="attendance-states.ures"
+                        >
+                        </ion-button>
+                    </span>
+                </ion-item>
+
                 <ion-list
                     *ngIf="studentsOfGroup && loading.length == 0"
                     class="ion-no-padding ion-no-margin"
@@ -92,7 +112,10 @@
                         <app-student-attendance
                             [student]="t"
                             [absences]="absences"
+                            [suggestedAttendanceTemplates]="suggestedAttendanceTemplates"
                             [suggestedAttendanceState]="suggestedAttendanceState"
+                            [attendanceCodes]="attendanceCodes"
+                            [attendanceMassSet$]="attendanceMassSet$"
                             (onSelectionChange)="makeItDirty()"
                         ></app-student-attendance>
                     </ion-item>
@@ -106,6 +129,7 @@
                     <app-student-memo
                         [student]="t"
                         [state]="memos"
+                        [memoCodes]="memoCodes"
                         (onSelectionChange)="makeItDirty()"
                     ></app-student-memo>
                 </ion-item>

@@ -8,12 +8,13 @@ import {
     OsztalyTanuloi,
     Mulasztas,
     Feljegyzes,
-    JavasoltJelenletTemplate,
+    OraJavasoltJelenlet,
     KretaEnum,
     Institute,
     Jwt,
     Tanmenet,
     TokenResponse,
+    JavasoltJelenletTemplate,
 } from "../_models";
 import { ErrorHelper, JwtDecodeHelper } from "../_helpers";
 import {
@@ -291,25 +292,34 @@ export class KretaService {
         );
     }
 
-    getJavasoltJelenlet(ora: Lesson): Observable<JavasoltJelenletTemplate> {
+    getJavasoltJelenletTemplate(
+        lessonState: "Nem_naplozott" | "Naplozott"
+    ): Observable<JavasoltJelenletTemplate[]> {
+        return this.getAuthenticatedAdatcsomag<JavasoltJelenletTemplate[]>(
+            `/Naplo/v2/Ora/JavasoltJelenletTemplate?hash=&oraAllapot=${lessonState}`,
+            60 * 60 * 24 * 3
+        );
+    }
+
+    getJavasoltJelenlet(lesson: Lesson): Observable<OraJavasoltJelenlet> {
         let url = "";
-        if (ora.OrarendiOraId)
+        if (lesson.OrarendiOraId)
             url =
                 this.institute.Url +
                 "/Naplo/v2/Ora/OrarendiOra/JavasoltJelenlet?key[0].OrarendiOraId=" +
-                ora.OrarendiOraId +
+                lesson.OrarendiOraId +
                 "&key[0].OraKezdetDatumaUtc=" +
-                ora.KezdeteUtc +
+                lesson.KezdeteUtc +
                 "&key[0].OraVegDatumaUtc=" +
-                ora.VegeUtc;
+                lesson.VegeUtc;
         else
             url =
                 this.institute.Url +
                 "/Naplo/v2/Ora/TanitasiOra/JavasoltJelenlet?key[0].TanitasiOraId=" +
-                ora.TanitasiOraId;
+                lesson.TanitasiOraId;
 
         return this.data
-            .getUrlWithCache<JavasoltJelenletTemplate[]>(url, null, null)
+            .getUrlWithCache<OraJavasoltJelenlet[]>(url, null, null)
             .pipe(map(x => x[0]));
     }
 

@@ -1,6 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from "@angular/core";
 import { Tanulo, TanuloErtekeles, KretaEnum, ErtekelesTipus } from "src/app/_models";
-import { KretaService } from "src/app/_services";
 
 @Component({
     selector: "app-student-evaluation",
@@ -10,18 +9,16 @@ import { KretaService } from "src/app/_services";
 export class StudentEvaluationComponent implements OnInit {
     @Input() student: Tanulo;
     @Input() evaluationType: ErtekelesTipus;
+    @Input() markCodes: KretaEnum[];
     @Output() onSelectionChange = new EventEmitter<any>();
 
     public mark: number = 0;
     public percentage: number;
     public textual: string;
-    private markCodes: KretaEnum[];
 
-    constructor(private kreta: KretaService) {}
+    constructor() {}
 
-    async ngOnInit() {
-        this.markCodes = await this.kreta.getNaploEnum("OsztalyzatTipusEnum");
-    }
+    ngOnInit() {}
 
     setMark(newMark: number): void {
         if (this.mark == newMark) this.mark = 0;

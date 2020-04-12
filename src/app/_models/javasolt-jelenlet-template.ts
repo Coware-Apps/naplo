@@ -1,11 +1,13 @@
+import { KretaEnum } from "./kreta-enum";
+
 export interface JavasoltJelenletTemplate {
-    OrarendiOraId: number;
-    OraKezdetDatumaUtc: Date;
-    TanuloLista: {
-        TanuloId: number;
-        JavasoltJelenletTemplateTipusSzuroLista: {
-            Megjegyzes: string;
-            Tipus: string;
-        }[];
-    }[];
+    Prioritas: number;
+    Tipus: string;
+    SzuroElemLista: JavasoltJelenletButton[];
+}
+
+export interface JavasoltJelenletButton {
+    IsDefault: boolean;
+    IsEnabled: boolean;
+    MulasztasTipusAdatszotar: KretaEnum;
 }

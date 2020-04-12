@@ -4,10 +4,12 @@ import {
     Lesson,
     OsztalyTanuloi,
     Mulasztas,
-    JavasoltJelenletTemplate,
+    OraJavasoltJelenlet,
     Feljegyzes,
     IDirty,
     PageState,
+    JavasoltJelenletTemplate,
+    KretaEnum,
 } from "../_models";
 import { Subject } from "rxjs";
 import {
@@ -61,8 +63,13 @@ export class LoggingFormPage implements IDirty {
     // tabs
     public topic: string;
     public studentsOfGroup: OsztalyTanuloi;
+    public attendanceMassSet$: Subject<KretaEnum> = new Subject<KretaEnum>();
     public absences: Mulasztas[];
-    public suggestedAttendanceState: JavasoltJelenletTemplate;
+    public suggestedAttendanceTemplates: JavasoltJelenletTemplate[];
+    public suggestedAttendanceState: OraJavasoltJelenlet;
+    public attendanceCodes: KretaEnum[];
+    public memoCodes: KretaEnum[];
+
     public homeworkDeadline: string;
     public homeworkDescription: string;
     public memos: Feljegyzes[];
@@ -103,8 +110,10 @@ export class LoggingFormPage implements IDirty {
         this.menuController.swipeGesture(false);
 
         this.route.paramMap
-            .pipe(map(() => window.history.state))
-            .pipe(takeUntil(this.unsubscribe$))
+            .pipe(
+                map(() => window.history.state),
+                takeUntil(this.unsubscribe$)
+            )
             .subscribe({
                 next: async state => {
                     this.lesson = state.lesson;
@@ -118,7 +127,13 @@ export class LoggingFormPage implements IDirty {
                     }
 
                     this._isDirty = false;
-                    this.loading = ["osztalyTanuloi", "javasoltJelenlet"];
+                    this.loading = [
+                        "osztalyTanuloi",
+                        "javasoltJelenlet",
+                        "javasoltJelenletTemplate",
+                        "mulasztasTipusEnum",
+                        "esemenyTipusEnum",
+                    ];
 
                     if (this.lesson && this.lesson.KezdeteUtc) {
                         this.startDate = new Date(this.lesson.KezdeteUtc);
@@ -136,6 +151,7 @@ export class LoggingFormPage implements IDirty {
 
                         await this.firebase.startTrace("logging_modal_load_time");
 
+                        // students of group
                         this.kreta
                             .getOsztalyTanuloi(this.lesson.OsztalyCsoportId)
                             .pipe(takeUntil(this.unsubscribe$))
@@ -155,6 +171,7 @@ export class LoggingFormPage implements IDirty {
                             });
 
                         if (this.lesson.Allapot.Nev == "Naplozott") {
+                            // saved absences
                             this.loading.push("mulasztas");
                             this.kreta
                                 .getMulasztas(this.lesson.TanitasiOraId)
@@ -174,6 +191,7 @@ export class LoggingFormPage implements IDirty {
                                     complete: () => this.loadingDone("mulasztas"),
                                 });
 
+                            // saved memos
                             this.loading.push("feljegyzesek");
                             this.kreta
                                 .getFeljegyzes(this.lesson.TanitasiOraId)
@@ -194,6 +212,7 @@ export class LoggingFormPage implements IDirty {
                                 });
                         }
 
+                        // suggested attendance state
                         this.kreta
                             .getJavasoltJelenlet(this.lesson)
                             .pipe(takeUntil(this.unsubscribe$))
@@ -210,6 +229,65 @@ export class LoggingFormPage implements IDirty {
                                     throw error;
                                 },
                                 complete: () => this.loadingDone("javasoltJelenlet"),
+                            });
+
+                        // suggested attendance state templates
+                        this.kreta
+                            .getJavasoltJelenletTemplate(
+                                this.lesson.Allapot.Nev == "Naplozott"
+                                    ? "Naplozott"
+                                    : "Nem_naplozott"
+                            )
+                            .pipe(takeUntil(this.unsubscribe$))
+                            .subscribe({
+                                next: x => (this.suggestedAttendanceTemplates = x),
+                                error: error => {
+                                    if (!this.suggestedAttendanceTemplates) {
+                                        this.pageState = PageState.Error;
+                                        this.exception = error;
+                                        error.handled = true;
+                                    }
+
+                                    this.loadingDone("javasoltJelenletTemplate");
+                                    throw error;
+                                },
+                                complete: () => this.loadingDone("javasoltJelenletTemplate"),
+                            });
+
+                        // absence codes
+                        this.kreta
+                            .getNaploEnum("MulasztasTipusEnum")
+                            .then(x => {
+                                this.loadingDone("mulasztasTipusEnum");
+                                this.attendanceCodes = x;
+                            })
+                            .catch(error => {
+                                if (!this.attendanceCodes) {
+                                    this.pageState = PageState.Error;
+                                    this.exception = error;
+                                    error.handled = true;
+                                }
+
+                                this.loadingDone("mulasztasTipusEnum");
+                                throw error;
+                            });
+
+                        // memo codes
+                        this.kreta
+                            .getNaploEnum("EsemenyTipusEnum")
+                            .then(x => {
+                                this.loadingDone("esemenyTipusEnum");
+                                this.memoCodes = x;
+                            })
+                            .catch(error => {
+                                if (!this.memoCodes) {
+                                    this.pageState = PageState.Error;
+                                    this.exception = error;
+                                    error.handled = true;
+                                }
+
+                                this.loadingDone("esemenyTipusEnum");
+                                throw error;
                             });
 
                         this.firebase.stopTrace("logging_modal_load_time");
@@ -231,6 +309,7 @@ export class LoggingFormPage implements IDirty {
     public async ionViewWillLeave() {
         this.unsubscribe$.next();
         this.unsubscribe$.complete();
+        this.attendanceMassSet$.complete();
         this.config.swipeGestureEnabled = true;
         this.menuController.swipeGesture(true);
     }
@@ -459,5 +538,9 @@ export class LoggingFormPage implements IDirty {
             await alert.present();
         }
         if (data.result == "curriculum") this.openCurriculum();
+    }
+
+    public massSetAttendance(value: string) {
+        this.attendanceMassSet$.next(this.attendanceCodes.find(x => x.Nev == value));
     }
 }

@@ -51,7 +51,7 @@ export class DataService {
             return this.fetchAndCacheUrl<T>(url, parameters, headers, ttlInSec);
         } else {
             return from(this.getItem<T>(url)).pipe(
-                tap(x => console.log("FROM CACHE: ", x)),
+                tap(x => console.log("FROM CACHE: ", url, x)),
                 catchError(err => this.fetchAndCacheUrl<T>(url, parameters, headers, ttlInSec))
             );
         }

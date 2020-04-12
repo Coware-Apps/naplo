@@ -22,10 +22,11 @@
         "percentage": "Százalék",
         "textual": "Szöveges"
     },
-    "presence-states": {
-        "present": "Jelenlét",
-        "late": "Késés",
-        "absent": "Hiányzás"
+    "attendance-states": {
+        "jelenlet": "Jelenlét",
+        "keses": "Késés",
+        "hianyzas": "Hiányzás",
+        "ures": "Üres"
     },
     "themes": {
         "dark": "Sötét",
