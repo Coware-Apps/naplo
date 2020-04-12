@@ -20,7 +20,7 @@
         <ion-button fill="outline" class="date-titleline" (click)="showDatePicker()">
             <ion-icon slot="start" name="calendar-outline"></ion-icon>
             <ion-label>
-                {{ datum.toLocaleDateString(config.locale, {month: 'short', day: 'numeric', weekday:
+                {{ date.toLocaleDateString(config.locale, {month: 'short', day: 'numeric', weekday:
                 'long'}) }}
             </ion-label>
         </ion-button>
@@ -41,7 +41,7 @@
 <ion-content>
     <ion-refresher
         slot="fixed"
-        (ionRefresh)="doRefresh($event)"
+        (ionRefresh)="loadTimetable(true, false, $event)"
         pullFactor="0.8"
         pullMin="60"
         pullMax="120"
@@ -50,13 +50,13 @@
         <ion-refresher-content></ion-refresher-content>
     </ion-refresher>
 
-    <ng-container *ngIf="pageState == 'LOADED'">
-        <ion-list id="ion-list-orarend" *ngIf="timetable">
-            <ng-container *ngFor="let l of timetable">
-                <app-timetable-lesson [lesson]="l" (click)="lessonClick(l)"></app-timetable-lesson>
-            </ng-container>
-        </ion-list>
-    </ng-container>
+    <ion-list id="ion-list-orarend" *ngIf="pageState == 'LOADED'">
+        <app-timetable-lesson
+            *ngFor="let l of timetable"
+            [lesson]="l"
+            (click)="lessonClick(l)"
+        ></app-timetable-lesson>
+    </ion-list>
 
     <ng-container *ngIf="pageState == 'LOADING'">
         <ion-list>

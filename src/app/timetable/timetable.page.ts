@@ -15,7 +15,12 @@ import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { Location } from "@angular/common";
 import { Subject } from "rxjs";
-import { takeUntil } from "rxjs/operators";
+import { takeUntil, switchMap, finalize, tap, debounceTime } from "rxjs/operators";
+
+interface loadDataOptions {
+    date: Date;
+    forceRefresh: boolean;
+}
 
 @Component({
     selector: "app-timetable",
@@ -41,24 +46,62 @@ export class TimetablePage implements OnInit {
     ) {}
 
     public timetable: Lesson[];
-    public datum: Date;
+    public date: Date;
 
     public pageState: PageState = PageState.Loading;
     public exception: Error;
     public loadingInProgress: boolean;
 
+    private loadData$: Subject<loadDataOptions>;
     private unsubscribe$: Subject<void>;
 
     // debug - live reload miatt van csak param
     public ngOnInit() {
         const paramDate = this.route.snapshot.queryParamMap.get("date");
-        this.datum = paramDate ? new Date(paramDate) : new Date();
-        this.datum.setUTCHours(0, 0, 0, 0);
+        this.date = paramDate ? new Date(paramDate) : new Date();
+        this.date.setUTCHours(0, 0, 0, 0);
     }
 
     public ionViewWillEnter() {
+        this.loadData$ = new Subject<loadDataOptions>();
         this.unsubscribe$ = new Subject<void>();
         this.firebase.setScreenName("timetable");
+
+        this.loadData$
+            .pipe(
+                switchMap(options => {
+                    this.firebase.startTrace("timetable_day_load_time");
+                    this.loadingInProgress = true;
+                    return this.kreta.getOraLista(options.date, options.forceRefresh).pipe(
+                        tap({
+                            complete: () => {
+                                this.loadingInProgress = false;
+                                this.firebase.stopTrace("timetable_day_load_time");
+                            },
+                        })
+                    );
+                }),
+                takeUntil(this.unsubscribe$)
+            )
+            .subscribe({
+                next: x => {
+                    this.pageState = x.length == 0 ? PageState.Empty : PageState.Loaded;
+                    this.timetable = x;
+
+                    this.cd.detectChanges();
+                },
+                error: error => {
+                    if (!this.timetable) {
+                        this.pageState = PageState.Error;
+                        this.exception = error;
+                        error.handled = true;
+                    }
+
+                    this.loadingInProgress = false;
+                    throw error;
+                },
+            });
+
         this.loadTimetable();
 
         this.networkStatus
@@ -74,90 +117,56 @@ export class TimetablePage implements OnInit {
     }
 
     public ionViewWillLeave() {
+        this.loadData$.complete();
         this.unsubscribe$.next();
         this.unsubscribe$.complete();
     }
 
-    async changeDate(direction: string) {
+    public changeDate(direction: string) {
         this.firebase.logEvent("timetable_date_changed", { direction: direction });
-        if (direction == "forward") this.datum.setDate(this.datum.getDate() + 1);
-        else this.datum.setDate(this.datum.getDate() - 1);
+        if (direction == "forward") this.date.setDate(this.date.getDate() + 1);
+        else this.date.setDate(this.date.getDate() - 1);
 
         this.loadTimetable(false, true);
 
         this.location.go(
             this.router
                 .createUrlTree([], {
-                    queryParams: { date: this.datum.toISOString() },
+                    queryParams: { date: this.date.toISOString() },
                     relativeTo: this.route,
                 })
                 .toString()
         );
     }
 
-    async loadTimetable(forceRefresh: boolean = false, resetDisplay: boolean = false) {
+    public loadTimetable(forceRefresh: boolean = false, resetDisplay: boolean = false, $event?) {
         if (resetDisplay || !this.timetable) {
             this.timetable = undefined;
             this.pageState = PageState.Loading;
         }
-        this.loadingInProgress = true;
 
-        this.firebase.startTrace("timetable_day_load_time");
-        this.kreta
-            .getOraLista(this.datum, forceRefresh)
-            .pipe(takeUntil(this.unsubscribe$))
-            .subscribe({
-                next: x => {
-                    this.pageState = x.length == 0 ? PageState.Empty : PageState.Loaded;
-                    this.timetable = x;
+        this.loadData$.next({ date: this.date, forceRefresh: forceRefresh });
 
-                    this.cd.detectChanges();
-                    this.firebase.stopTrace("timetable_day_load_time");
-                },
-                error: error => {
-                    if (!this.timetable) {
-                        this.pageState = PageState.Error;
-                        this.exception = error;
-                        error.handled = true;
-                    }
-
-                    this.loadingInProgress = false;
-                    throw error;
-                },
-                complete: () => {
-                    this.loadingInProgress = false;
-                },
-            });
-    }
-
-    public async doRefresh($event?) {
-        this.loadTimetable(true);
         if ($event) {
-            this.firebase.logEvent("timetable_pull2refresh", {});
+            this.firebase.logEvent("timetable_pull2refresh");
             $event.target.complete();
         }
     }
 
-    public async lessonClick(l: Lesson) {
-        this.firebase.logEvent("timetable_lesson_clicked", {});
+    public lessonClick(l: Lesson) {
+        this.firebase.logEvent("timetable_lesson_clicked");
 
         if (this.networkStatus.getCurrentNetworkStatus() === ConnectionStatus.Offline)
-            return await this.error.presentToast(this.translate.instant("timetable.error-offline"));
+            return this.error.presentToast(this.translate.instant("timetable.error-offline"));
         if (this.dateHelper.isInFuture(l.KezdeteUtc))
-            return await this.error.presentToast(
-                this.translate.instant("timetable.error-in-future")
-            );
+            return this.error.presentToast(this.translate.instant("timetable.error-in-future"));
         if (l.IsElmaradt)
-            return await this.error.presentToast(
-                this.translate.instant("timetable.error-cancelled")
-            );
+            return this.error.presentToast(this.translate.instant("timetable.error-cancelled"));
         if (
             l.HelyettesitoId &&
             l.HelyettesitoId != this.kreta.currentUser["kreta:institute_user_id"]
         )
-            return await this.error.presentToast(
-                this.translate.instant("timetable.error-substituted")
-            );
+            return this.error.presentToast(this.translate.instant("timetable.error-substituted"));
 
         this.router.navigate(["/logging-form"], {
             state: {
@@ -166,12 +175,12 @@ export class TimetablePage implements OnInit {
         });
     }
 
-    public async showDatePicker() {
+    public showDatePicker() {
         this.firebase.logEvent("timetable_datepicker_shown", {});
 
         this.datePicker
             .show({
-                date: this.datum,
+                date: this.date,
                 mode: "date",
                 locale: this.config.locale,
 
@@ -188,7 +197,7 @@ export class TimetablePage implements OnInit {
                 date => {
                     if (!date) return;
                     date = this.dateHelper.createDateAsUTC(date);
-                    this.datum = date;
+                    this.date = date;
                     this.loadTimetable();
                 },
                 err => {
