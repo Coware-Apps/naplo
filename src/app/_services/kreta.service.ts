@@ -277,7 +277,7 @@ export class KretaService {
     }
 
     getOraLista(day: Date, forceRefresh: boolean = false): Observable<Lesson[]> {
-        day.setUTCHours(0, 0, 0, 0);
+        day.setUTCHours(20, 0, 0, 0);
         return this.getAuthenticatedAdatcsomag<Lesson[]>(
             "/Naplo/v2/Orarend/OraLista?datumUtc=" + day.toISOString(),
             30 * 60,
