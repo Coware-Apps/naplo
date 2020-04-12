@@ -9,9 +9,9 @@ import {
 import { TanitottCsoport, PageState } from "../_models";
 import { DateHelper, ErrorHelper } from "../_helpers";
 import { TranslateService } from "@ngx-translate/core";
-import { Subject } from "rxjs";
+import { Subject, from } from "rxjs";
 import { Router } from "@angular/router";
-import { takeUntil } from "rxjs/operators";
+import { takeUntil, flatMap } from "rxjs/operators";
 
 @Component({
     selector: "app-evaluation",
@@ -59,7 +59,6 @@ export class EvaluationPage {
     loadData(forceRefresh: boolean = false, $event?) {
         if (!this.groups) {
             this.pageState = PageState.Loading;
-            this.groups = [];
         }
 
         this.loadingInProgress = true;
@@ -67,62 +66,56 @@ export class EvaluationPage {
         this.firebase.startTrace("evaluation_page_load_time");
 
         const map = new Map();
-        for (let i = 0; i < this.daysToCheck; i++) {
-            let d = new Date(this.dateHelper.getDayFromToday(-i));
-            this.kreta
-                .getOraLista(d, forceRefresh)
-                .pipe(takeUntil(this.unsubscribe$))
-                .subscribe({
-                    next: x => {
-                        x.forEach(lesson => {
-                            const id = lesson.TantargyId + "-" + lesson.OsztalyCsoportId;
+        from([...new Array(this.daysToCheck).keys()])
+            .pipe(
+                flatMap(x => {
+                    const d = new Date(this.dateHelper.getDayFromToday(-x));
+                    return this.kreta.getOraLista(d, forceRefresh);
+                }),
+                takeUntil(this.unsubscribe$)
+            )
+            .subscribe({
+                next: x => {
+                    x.forEach(lesson => {
+                        const id = lesson.TantargyId + "-" + lesson.OsztalyCsoportId;
 
-                            if (!map.has(id)) {
-                                map.set(id, {
-                                    TantargyId: lesson.TantargyId,
-                                    TantargyNev: lesson.TantargyNev,
-                                    TantargyKategoria: lesson.TantargyKategoria,
-                                    OsztalyCsoportId: lesson.OsztalyCsoportId,
-                                    OsztalyCsoportNev: lesson.OsztalyCsoportNev,
-                                });
-                            }
-                        });
-
-                        if (i == this.daysToCheck - 1) {
-                            this.groups = [...map.values()].sort((a, b) =>
-                                a.OsztalyCsoportNev.localeCompare(b.OsztalyCsoportNev)
-                            );
-
-                            this.pageState =
-                                this.groups.length == 0 ? PageState.Empty : PageState.Loaded;
-                            this.cd.detectChanges();
-                            if ($event) $event.target.complete();
-
-                            this.firebase.stopTrace("evaluation_page_load_time");
+                        if (!map.has(id)) {
+                            map.set(id, {
+                                TantargyId: lesson.TantargyId,
+                                TantargyNev: lesson.TantargyNev,
+                                TantargyKategoria: lesson.TantargyKategoria,
+                                OsztalyCsoportId: lesson.OsztalyCsoportId,
+                                OsztalyCsoportNev: lesson.OsztalyCsoportNev,
+                            });
                         }
-                    },
-                    error: error => {
-                        if (!this.groups) {
-                            this.pageState = PageState.Error;
-                            this.exception = error;
-                            error.handled = true;
-                        }
+                    });
+                },
+                error: error => {
+                    if (!this.groups) {
+                        this.pageState = PageState.Error;
+                        this.exception = error;
+                        error.handled = true;
+                    }
 
-                        this.loadingInProgress = false;
-                        this.firebase.stopTrace("evaluation_page_load_time");
-                        if ($event) $event.target.complete();
+                    this.loadingInProgress = false;
+                    this.firebase.stopTrace("evaluation_page_load_time");
+                    if ($event) $event.target.complete();
 
-                        throw error;
-                    },
-                    complete: () => {
-                        if (i == this.daysToCheck - 1) {
-                            this.loadingInProgress = false;
-                            this.firebase.stopTrace("evaluation_page_load_time");
-                            if ($event) $event.target.complete();
-                        }
-                    },
-                });
-        }
+                    throw error;
+                },
+                complete: () => {
+                    this.loadingInProgress = false;
+                    this.groups = [...map.values()].sort((a, b) =>
+                        a.OsztalyCsoportNev.localeCompare(b.OsztalyCsoportNev)
+                    );
+
+                    this.pageState = this.groups.length == 0 ? PageState.Empty : PageState.Loaded;
+                    this.cd.detectChanges();
+                    if ($event) $event.target.complete();
+
+                    this.firebase.stopTrace("evaluation_page_load_time");
+                },
+            });
     }
 
     ionViewWillLeave() {

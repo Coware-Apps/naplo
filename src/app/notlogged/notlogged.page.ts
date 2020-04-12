@@ -8,10 +8,10 @@ import {
     FirebaseService,
     HwButtonService,
 } from "../_services";
-import { Subject } from "rxjs";
+import { Subject, from } from "rxjs";
 import { Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
-import { takeUntil } from "rxjs/operators";
+import { takeUntil, flatMap } from "rxjs/operators";
 
 @Component({
     selector: "app-notlogged",
@@ -67,61 +67,54 @@ export class NotloggedPage {
 
         if (!this.lessons) {
             this.pageState = PageState.Loading;
-            this.lessons = [];
         }
 
         this.loadingInProgress = true;
         let map = new Map();
-        for (let i = 0; i < this.daysToCheck; i++) {
-            let d = new Date(this.dateHelper.getDayFromToday(-i));
 
-            this.kreta
-                .getOraLista(d, forceRefresh)
-                .pipe(takeUntil(this.unsubscribe$))
-                .subscribe({
-                    next: x => {
-                        x.forEach(lesson => {
-                            if (
-                                lesson.Allapot.Nev == "Nem_naplozott" &&
-                                !lesson.IsElmaradt &&
-                                !map.has(lesson.OrarendiOraId)
-                            ) {
-                                map.set(lesson.OrarendiOraId, lesson);
-                            }
-                        });
-
-                        if (i == this.daysToCheck - 1) {
-                            this.lessons = [...map.values()];
-                            this.cd.detectChanges();
-                            this.pageState =
-                                this.lessons.length == 0 ? PageState.Empty : PageState.Loaded;
-                            this.firebase.stopTrace("not_logged_lessons_load_time");
-
-                            if ($event) $event.target.complete();
+        from([...new Array(this.daysToCheck).keys()])
+            .pipe(
+                flatMap(x => {
+                    const d = new Date(this.dateHelper.getDayFromToday(-x));
+                    return this.kreta.getOraLista(d, forceRefresh);
+                }),
+                takeUntil(this.unsubscribe$)
+            )
+            .subscribe({
+                next: x => {
+                    x.forEach(lesson => {
+                        if (
+                            lesson.Allapot.Nev == "Nem_naplozott" &&
+                            !lesson.IsElmaradt &&
+                            !map.has(lesson.OrarendiOraId)
+                        ) {
+                            map.set(lesson.OrarendiOraId, lesson);
                         }
-                    },
-                    error: error => {
-                        if (!this.lessons || this.lessons.length == 0) {
-                            this.pageState = PageState.Error;
-                            this.exception = error;
-                            error.handled = true;
-                        }
+                    });
+                },
+                error: error => {
+                    if (!this.lessons) {
+                        this.pageState = PageState.Error;
+                        this.exception = error;
+                        error.handled = true;
+                    }
 
-                        this.loadingInProgress = false;
-                        if ($event) $event.target.complete();
-                        this.firebase.stopTrace("not_logged_lessons_load_time");
+                    this.loadingInProgress = false;
+                    if ($event) $event.target.complete();
+                    this.firebase.stopTrace("not_logged_lessons_load_time");
 
-                        throw error;
-                    },
-                    complete: () => {
-                        if (i == this.daysToCheck - 1) {
-                            this.loadingInProgress = false;
-                            if ($event) $event.target.complete();
-                            this.firebase.stopTrace("not_logged_lessons_load_time");
-                        }
-                    },
-                });
-        }
+                    throw error;
+                },
+                complete: () => {
+                    this.lessons = [...map.values()];
+                    this.loadingInProgress = false;
+                    this.cd.detectChanges();
+                    this.pageState = this.lessons.length == 0 ? PageState.Empty : PageState.Loaded;
+                    this.firebase.stopTrace("not_logged_lessons_load_time");
+
+                    if ($event) $event.target.complete();
+                },
+            });
     }
 
     onLessonClick(l: Lesson) {
