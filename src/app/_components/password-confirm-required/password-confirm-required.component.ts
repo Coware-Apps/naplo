@@ -32,7 +32,11 @@ export class PasswordConfirmRequiredComponent implements OnInit {
         }
 
         try {
-            const result = await this.eugy.doPasswordLogin(this.password);
+            const result = await this.eugy.getToken(
+                this.kreta.currentUser["kreta:user_name"],
+                this.password,
+                this.kreta.institute
+            );
             if (result) this.onSuccessfulLogin.emit(true);
         } catch (error) {
             if (error instanceof KretaEUgyInvalidPasswordException)

@@ -1,9 +1,15 @@
 import { NaploException } from "./naplo-exception";
-import { stringify } from "flatted/esm";
 
 export class KretaEUgyException extends NaploException {
-    constructor(message, ...params) {
-        super(message, ...params);
+    constructor(
+        message: string,
+        name?: string,
+        messageTranslationKey?: string,
+        nameTranslationKey?: string,
+        iconName?: string,
+        innerException?: Error
+    ) {
+        super(message, name, messageTranslationKey, nameTranslationKey, iconName, innerException);
     }
 }
 
@@ -20,15 +26,22 @@ export class KretaEUgyNotLoggedInException extends KretaEUgyException {
 }
 
 export class KretaEUgyInvalidResponseException extends KretaEUgyException {
-    public response: object;
+    public response: any;
 
-    constructor(response?: object) {
+    constructor(response?: any) {
         super(
-            "Invalid response to token request. (" + stringify(response) + ")",
+            "Invalid response.",
             "InvalidResponseException",
-            "exceptions.eugy-invalid-response.message",
-            "exceptions.server-error"
+            "exceptions.invalid-response.message",
+            "exceptions.server-error",
+            "hammer-outline"
         );
+
+        this.response = response;
+    }
+
+    toString(): string {
+        return super.toString() + "\nResponse: " + JSON.stringify(this.response);
     }
 }
 

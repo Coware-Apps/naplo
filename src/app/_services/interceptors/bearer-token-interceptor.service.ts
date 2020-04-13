@@ -43,6 +43,8 @@ export class BearerTokenInterceptorService implements HttpInterceptor {
                         },
                     });
 
+                    console.debug("[TOKEN INTERC] Kreta EUgy Token applied:", req);
+
                     return next.handle(req);
                 })
             );

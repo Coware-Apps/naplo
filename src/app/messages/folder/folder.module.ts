@@ -4,23 +4,21 @@ import { FormsModule } from "@angular/forms";
 
 import { IonicModule } from "@ionic/angular";
 
-import { SentPageRoutingModule } from "./sent-routing.module";
+import { MessageListPageRoutingModule } from "./folder-routing.module";
 
-import { SentPage } from "./sent.page";
-import { TranslateModule } from "@ngx-translate/core";
+import { FolderPage } from "./folder.page";
 import { ComponentsModule } from "src/app/_components/components.module";
-import { MessageComponentsModule } from "../_components/message-components/message-components.module";
+import { TranslateModule } from "@ngx-translate/core";
 
 @NgModule({
     imports: [
         CommonModule,
         FormsModule,
         IonicModule,
-        SentPageRoutingModule,
+        MessageListPageRoutingModule,
         ComponentsModule,
-        MessageComponentsModule,
         TranslateModule,
     ],
-    declarations: [SentPage],
+    declarations: [FolderPage],
 })
-export class SentPageModule {}
+export class FolderPageModule {}

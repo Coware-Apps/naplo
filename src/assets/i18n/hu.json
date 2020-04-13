@@ -125,16 +125,16 @@
         },
         "tab": {
             "inbox": "Beérkezett",
-            "sent": "Elküldött",
-            "trash": "Törölt"
+            "outbox": "Elküldött",
+            "deleted": "Törölt"
         },
         "inbox": {
             "title": "Beérkezett üzenetek"
         },
-        "sent": {
+        "outbox": {
             "title": "Elküldött üzenetek"
         },
-        "trash": {
+        "deleted": {
             "title": "Törölt üzenetek"
         }
     },

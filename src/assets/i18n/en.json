@@ -125,16 +125,16 @@
         },
         "tab": {
             "inbox": "Inbox",
-            "sent": "Sent",
-            "trash": "Trash"
+            "outbox": "Sent",
+            "deleted": "Trash"
         },
         "inbox": {
             "title": "Inbox"
         },
-        "sent": {
+        "outbox": {
             "title": "Sent messages"
         },
-        "trash": {
+        "deleted": {
             "title": "Trash"
         }
     },

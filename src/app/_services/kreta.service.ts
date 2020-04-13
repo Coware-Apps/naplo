@@ -16,13 +16,12 @@ import {
     TokenResponse,
     JavasoltJelenletTemplate,
 } from "../_models";
-import { ErrorHelper, JwtDecodeHelper } from "../_helpers";
+import { JwtDecodeHelper } from "../_helpers";
 import {
     KretaMissingRoleException,
     KretaInvalidPasswordException,
     KretaInvalidResponseException,
 } from "../_exceptions";
-import { stringify } from "flatted/esm";
 import { FirebaseService } from "./firebase.service";
 import { HttpHeaders, HttpParams } from "@angular/common/http";
 
@@ -47,7 +46,6 @@ export class KretaService {
     constructor(
         private data: DataService,
         private jwtHelper: JwtDecodeHelper,
-        private error: ErrorHelper,
         private firebase: FirebaseService
     ) {}
 
@@ -65,30 +63,22 @@ export class KretaService {
     }
 
     public async getValidAccessToken(): Promise<string> {
-        try {
-            // ha van érvényes access_token elmentve, visszaadjuk azt
-            const access_token = await this.data.getItem<string>("access_token").catch(() => {
-                console.debug("[LOGIN] Nincs valid AT");
-                return null;
-            });
+        // ha van érvényes access_token elmentve, visszaadjuk azt
+        const access_token = await this.data.getItem<string>("access_token").catch(() => {
+            console.debug("[LOGIN] Nincs valid AT");
+            return null;
+        });
 
-            if (access_token) return access_token;
+        if (access_token) return access_token;
 
-            //ha nincs vagy lejárt az access_token, de van refresh_token, megújítunk azzal
-            const refresh_token = await this.data.getItem<string>("refresh_token").catch(() => {
-                throw Error("[LOGIN] Nincs valid RT");
-            });
+        //ha nincs vagy lejárt az access_token, de van refresh_token, megújítunk azzal
+        const refresh_token = await this.data.getItem<string>("refresh_token").catch(() => {
+            throw Error("[LOGIN] Nincs valid RT");
+        });
 
-            if (refresh_token) {
-                console.debug("[LOGIN] Van valid RT, megújítás...");
-                return await this.loginWithRefreshToken(refresh_token);
-            }
-        } catch (error) {
-            this.firebase.logError("getValidAccessToken(): " + stringify(error));
-            console.error("[LOGIN] " + error);
-            await this.error.presentAlert(error, "getValidAccessToken()", undefined, () => {
-                this.logout();
-            });
+        if (refresh_token) {
+            console.debug("[LOGIN] Van valid RT, megújítás...");
+            return this.loginWithRefreshToken(refresh_token);
         }
     }
 
@@ -112,46 +102,46 @@ export class KretaService {
                 )
                 .toPromise();
 
-            if (response.access_token) {
-                this._currentUser = this.jwtHelper.decodeToken(response.access_token);
+            if (!response.access_token) throw new KretaInvalidResponseException(response);
 
-                console.debug("[LOGIN] Roles we have: ", this.currentUser.role);
-                if (this.currentUser.role.indexOf("Tanar") === -1) {
-                    console.debug("[LOGIN] Missing role: 'Tanar' in ", this.currentUser.role);
+            this._currentUser = this.jwtHelper.decodeToken(response.access_token);
 
-                    throw new KretaMissingRoleException();
-                }
+            console.debug("[LOGIN] Roles we have: ", this.currentUser.role);
+            if (this.currentUser.role.indexOf("Tanar") === -1) {
+                console.debug("[LOGIN] Missing role: 'Tanar' in ", this.currentUser.role);
 
-                await Promise.all([
-                    this.data.saveItem(
-                        "access_token",
-                        response.access_token,
-                        null,
-                        response.expires_in - 30
-                    ),
-                    this.data.saveItem(
-                        "refresh_token",
-                        response.refresh_token,
-                        null,
-                        this.longtermStorageExpiry
-                    ),
-                ]);
+                throw new KretaMissingRoleException();
+            }
 
-                Promise.all([
-                    this.getNaploEnum("MulasztasTipusEnum"),
-                    this.getNaploEnum("EsemenyTipusEnum"),
-                    this.getNaploEnum("ErtekelesModEnum"),
-                    this.getNaploEnum("ErtekelesTipusEnum"),
-                    this.getNaploEnum("OsztalyzatTipusEnum"),
-                ]);
+            await Promise.all([
+                this.data.saveItem(
+                    "access_token",
+                    response.access_token,
+                    null,
+                    response.expires_in - 30
+                ),
+                this.data.saveItem(
+                    "refresh_token",
+                    response.refresh_token,
+                    null,
+                    this.longtermStorageExpiry
+                ),
+            ]);
 
-                this.firebase.initialize(this.currentUser, this.institute);
-            } else throw new KretaInvalidResponseException(response);
+            Promise.all([
+                this.getNaploEnum("MulasztasTipusEnum"),
+                this.getNaploEnum("EsemenyTipusEnum"),
+                this.getNaploEnum("ErtekelesModEnum"),
+                this.getNaploEnum("ErtekelesTipusEnum"),
+                this.getNaploEnum("OsztalyzatTipusEnum"),
+            ]);
+
+            this.firebase.initialize(this.currentUser, this.institute);
 
             return response;
         } catch (error) {
             if (error.response.status == 400) throw new KretaInvalidPasswordException();
-            else throw error;
+            throw error;
         }
     }
 
@@ -163,7 +153,6 @@ export class KretaService {
         // wait for a parallel renew process
         if (this.loginInProgress) {
             while (this.loginInProgress) await this.delay(20);
-
             return this.getValidAccessToken();
         }
 

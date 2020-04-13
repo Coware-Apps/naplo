@@ -5,26 +5,13 @@ import { MessagesPage } from "./messages.page";
 
 const routes: Routes = [
     {
-        path: "tabs",
+        path: "folder",
         component: MessagesPage,
-        children: [
-            {
-                path: "inbox",
-                loadChildren: () => import("./inbox/inbox.module").then(m => m.InboxPageModule),
-            },
-            {
-                path: "sent",
-                loadChildren: () => import("./sent/sent.module").then(m => m.SentPageModule),
-            },
-            {
-                path: "trash",
-                loadChildren: () => import("./trash/trash.module").then(m => m.TrashPageModule),
-            },
-        ],
+        loadChildren: () => import("./folder/folder.module").then(m => m.FolderPageModule),
     },
     {
         path: "",
-        redirectTo: "tabs/inbox",
+        redirectTo: "folder/inbox",
         pathMatch: "full",
     },
 ];

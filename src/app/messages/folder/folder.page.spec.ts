@@ -1,19 +1,19 @@
 import { async, ComponentFixture, TestBed } from "@angular/core/testing";
 import { IonicModule } from "@ionic/angular";
 
-import { MessageListComponent } from "./message-list.component";
+import { FolderPage } from "./folder.page";
 
-describe("MessageListComponent", () => {
-    let component: MessageListComponent;
-    let fixture: ComponentFixture<MessageListComponent>;
+describe("MessageListPage", () => {
+    let component: FolderPage;
+    let fixture: ComponentFixture<FolderPage>;
 
     beforeEach(async(() => {
         TestBed.configureTestingModule({
-            declarations: [MessageListComponent],
+            declarations: [FolderPage],
             imports: [IonicModule.forRoot()],
         }).compileComponents();
 
-        fixture = TestBed.createComponent(MessageListComponent);
+        fixture = TestBed.createComponent(FolderPage);
         component = fixture.componentInstance;
         fixture.detectChanges();
     }));

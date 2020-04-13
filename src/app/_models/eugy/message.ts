@@ -41,14 +41,6 @@ export interface MessageAddressee {
     tipus: MessageTipus;
 }
 
-export interface MessageAddresseeType {
-    azonosito: number;
-    kod: string;
-    rovidNev: string;
-    nev: string;
-    leiras: string;
-}
-
 /**
  * You get this, if you open a message from the messages list. It includes all data
  */
@@ -59,6 +51,7 @@ export interface Message {
     tipus: MessageTipus;
     uzenet: MessageUzenet;
 }
+
 /**
  * You get an array of this, when you make any message list request (inbox, outbox, deleted)
  */
@@ -72,4 +65,6 @@ export interface MessageListItem {
     uzenetTargy: string;
     hasCsatolmany: boolean;
     isElolvasva: boolean;
+
+    isSelected?: boolean;
 }

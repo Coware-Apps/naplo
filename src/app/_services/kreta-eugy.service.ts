@@ -1,26 +1,22 @@
 import { Injectable } from "@angular/core";
-import { Platform } from "@ionic/angular";
 import { HttpParams, HttpHeaders } from "@angular/common/http";
-import { Observable, ObservableInput } from "rxjs";
-import { map, catchError } from "rxjs/operators";
-
-import { File } from "@ionic-native/file/ngx";
-import { AndroidPermissions } from "@ionic-native/android-permissions/ngx";
-import { FileTransfer } from "@ionic-native/file-transfer/ngx";
-
+import { Observable } from "rxjs";
+import { map } from "rxjs/operators";
+import { Institute, TokenResponse } from "../_models";
 import {
-    Institute,
+    Message,
     InstituteEugy,
     MessageListItem,
     MessageAddressee,
-    MessageAddresseeType,
-    TokenResponse,
-} from "../_models";
+    AddresseeGroup,
+    AddresseeType,
+    ParentAddresseeListItem,
+    StudentAddresseeListItem,
+} from "../_models/eugy";
 
 import {
     KretaEUgyInvalidResponseException,
     KretaEUgyInvalidPasswordException,
-    KretaEUgyMessageAttachmentDownloadException,
     KretaEUgyNotLoggedInException,
     KretaEUgyException,
 } from "../_exceptions";
@@ -38,6 +34,7 @@ export class KretaEUgyService {
         inboxList: "kommunikacio/postaladaelemek/beerkezett",
         outboxList: "kommunikacio/postaladaelemek/elkuldott",
         deletedList: "kommunikacio/postaladaelemek/torolt",
+        message: "kommunikacio/postaladaelemek",
         manageBin: "kommunikacio/postaladaelemek/kuka",
         delete: "kommunikacio/postaladaelemek/torles",
         manageState: "kommunikacio/postaladaelemek/olvasott",
@@ -50,7 +47,7 @@ export class KretaEUgyService {
             groups: "kommunikacio/tanoraicsoportok/cimezheto",
             classes: "kommunikacio/osztalyok/cimezheto",
             szmk: "kommunikacio/szmkkepviselok/cimezheto",
-            parents: {
+            tutelaries: {
                 byGroups: "kreta/gondviselok/tanoraicsoport",
                 byClasses: "kreta/gondviselok/osztaly",
             },
@@ -66,14 +63,7 @@ export class KretaEUgyService {
     private longtermStorageExpiry = 72 * 30 * 24 * 60 * 60;
     private loginInProgress: boolean = false;
 
-    constructor(
-        private transfer: FileTransfer,
-        private platform: Platform,
-        private file: File,
-        private androidPermissions: AndroidPermissions,
-        private data: DataService,
-        private kreta: KretaService
-    ) {}
+    constructor(private data: DataService, private kreta: KretaService) {}
 
     /**
      * Gets a valid access_token from storage or from the IDP
@@ -108,7 +98,7 @@ export class KretaEUgyService {
         username: string,
         password: string,
         institute: Institute
-    ): Promise<string> {
+    ): Promise<TokenResponse> {
         try {
             const params = {
                 userName: username,
@@ -118,7 +108,7 @@ export class KretaEUgyService {
                 client_id: "kozelkep-js-web",
             };
 
-            let response = await this.data
+            const response = await this.data
                 .postUrl<TokenResponse>(
                     "https://idp.e-kreta.hu/connect/Token",
                     new HttpParams({ fromObject: params }).toString(),
@@ -146,25 +136,11 @@ export class KretaEUgyService {
                 this.data.saveSetting("eugy_institute", await this.getInstituteDetails()),
             ]);
 
-            return response.access_token;
+            return response;
         } catch (error) {
-            if (error instanceof SyntaxError) throw new KretaEUgyInvalidResponseException(error);
             if (error.status == 400) throw new KretaEUgyInvalidPasswordException();
-
             throw error;
         }
-    }
-
-    /**
-     * Initiates login with only a password
-     * @param password The password
-     */
-    public doPasswordLogin(password: string): Promise<string> {
-        return this.getToken(
-            this.kreta.currentUser["kreta:user_name"],
-            password,
-            this.kreta.institute
-        );
     }
 
     private delay(timer: number): Promise<void> {
@@ -180,7 +156,6 @@ export class KretaEUgyService {
     public async renewToken(refresh_token: string, institute: Institute): Promise<string> {
         if (this.loginInProgress) {
             while (this.loginInProgress) await this.delay(20);
-
             return this.getValidAccessToken();
         }
 
@@ -195,7 +170,7 @@ export class KretaEUgyService {
             };
             console.log(`[EUGY->renewToken()] renewing tokens with refreshToken`, refresh_token);
 
-            let response = await this.data
+            const response = await this.data
                 .postUrl<TokenResponse>(
                     "https://idp.e-kreta.hu/connect/Token",
                     new HttpParams({ fromObject: params }).toString(),
@@ -221,15 +196,6 @@ export class KretaEUgyService {
             ]);
 
             return response.access_token;
-        } catch (error) {
-            if (error instanceof SyntaxError) throw new KretaEUgyInvalidResponseException();
-            if (error.status == 400) {
-                await this.logout();
-
-                throw new KretaEUgyInvalidPasswordException();
-            }
-
-            throw error;
         } finally {
             this.loginInProgress = false;
         }
@@ -247,8 +213,7 @@ export class KretaEUgyService {
      * @returns boolean
      */
     public async isAuthenticated(): Promise<boolean> {
-        const loginInfo = await this.data.itemExists("eugy_refresh_token");
-        return loginInfo === true;
+        return (await this.data.itemExists("eugy_refresh_token")) === true;
     }
 
     /**
@@ -261,7 +226,6 @@ export class KretaEUgyService {
             .toPromise();
 
         await this.data.saveSetting("eugy_institute", response);
-
         return response;
     }
 
@@ -275,7 +239,6 @@ export class KretaEUgyService {
             .catch(() => null);
 
         if (!institute) throw new KretaEUgyException("No institution settings available.");
-
         return institute.IsUzenetKezelesElerheto;
     }
 
@@ -301,8 +264,17 @@ export class KretaEUgyService {
                     x.uzenetKuldesDatum = new Date(x.uzenetKuldesDatum);
                     return x;
                 })
-            ),
-            catchError(e => this.handleErrors(e))
+            )
+        );
+    }
+
+    public getMessage(messageId: number, forceRefresh: boolean = false): Observable<Message> {
+        return this.data.getUrlWithCache<Message>(
+            this.host + this.endpoints.message + "/" + messageId,
+            null,
+            null,
+            null,
+            forceRefresh
         );
     }
 
@@ -313,7 +285,7 @@ export class KretaEUgyService {
      */
     public binMessages(action: "put" | "remove", messageIdList: number[]): Observable<any> {
         const params = {
-            isKuka: action == "put" ? true : false,
+            isKuka: action == "put",
             postaladaElemAzonositoLista: messageIdList,
         };
 
@@ -343,11 +315,26 @@ export class KretaEUgyService {
         messageIdList: number[]
     ): Observable<any> {
         const params = {
-            isOlvasott: newState == "read" ? true : false,
+            isOlvasott: newState == "read",
             postaladaElemAzonositoLista: messageIdList,
         };
 
         return this.data.postUrl<any>(this.host + this.endpoints.manageState, params);
+    }
+
+    public getAddresseeGroups(
+        addresseeType: "tutelaries" | "students",
+        groupType: "classes" | "groups"
+    ): Observable<AddresseeGroup[]> {
+        const params = {
+            cimzettKod: addresseeType == "tutelaries" ? "GONDVISELOK" : "TANULOK",
+        };
+        let endpoint = this.endpoints.addresseeCategories[groupType];
+        return this.data.getUrlWithCache<AddresseeGroup[]>(
+            this.host + endpoint,
+            params,
+            new HttpHeaders().set("Content-Type", "application/x-www-form-urlencoded")
+        );
     }
 
     /**
@@ -433,8 +420,8 @@ export class KretaEUgyService {
      * Gets the types of addressees the user can choose from. It is used to display category names descriptions etc.
      * @see The documentation for more info about addressees
      */
-    public getAddresseeTypeList(): Observable<MessageAddresseeType[]> {
-        return this.data.getUrlWithCache<MessageAddresseeType[]>(
+    public getAddresseeTypeList(): Observable<AddresseeType[]> {
+        return this.data.getUrlWithCache<AddresseeType[]>(
             this.host + this.endpoints.addresseeTypesList
         );
     }
@@ -451,13 +438,80 @@ export class KretaEUgyService {
         );
     }
 
-    /**
-     * Add an attachment to the temporary attachment storage. Used to draft messages WIP
-     */
-    public async addAttachment(): Promise<string> {
-        //todo, with file transfer
-        throw new Error("Error trying to add attachment: Feature not yet implemented :/");
+    public getStudentsOrParents(
+        category: "students" | "tutelaries",
+        by: "byGroups" | "byClasses",
+        groupOrClassId: number
+    ): Observable<ParentAddresseeListItem[] | StudentAddresseeListItem[]> {
+        return this.data.getUrlWithCache<ParentAddresseeListItem[] | StudentAddresseeListItem[]>(
+            this.host + this.endpoints.addresseeCategories[category][by] + `/${groupOrClassId}`
+        );
     }
+
+    // /**
+    //  * Add an attachment to the temporary attachment storage. Used to draft messages WIP
+    //  * @param tokens `Token` used for authentication
+    //  * @returns Promise that resolves to a string, that is the id of the file in the temporary storage
+    //  */
+    // public async addAttachment(using: "camera" | "gallery" | "file"): Promise<AttachmentToSend> {
+    //     let uri = this.host + this.endpoints.temporaryAttachmentStorage;
+    //     let filePath, fileName;
+    //     const ios = this.platform.is("ios");
+
+    //     try {
+    //         if (using == "file") {
+    //             if (ios) {
+    //                 filePath = "file://" + (await this._iosFilePicker.pickFile());
+    //                 fileName = filePath.substr(filePath.lastIndexOf("/") + 1);
+    //             } else {
+    //                 filePath = await this._fileChooser.open();
+    //                 fileName = await this._filePath.resolveNativePath(filePath);
+    //                 fileName = fileName.split("/")[fileName.split("/").length - 1];
+    //             }
+    //         } else {
+    //             let opts: CameraOptions = {
+    //                 quality: 80,
+    //                 destinationType: ios
+    //                     ? this._camera.DestinationType.FILE_URI
+    //                     : this._camera.DestinationType.NATIVE_URI,
+    //                 sourceType:
+    //                     using == "camera"
+    //                         ? this._camera.PictureSourceType.CAMERA
+    //                         : this._camera.PictureSourceType.PHOTOLIBRARY,
+    //                 encodingType: this._camera.EncodingType.JPEG,
+    //                 saveToPhotoAlbum: false,
+    //                 allowEdit: true,
+    //             };
+
+    //             filePath = await this._camera.getPicture(opts);
+    //             if (!ios) filePath = await this._filePath.resolveNativePath(filePath);
+    //             fileName = filePath.split("/")[filePath.split("/").length - 1];
+    //         }
+    //     } catch (error) {
+    //         if (error != "User canceled." && error != "No Image Selected") {
+    //             throw new AdministrationFileError(
+    //                 "addAttachment()",
+    //                 error,
+    //                 fileName,
+    //                 "addAttachment.title",
+    //                 "addAttachment.text"
+    //             );
+    //         } else {
+    //             console.log("Aborting upload, no file/image selected");
+    //             return;
+    //         }
+    //     }
+
+    //         let response = await this._http.uploadFile(uri, params, headers, filePath, "fajl");
+    //         let returnVal: AttachmentToSend = {
+    //             fajlNev: fileName,
+    //             fajl: {
+    //                 ideiglenesFajlAzonosito: response.data,
+    //             },
+    //             iktatoszam: null,
+    //         };
+    //         return returnVal;
+    // }
 
     /**
      * Removes an attachment from the temporary attachment storage. Used for drafting messages.
@@ -469,71 +523,106 @@ export class KretaEUgyService {
         );
     }
 
-    /**
-     * Gets an attachment from the final attachment storage. Use this for existing messages.
-     * @param fileId The id of the file to get from the server
-     * @param fileName The name of the file to get form the server (used to save the file)
-     * @param fileExtension The extension of the file to get from the server
-     */
-    public async getAttachment(
-        fileId: number,
-        fileName: string,
-        fileExtension: string
-    ): Promise<string> {
-        let fileTransfer = this.transfer.create();
-        let uri = `${this.host}${this.endpoints.finalAttachmentStorage}/${fileId}`;
-        let fullFileName = fileName + "." + fileExtension;
+    // /**
+    //  * Gets an attachment from the final attachment storage. Use this for existing messages.
+    //  * @param fileId The id of the file to get from the server
+    //  * @param fileName The name of the file to get form the server (used to save the file)
+    //  * @param fileExtension The extension of the file to get from the server
+    //  */
+    // public async getAttachment(
+    //     fileId: number,
+    //     fileName: string,
+    //     fileExtension: string
+    // ): Promise<string> {
+    //     let fileTransfer = this.transfer.create();
+    //     let uri = `${this.host}${this.endpoints.finalAttachmentStorage}/${fileId}`;
+    //     let fullFileName = fileName + "." + fileExtension;
 
-        try {
-            let url;
-            const access_token = await this.getValidAccessToken();
+    //     try {
+    //         let url;
+    //         const access_token = await this.getValidAccessToken();
 
-            let entry = await fileTransfer.download(
-                uri,
-                (await this.getDownloadPath()) + fullFileName,
-                false,
-                {
-                    headers: {
-                        Authorization: `Bearer ${access_token}`,
-                    },
-                }
-            );
-            url = entry.nativeURL;
+    //         let entry = await fileTransfer.download(
+    //             uri,
+    //             (await this.getDownloadPath()) + fullFileName,
+    //             false,
+    //             {
+    //                 headers: {
+    //                     Authorization: `Bearer ${access_token}`,
+    //                 },
+    //             }
+    //         );
+    //         url = entry.nativeURL;
 
-            return url;
-        } catch (error) {
-            throw new KretaEUgyMessageAttachmentDownloadException(error, fullFileName);
-        }
-    }
+    //         return url;
+    //     } catch (error) {
+    //         throw new KretaEUgyMessageAttachmentDownloadException(error, fullFileName);
+    //     }
+    // }
 
-    /**
-     *
-     */
-    private async getDownloadPath() {
-        if (this.platform.is("ios")) {
-            return this.file.documentsDirectory;
-        }
+    // /**
+    //  * Gets an attachment from the final attachment storage. Use this for existing messages.
+    //  * @param fileId The id of the file to get from the server
+    //  * @param fileName The name of the file to get form the server (used to save the file)
+    //  * @param fileExtension The extension of the file to get from the server
+    //  * @param tokens `Token` used for authentication
+    //  */
+    // public async getAttachment(
+    //     fileId: number,
+    //     fileName: string,
+    //     fileExtension: string,
+    //     tokens: Token
+    // ): Promise<string> {
+    //     let fileTransfer = this._transfer.create();
+    //     let uri = `${this._host}${this._endpoints.finalAttachmentStorage}/${fileId}`;
+    //     let fullFileName = fileName + "." + fileExtension;
+    //     try {
+    //         let url;
+    //         await this._platform.ready().then(async x => {
+    //             let entry = await fileTransfer.download(
+    //                 uri,
+    //                 (await this.getDownloadPath()) + fullFileName,
+    //                 false,
+    //                 {
+    //                     headers: {
+    //                         Authorization: `Bearer ${tokens.access_token}`,
+    //                         "User-Agent": this._userAgent,
+    //                     },
+    //                 }
+    //             );
+    //             url = entry.nativeURL;
+    //         });
+    //         return url;
+    //     } catch (error) {
+    //         console.error("Error trying to get file", error);
+    //         this._firebase.logError(`[KRETA->getMessageFile()]: ` + stringify(error));
+    //         if (error.status && error.status < 0)
+    //             throw new AdministrationNetworkError("getAttachment()");
+    //         throw new AdministrationFileError(
+    //             "getAttachment()",
+    //             error,
+    //             fileName,
+    //             "getAttachment.title",
+    //             "getAttachment.text"
+    //         );
+    //     }
+    // }
 
-        const storagePerm = await this.androidPermissions.checkPermission(
-            this.androidPermissions.PERMISSION.WRITE_EXTERNAL_STORAGE
-        );
+    // protected async getDownloadPath() {
+    //     if (this._platform.is("ios")) {
+    //         return this._file.documentsDirectory;
+    //     }
 
-        if (!storagePerm.hasPermission) {
-            this.androidPermissions.requestPermission(
-                this.androidPermissions.PERMISSION.WRITE_EXTERNAL_STORAGE
-            );
-        }
+    //     await this._androidPermissions
+    //         .checkPermission(this._androidPermissions.PERMISSION.WRITE_EXTERNAL_STORAGE)
+    //         .then(result => {
+    //             if (!result.hasPermission) {
+    //                 this._androidPermissions.requestPermission(
+    //                     this._androidPermissions.PERMISSION.WRITE_EXTERNAL_STORAGE
+    //                 );
+    //             }
+    //         });
 
-        return this.file.dataDirectory;
-    }
-
-    private handleErrors(error: any): ObservableInput<any> {
-        if (error instanceof SyntaxError) throw new KretaEUgyInvalidResponseException();
-        if (error.status == 401 || error.status == 403) {
-            this.logout();
-            throw new KretaEUgyNotLoggedInException();
-        }
-        console.log("HANDLEERROR: ", error.constructor.name, error);
-        throw error;
-    }
+    //     return this._file.dataDirectory;
+    // }
 }
