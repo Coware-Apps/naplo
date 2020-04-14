@@ -1,5 +1,5 @@
 import { NgModule, APP_INITIALIZER, ErrorHandler } from "@angular/core";
-import { BrowserModule } from "@angular/platform-browser";
+import { BrowserModule, HAMMER_GESTURE_CONFIG } from "@angular/platform-browser";
 import { RouteReuseStrategy } from "@angular/router";
 import { IonicStorageModule } from "@ionic/storage";
 import { CacheModule } from "ionic-cache";
@@ -33,6 +33,7 @@ import {
     ErrorHandlerService,
 } from "./_services";
 import { interceptorProviders } from "./_services/interceptors/interceptors";
+import { NaploHammerGestureConfig } from "./_configs/HammerGestureConfig";
 
 export function initializeApp(
     config: ConfigService,
@@ -96,6 +97,7 @@ export function createTranslateLoader(http: HttpClient) {
         },
         { provide: ErrorHandler, useClass: ErrorHandlerService },
         { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+        { provide: HAMMER_GESTURE_CONFIG, useClass: NaploHammerGestureConfig },
     ],
     bootstrap: [AppComponent],
 })

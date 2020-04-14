@@ -26,6 +26,6 @@ export class DiacriticsHelper {
     ]);
 
     public removeDiacritics(str: string): string {
-        return str.replace(/[^A-Za-z0-9\s]+/g, a => this.diacriticsMap[a] || a);
+        return str.replace(/[^A-Za-z0-9\s]+/g, a => this.diacriticsMap.get(a) || a);
     }
 }

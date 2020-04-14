@@ -5,8 +5,9 @@ import { ConfigService, KretaEUgyService } from "src/app/_services";
 import { takeUntil } from "rxjs/operators";
 import { PageState } from "src/app/_models";
 import { ActivatedRoute, Router } from "@angular/router";
-import { ErrorHelper } from "src/app/_helpers";
+import { ErrorHelper, DiacriticsHelper } from "src/app/_helpers";
 import { AlertController } from "@ionic/angular";
+import "hammerjs";
 
 @Component({
     selector: "app-message-folder",
@@ -15,6 +16,7 @@ import { AlertController } from "@ionic/angular";
 })
 export class FolderPage {
     public folder: "inbox" | "outbox" | "deleted" = "inbox";
+    private swipeRouterData = ["inbox", "outbox", "deleted"];
     private initNumberMessages: number = 15;
     private incrementNumberMessages: number = 5;
 
@@ -22,7 +24,10 @@ export class FolderPage {
     public toBeDisplayed: MessageListItem[] = [];
     public displayedMessages: MessageListItem[] = [];
 
-    public searchbarEnabled: boolean = false;
+    public searchbarEnabled: boolean;
+    public checkboxesShown: boolean;
+    public numberOfSelectedItems: number = 0;
+
     public pageState: PageState = PageState.Loading;
     public exception: Error;
     public loadingInProgress: boolean;
@@ -34,6 +39,7 @@ export class FolderPage {
         private router: Router,
         private route: ActivatedRoute,
         private errorHelper: ErrorHelper,
+        private diacritics: DiacriticsHelper,
         private alertController: AlertController
     ) {}
 
@@ -120,17 +126,24 @@ export class FolderPage {
         }
 
         this.toBeDisplayed = this.messages.filter(x => {
-            const search = event.detail.value.toLocaleLowerCase();
+            const search = this.diacritics.removeDiacritics(event.detail.value).toLowerCase();
 
             // subject
-            if (x.uzenetTargy.toLocaleLowerCase().includes(search)) return true;
+            if (this.diacritics.removeDiacritics(x.uzenetTargy).toLowerCase().includes(search))
+                return true;
 
             // inbox -> sender
             if (
                 x.uzenetFeladoNev &&
                 x.uzenetFeladoTitulus &&
-                (x.uzenetFeladoNev.toLocaleLowerCase().includes(search) ||
-                    x.uzenetFeladoTitulus.toLocaleLowerCase().includes(search))
+                (this.diacritics
+                    .removeDiacritics(x.uzenetFeladoNev)
+                    .toLowerCase()
+                    .includes(search) ||
+                    this.diacritics
+                        .removeDiacritics(x.uzenetFeladoTitulus)
+                        .toLowerCase()
+                        .includes(search))
             )
                 return true;
 
@@ -138,7 +151,14 @@ export class FolderPage {
             if (x.uzenetCimzettLista) {
                 let recipientSearchString;
                 x.uzenetCimzettLista.map(a => (recipientSearchString += a.nev));
-                if (recipientSearchString.toLocaleLowerCase().includes(search)) return true;
+
+                if (
+                    this.diacritics
+                        .removeDiacritics(recipientSearchString)
+                        .toLowerCase()
+                        .includes(search)
+                )
+                    return true;
             }
         });
 
@@ -158,31 +178,17 @@ export class FolderPage {
         this.router.navigateByUrl("messages/new-message");
     }
 
-    async binSelected(action: "put" | "remove") {
+    public async binSelected(action: "put" | "remove") {
         const ids = this.displayedMessages.filter(x => x.isSelected).map(x => x.azonosito);
         await this.eugy.binMessages(action, ids).toPromise();
         this.errorHelper.presentToast(
             action == "put" ? "Az üzenetet a kukába helyeztük" : "Az üzenetet visszaállítottuk"
         );
-        this.displayedMessages.map(x => {
-            x.isSelected = false;
-            return x;
-        });
-
-        // await this.userManager.currentUser.clearUserCacheByCategory(
-        //     "administration.outboxMessageList"
-        // );
-        // await this.userManager.currentUser.clearUserCacheByCategory(
-        //     "administration.inboxMessageList"
-        // );
-        // await this.userManager.currentUser.clearUserCacheByCategory(
-        //     "administration.deletedMessageList"
-        // );
-
+        this.resetCheckboxes();
         this.loadMessages(true);
     }
 
-    async deleteSelected() {
+    public async deleteSelected() {
         const ids = this.displayedMessages.filter(x => x.isSelected).map(x => x.azonosito);
 
         const alert = await this.alertController.create({
@@ -197,16 +203,11 @@ export class FolderPage {
                 {
                     text: "Törlés",
                     handler: async () => {
+                        this.loadingInProgress = true;
                         await this.eugy.deleteMessages(ids).toPromise();
+                        this.loadingInProgress = false;
 
-                        this.displayedMessages.map(x => {
-                            x.isSelected = false;
-                            return x;
-                        });
-
-                        // await this.userManager.currentUser.clearUserCacheByCategory(
-                        //     "administration.deletedMessageList"
-                        // );
+                        this.resetCheckboxes();
                         this.loadMessages(true);
                     },
                 },
@@ -216,29 +217,80 @@ export class FolderPage {
         await alert.present();
     }
 
-    async setSelectedAsUnread() {
+    public async setSelectedMessageState(state: "read" | "unread") {
+        this.loadingInProgress = true;
         const ids = this.displayedMessages.filter(x => x.isSelected).map(x => x.azonosito);
+        await this.eugy.changeMessageState(state, ids).toPromise();
 
-        await this.eugy.changeMessageState("unread", ids).toPromise();
-        this.errorHelper.presentToast("Az üzenetet olvasottnak jelöltük");
+        this.loadingInProgress = false;
+        this.errorHelper.presentToast(
+            state == "read"
+                ? "Az üzenetet olvasottnak jelöltük"
+                : "Az üzenetet olvassatlannak jelöltük"
+        );
 
-        this.displayedMessages.map(x => {
-            x.isSelected = false;
-            return x;
-        });
-
-        // await this.userManager.currentUser.clearUserCacheByCategory(
-        //     "administration.inboxMessageList"
-        // );
+        this.resetCheckboxes();
         this.loadMessages(true);
     }
 
-    async openMessage(message: MessageListItem) {
+    public async openMessage(message: MessageListItem) {
         if (!message.isElolvasva) {
             await this.eugy.changeMessageState("read", [message.azonosito]).toPromise();
             this.loadMessages(true);
         }
 
         this.router.navigateByUrl("/messages/read-message?messageId=" + message.azonosito);
+    }
+
+    public messageTap(message: MessageListItem) {
+        if (this.checkboxesShown) {
+            console.debug("message tapped with checkboxes shown");
+            message.isSelected = !message.isSelected;
+            this.updateCheckboxToolbar();
+            return;
+        }
+
+        console.log("message tapped without checkboxes shown");
+        this.openMessage(message);
+    }
+
+    public messagePress(message: MessageListItem) {
+        console.debug("message pressed");
+        this.checkboxesShown = true;
+        this.messageTap(message);
+    }
+
+    public updateCheckboxToolbar() {
+        this.numberOfSelectedItems = this.displayedMessages.filter(x => x.isSelected).length;
+        if (this.numberOfSelectedItems > 0) this.checkboxesShown = true;
+        else this.checkboxesShown = false;
+
+        console.debug("number of selected items: ", this.numberOfSelectedItems);
+    }
+
+    public resetCheckboxes() {
+        this.displayedMessages.map(x => (x.isSelected = false));
+        this.checkboxesShown = false;
+        this.numberOfSelectedItems = 0;
+    }
+
+    public swipe(event) {
+        if (event.direction === 2) {
+            //swiped left, needs to load page to the right
+            if (this.swipeRouterData.indexOf(this.folder) != 2) {
+                this.router.navigateByUrl(
+                    "messages/folder/" +
+                        this.swipeRouterData[this.swipeRouterData.indexOf(this.folder) + 1]
+                );
+            }
+        } else {
+            //swiped right, needs to load page to the left
+            if (this.swipeRouterData.indexOf(this.folder) != 0) {
+                this.router.navigateByUrl(
+                    "messages/folder/" +
+                        this.swipeRouterData[this.swipeRouterData.indexOf(this.folder) - 1]
+                );
+            }
+        }
     }
 }

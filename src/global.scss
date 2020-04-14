@@ -34,6 +34,13 @@ ion-list {
     }
 }
 
+.selectableText {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+}
+
 /* ios-en bal oldalt több a padding mint jobb oldalt */
 ion-item.ios {
     --padding-start: 10px;
