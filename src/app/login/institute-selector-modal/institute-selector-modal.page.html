@@ -22,6 +22,7 @@
         <ion-item *virtualItem="let i" (click)="onSelectionChange(i.InstituteCode)">
             <ion-label>
                 <h3>{{i.Name}}</h3>
+                <p class="ion-float-right">{{i.InstituteCode}}</p>
                 <p>{{i.City}}</p>
             </ion-label>
         </ion-item>

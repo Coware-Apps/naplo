@@ -4,6 +4,7 @@ import { Institute, PageState } from "../../_models";
 import { ModalController, Platform } from "@ionic/angular";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
+import { DiacriticsHelper } from "src/app/_helpers";
 
 @Component({
     selector: "app-institute-selector-modal",
@@ -22,7 +23,8 @@ export class InstituteSelectorModalPage {
         public platform: Platform,
         private kreta: KretaService,
         private modalController: ModalController,
-        private firebase: FirebaseService
+        private firebase: FirebaseService,
+        private diacriticsHelper: DiacriticsHelper
     ) {}
 
     async ionViewWillEnter() {
@@ -61,9 +63,20 @@ export class InstituteSelectorModalPage {
     }
 
     doFilter($event) {
+        const search = this.diacriticsHelper.removeDiacritics(
+            $event.target.value.toLocaleLowerCase()
+        );
+
         if (this.institutes)
-            this.filteredInstitutes = this.institutes.filter(x =>
-                x.Name.toLowerCase().includes($event.target.value.toLowerCase())
+            this.filteredInstitutes = this.institutes.filter(
+                x =>
+                    this.diacriticsHelper
+                        .removeDiacritics(x.Name.toLocaleLowerCase())
+                        .includes(search) ||
+                    this.diacriticsHelper
+                        .removeDiacritics(x.City.toLocaleLowerCase())
+                        .includes(search) ||
+                    x.InstituteCode.includes(search)
             );
     }
 
