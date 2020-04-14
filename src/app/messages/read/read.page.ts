@@ -5,6 +5,7 @@ import { Router, ActivatedRoute } from "@angular/router";
 import { Message } from "src/app/_models/eugy";
 import { PageState } from "src/app/_models";
 import { FirebaseX } from "@ionic-native/firebase-x/ngx";
+import { FileOpener } from "@ionic-native/file-opener/ngx";
 import { takeUntil } from "rxjs/operators";
 import { ErrorHelper } from "src/app/_helpers";
 import { Location } from "@angular/common";
@@ -36,7 +37,8 @@ export class ReadPage implements OnInit {
         private location: Location,
         private firebase: FirebaseX,
         private errorHelper: ErrorHelper,
-        private alertController: AlertController
+        private alertController: AlertController,
+        private fileOpener: FileOpener
     ) {}
 
     ngOnInit() {
@@ -92,11 +94,13 @@ export class ReadPage implements OnInit {
     }
 
     showStatusInfo() {
-        // this.prompt.presentUniversalAlert(
-        //     `Azonosító: ${this.message.azonosito}`,
-        //     `Státusz: ${this.message.uzenet.statusz.azonosito} (${this.message.uzenet.statusz.leiras})`,
-        //     `Hibakód: ${this.message.uzenet.hibaCorrellationId}`
-        // );
+        this.errorHelper.presentAlert(
+            `Azonosító: ${this.message.azonosito}<br>` +
+                `Státusz: ${this.message.uzenet.statusz.azonosito} (${this.message.uzenet.statusz.leiras})<br>` +
+                `Hibakód: ${this.message.uzenet.hibaCorrellationId}`,
+            undefined,
+            "Az üzenet nem lett kézbesítve"
+        );
     }
 
     async binMsg(action: "put" | "remove") {
@@ -110,8 +114,9 @@ export class ReadPage implements OnInit {
 
     async deleteMsg() {
         const alert = await this.alertController.create({
-            header: "Biztos vagy benne?",
-            message: "A törlés végleges, és nem vonható vissza!",
+            header: "Végleges törlés",
+            message:
+                "Egy kukában lévő üzenetet tervezel törölni. Ez végleges, és nem vonható vissza!",
             buttons: [
                 {
                     text: "Mégse",
@@ -138,31 +143,26 @@ export class ReadPage implements OnInit {
         this.loadingInProgress = true;
         await this.eugy.changeMessageState("unread", [this.message.azonosito]).toPromise();
         this.loadingInProgress = false;
-        this.errorHelper.presentToast("Üzenet olvasatlannak lett jelölve");
+        this.errorHelper.presentToast("Az üzenet olvasatlannak lett jelölve");
         this.location.back();
     }
 
     async getFile(id: number, fullName: string) {
-        // for (let i = 0; i < this.message.uzenet.csatolmanyok.length; i++) {
-        //     if (this.message.uzenet.csatolmanyok[i].azonosito == id) {
-        //         this.message.uzenet.csatolmanyok[i].loading = true;
-        //     }
-        // }
-        // const splitAt = (index: number) => (x: string) => [x.slice(0, index), x.slice(index)];
-        // let newName = splitAt(fullName.lastIndexOf("."))(fullName);
-        // newName[1] = newName[1].slice(1);
-        // let filePath = await this.eugy(
-        //     id,
-        //     newName[0],
-        //     newName[1]
-        // );
-        // this.FileOpener.showOpenWithDialog(filePath, this.types[newName[1]]);
-        // for (let i = 0; i < this.message.uzenet.csatolmanyok.length; i++) {
-        //     if (this.message.uzenet.csatolmanyok[i].azonosito == id) {
-        //         this.message.uzenet.csatolmanyok[i].loading = false;
-        //     }
-        // }
+        let attachment = this.message.uzenet.csatolmanyok.find(x => x.azonosito == id);
+        attachment.loading = true;
+
+        const splitAt = (index: number) => (x: string) => [x.slice(0, index), x.slice(index)];
+        const newName = splitAt(fullName.lastIndexOf("."))(fullName);
+        newName[1] = newName[1].slice(1);
+
+        const filePath = await this.eugy.getAttachment(id, newName[0], newName[1]);
+
+        console.debug("DOWNLOADED FILE:", filePath, this.types[newName[1]]);
+        this.fileOpener.showOpenWithDialog(filePath.nativeURL, this.types[newName[1]]);
+
+        attachment.loading = false;
     }
+
     public types = {
         "3dmf": "x-world/x-3dmf",
         "3dm": "x-world/x-3dmf",

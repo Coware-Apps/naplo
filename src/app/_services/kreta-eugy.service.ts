@@ -23,6 +23,7 @@ import {
 
 import { DataService } from "./data.service";
 import { KretaService } from "./kreta.service";
+import { File, FileEntry } from "@ionic-native/file/ngx";
 
 @Injectable({
     providedIn: "root",
@@ -58,7 +59,7 @@ export class KretaEUgyService {
         },
         newMessage: "kommunikacio/uzenetek",
         temporaryAttachmentStorage: "ideiglenesfajlok",
-        finalAttachmentStorage: "kommunikacio/dokumentumok/uzenetek",
+        finalAttachmentStorage: "dokumentumok/uzenetek",
     };
     private longtermStorageExpiry = 72 * 30 * 24 * 60 * 60;
     private loginInProgress: boolean = false;
@@ -67,7 +68,7 @@ export class KretaEUgyService {
         return this.kreta.currentUser;
     }
 
-    constructor(private data: DataService, private kreta: KretaService) {}
+    constructor(private data: DataService, private kreta: KretaService, private file: File) {}
 
     /**
      * Gets a valid access_token from storage or from the IDP
@@ -527,42 +528,28 @@ export class KretaEUgyService {
         );
     }
 
-    // /**
-    //  * Gets an attachment from the final attachment storage. Use this for existing messages.
-    //  * @param fileId The id of the file to get from the server
-    //  * @param fileName The name of the file to get form the server (used to save the file)
-    //  * @param fileExtension The extension of the file to get from the server
-    //  */
-    // public async getAttachment(
-    //     fileId: number,
-    //     fileName: string,
-    //     fileExtension: string
-    // ): Promise<string> {
-    //     let fileTransfer = this.transfer.create();
-    //     let uri = `${this.host}${this.endpoints.finalAttachmentStorage}/${fileId}`;
-    //     let fullFileName = fileName + "." + fileExtension;
+    /**
+     * Gets an attachment from the final attachment storage. Use this for existing messages.
+     * @param fileId The id of the file to get from the server
+     * @param fileName The name of the file to get form the server (used to save the file)
+     * @param fileExtension The extension of the file to get from the server
+     */
+    public async getAttachment(
+        fileId: number,
+        fileName: string,
+        fileExtension: string
+    ): Promise<FileEntry> {
+        const name = fileName + "_" + fileId + "." + fileExtension;
 
-    //     try {
-    //         let url;
-    //         const access_token = await this.getValidAccessToken();
+        // TODO: check if file exists, and read it
 
-    //         let entry = await fileTransfer.download(
-    //             uri,
-    //             (await this.getDownloadPath()) + fullFileName,
-    //             false,
-    //             {
-    //                 headers: {
-    //                     Authorization: `Bearer ${access_token}`,
-    //                 },
-    //             }
-    //         );
-    //         url = entry.nativeURL;
-
-    //         return url;
-    //     } catch (error) {
-    //         throw new KretaEUgyMessageAttachmentDownloadException(error, fullFileName);
-    //     }
-    // }
+        const file = await this.data.downloadBlobFromUrl(
+            `${this.host}${this.endpoints.finalAttachmentStorage}/${fileId}`
+        );
+        return this.file.writeFile(this.file.cacheDirectory, name, file, {
+            replace: true,
+        });
+    }
 
     // /**
     //  * Gets an attachment from the final attachment storage. Use this for existing messages.

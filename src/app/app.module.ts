@@ -20,9 +20,7 @@ import { Globalization } from "@ionic-native/globalization/ngx";
 import { AppVersion } from "@ionic-native/app-version/ngx";
 import { Network } from "@ionic-native/network/ngx";
 import { FirebaseX } from "@ionic-native/firebase-x/ngx";
-import { FileTransfer } from "@ionic-native/file-transfer/ngx";
 import { File } from "@ionic-native/file/ngx";
-import { AndroidPermissions } from "@ionic-native/android-permissions/ngx";
 
 import { AppComponent } from "./app.component";
 import { AppRoutingModule } from "./app-routing.module";
@@ -80,9 +78,7 @@ export function createTranslateLoader(http: HttpClient) {
         AppVersion,
         Network,
         FirebaseX,
-        FileTransfer,
         File,
-        AndroidPermissions,
         interceptorProviders,
         {
             provide: APP_INITIALIZER,

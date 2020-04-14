@@ -9,6 +9,7 @@ import { ReadPageRoutingModule } from "./read-routing.module";
 import { ReadPage } from "./read.page";
 import { ComponentsModule } from "src/app/_components/components.module";
 import { TranslateModule } from "@ngx-translate/core";
+import { FileOpener } from "@ionic-native/file-opener/ngx";
 
 @NgModule({
     imports: [
@@ -20,5 +21,6 @@ import { TranslateModule } from "@ngx-translate/core";
         TranslateModule,
     ],
     declarations: [ReadPage],
+    providers: [FileOpener],
 })
 export class ReadPageModule {}

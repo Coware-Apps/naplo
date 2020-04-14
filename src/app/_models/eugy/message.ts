@@ -32,6 +32,7 @@ interface MessageUzenet {
     statusz: MessageStatusz;
     cimzettLista: MessageAddressee[];
     csatolmanyok: MessageCsatolmanyok[];
+    hibaCorrellationId?: string;
 }
 
 /**
