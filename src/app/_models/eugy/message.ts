@@ -17,6 +17,9 @@ interface MessageTipus {
 interface MessageCsatolmanyok {
     azonosito: number;
     fajlNev: string;
+
+    //not from the server
+    loading?: boolean;
 }
 
 interface MessageUzenet {

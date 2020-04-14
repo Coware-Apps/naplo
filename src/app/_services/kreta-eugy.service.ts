@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { HttpParams, HttpHeaders } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
-import { Institute, TokenResponse } from "../_models";
+import { Institute, TokenResponse, Jwt } from "../_models";
 import {
     Message,
     InstituteEugy,
@@ -62,6 +62,10 @@ export class KretaEUgyService {
     };
     private longtermStorageExpiry = 72 * 30 * 24 * 60 * 60;
     private loginInProgress: boolean = false;
+
+    public get currentUser(): Jwt {
+        return this.kreta.currentUser;
+    }
 
     constructor(private data: DataService, private kreta: KretaService) {}
 

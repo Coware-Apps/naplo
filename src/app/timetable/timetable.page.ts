@@ -15,7 +15,7 @@ import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { Location } from "@angular/common";
 import { Subject } from "rxjs";
-import { takeUntil, switchMap, finalize, tap, debounceTime } from "rxjs/operators";
+import { takeUntil, switchMap, tap } from "rxjs/operators";
 
 interface loadDataOptions {
     date: Date;

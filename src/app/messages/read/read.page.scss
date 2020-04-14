@@ -1,0 +1,53 @@
+.subject {
+    font-weight: normal;
+    margin-top: 8px;
+}
+
+.peopleInfo {
+    margin: 26px 0;
+    color: var(--ion-color-dark-tint);
+
+    h2 {
+        font-weight: bold;
+
+        small {
+            font-weight: lighter;
+        }
+    }
+
+    ion-icon {
+        font-size: 29pt;
+        margin-right: 10px;
+        float: left;
+    }
+}
+
+.message-text {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+    padding: 0 5px;
+}
+
+.attachment-container {
+    margin-top: 30px;
+
+    ion-spinner {
+        vertical-align: middle;
+        margin-left: 5px;
+    }
+}
+
+#list {
+    padding: 0;
+}
+
+#buttons {
+    padding-top: 10%;
+}
+
+.bottomBtns {
+    width: 40%;
+    --ion-color-base: #a7a7a7 !important;
+}

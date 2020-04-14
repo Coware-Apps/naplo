@@ -14,6 +14,10 @@ const routes: Routes = [
         redirectTo: "folder/inbox",
         pathMatch: "full",
     },
+    {
+        path: "read",
+        loadChildren: () => import("./read/read.module").then(m => m.ReadPageModule),
+    },
 ];
 
 @NgModule({

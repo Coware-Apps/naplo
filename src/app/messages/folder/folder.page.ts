@@ -239,7 +239,7 @@ export class FolderPage {
             this.loadMessages(true);
         }
 
-        this.router.navigateByUrl("/messages/read-message?messageId=" + message.azonosito);
+        this.router.navigateByUrl("/messages/read/" + message.azonosito);
     }
 
     public messageTap(message: MessageListItem) {

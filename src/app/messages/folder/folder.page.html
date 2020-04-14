@@ -25,20 +25,20 @@
 
             <ion-buttons slot="end">
                 <ion-button *ngIf="this.folder != 'deleted'" (click)="binSelected('put')">
-                    <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+                    <ion-icon slot="icon-only" name="trash-bin-outline"></ion-icon>
                 </ion-button>
                 <ion-button *ngIf="this.folder == 'deleted'" (click)="binSelected('remove')">
                     <ion-icon slot="icon-only" name="arrow-undo-circle-outline"></ion-icon>
                 </ion-button>
                 <ion-button *ngIf="this.folder == 'deleted'" (click)="deleteSelected()">
-                    <ion-icon slot="icon-only" name="trash-bin-outline"></ion-icon>
+                    <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
                 </ion-button>
                 <!-- Only an option if the message isn't set (2) -->
                 <ion-button
                     *ngIf="this.folder == 'inbox'"
                     (click)="setSelectedMessageState('unread')"
                 >
-                    <ion-icon slot="icon-only" name="mail-outline"></ion-icon>
+                    <ion-icon slot="icon-only" name="mail-unread-outline"></ion-icon>
                 </ion-button>
                 <ion-button
                     *ngIf="this.folder == 'inbox'"
