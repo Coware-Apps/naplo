@@ -244,18 +244,15 @@ export class FolderPage {
 
     public messageTap(message: MessageListItem) {
         if (this.checkboxesShown) {
-            console.debug("message tapped with checkboxes shown");
             message.isSelected = !message.isSelected;
             this.updateCheckboxToolbar();
             return;
         }
 
-        console.log("message tapped without checkboxes shown");
         this.openMessage(message);
     }
 
     public messagePress(message: MessageListItem) {
-        console.debug("message pressed");
         this.checkboxesShown = true;
         this.messageTap(message);
     }
@@ -264,8 +261,6 @@ export class FolderPage {
         this.numberOfSelectedItems = this.displayedMessages.filter(x => x.isSelected).length;
         if (this.numberOfSelectedItems > 0) this.checkboxesShown = true;
         else this.checkboxesShown = false;
-
-        console.debug("number of selected items: ", this.numberOfSelectedItems);
     }
 
     public resetCheckboxes() {

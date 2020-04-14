@@ -65,6 +65,22 @@ export interface MessageListItem {
     uzenetTargy: string;
     hasCsatolmany: boolean;
     isElolvasva: boolean;
+    /**
+     * If it's successfully sent, uzenetStatusz.azonosito is 2
+     */
+    uzenetStatusz: MessageStatusz;
 
     isSelected?: boolean;
+}
+
+export interface MessageAttachmentToSend {
+    fajlNev: string;
+    fajl: {
+        ideiglenesFajlAzonosito: string;
+    };
+    iktatoszam?: any;
+    /**
+     * Only used when forwarding a message (prevMsg.uzenet.csatolmanyok[0].azonosito)
+     */
+    azonosito?: number;
 }

@@ -104,8 +104,13 @@
                             {{ m.uzenetKuldesDatum.toLocaleDateString(config.locale, { month:
                             "short", day: "numeric" }) }}
                         </small>
-                        <div *ngIf="m.hasCsatolmany" class="ion-text-right">
-                            <ion-icon name="attach-outline"></ion-icon>
+                        <div class="ion-text-right">
+                            <ion-icon name="attach-outline" *ngIf="m.hasCsatolmany"></ion-icon>
+                            <ion-icon
+                                *ngIf="(m.uzenetStatusz && m.uzenetStatusz.azonosito != 2)"
+                                name="warning"
+                                color="danger"
+                            ></ion-icon>
                         </div>
                     </span>
                     <h2>
@@ -113,18 +118,12 @@
                             {{ m.uzenetFeladoNev }} <small>({{ m.uzenetFeladoTitulus }})</small>
                         </ng-container>
                         <ng-container *ngIf="m.uzenetCimzettLista">
-                            <ng-container
-                                *ngIf="m.uzenetCimzettLista.length == 1; else multipleRecipients"
-                            >
-                                {{ m.uzenetCimzettLista[0].nev }}
-                                <small> ({{ m.uzenetCimzettLista[0].tipus.rovidNev }})</small>
-                            </ng-container>
-                            <ng-template #multipleRecipients>
-                                {{ m.uzenetCimzettLista[0].nev }}
-                                <small>
-                                    és {{ m.uzenetCimzettLista.length - 1 }} további címzett</small
-                                >
-                            </ng-template>
+                            {{ m.uzenetCimzettLista[0].nev }}
+                            <small>
+                                {{ m.uzenetCimzettLista.length == 1 ? "("+
+                                m.uzenetCimzettLista[0].tipus.rovidNev + ")" : "és " +
+                                (m.uzenetCimzettLista.length - 1) + " további címzett" }}
+                            </small>
                         </ng-container>
                     </h2>
                     <p>{{ m.uzenetTargy }}</p>
