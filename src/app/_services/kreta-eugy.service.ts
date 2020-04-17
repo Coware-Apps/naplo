@@ -206,10 +206,11 @@ export class KretaEUgyService {
         }
     }
 
-    public logout(): Promise<any> {
+    public async logout(): Promise<any> {
         return Promise.all([
             this.data.removeItem("eugy_access_token"),
             this.data.removeItem("eugy_refresh_token"),
+            this.clearAttachmentCache(),
         ]);
     }
 
@@ -566,13 +567,19 @@ export class KretaEUgyService {
 
         const name = newName[0] + "_" + fileId + "." + newName[1];
 
+        const messageCacheDir = await this.file.getDirectory(
+            await this.file.resolveDirectoryUrl(this.file.cacheDirectory),
+            "msgattachment",
+            { create: true }
+        );
+
         const fileExists = await this.file
-            .checkFile(this.file.cacheDirectory, name)
+            .checkFile(messageCacheDir.toInternalURL(), name)
             .catch(() => false);
         if (fileExists) {
             console.debug("File exists in cache");
             const fileEntry = await this.file
-                .getFile(await this.file.resolveDirectoryUrl(this.file.cacheDirectory), name, {
+                .getFile(messageCacheDir, name, {
                     create: false,
                 })
                 .catch(() => null);
@@ -583,8 +590,21 @@ export class KretaEUgyService {
         const file = await this.data.downloadBlobFromUrl(
             `${this.host}${this.endpoints.finalAttachmentStorage}/${fileId}`
         );
-        return this.file.writeFile(this.file.cacheDirectory, name, file, {
+        return this.file.writeFile(messageCacheDir.toInternalURL(), name, file, {
             replace: true,
+        });
+    }
+
+    public clearAttachmentCache(): Promise<void> {
+        return new Promise(async (resolve, reject) => {
+            this.file
+                .getDirectory(
+                    await this.file.resolveDirectoryUrl(this.file.cacheDirectory),
+                    "msgattachment",
+                    { create: false }
+                )
+                .then(messageCacheDir => messageCacheDir.removeRecursively(resolve, reject))
+                .catch(resolve);
         });
     }
 }

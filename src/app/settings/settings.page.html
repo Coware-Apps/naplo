@@ -109,6 +109,11 @@
         <ion-label translate="settings.header-danger-zone"></ion-label>
     </ion-list-header>
 
+    <ion-button expand="block" fill="outline" (click)="clearCache()" class="ion-padding-horizontal">
+        <ion-icon slot="start" name="refresh-outline"></ion-icon>
+        <ion-label translate="settings.clear-cache"></ion-label>
+    </ion-button>
+
     <ion-button
         color="danger"
         expand="block"

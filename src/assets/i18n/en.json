@@ -152,6 +152,8 @@
         "error-reporting": "Error reporting",
         "error-reporting-desc": "Also helps us with the development",
         "header-danger-zone": "Danger zone",
+        "clear-cache": "Clear cache",
+        "clearing": "Cleaning...",
         "logout": "Log out",
         "header-about": "About",
         "version": "Version",

@@ -1,15 +1,23 @@
 import { Component } from "@angular/core";
-import { ConfigService, FirebaseService, KretaService, HwButtonService } from "../_services";
+import {
+    ConfigService,
+    FirebaseService,
+    KretaService,
+    HwButtonService,
+    KretaEUgyService,
+    DataService,
+} from "../_services";
 import { languages } from "../_languages";
 import { themes } from "../../theme/themes";
 import { AppVersion } from "@ionic-native/app-version/ngx";
 import { SafariViewController } from "@ionic-native/safari-view-controller/ngx";
-import { ModalController } from "@ionic/angular";
+import { ModalController, LoadingController } from "@ionic/angular";
 import { OsComponentsPage } from "./os-components/os-components.page";
 import { InAppBrowser } from "@ionic-native/in-app-browser/ngx";
 import { ErtekelesTipus } from "../_models";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
+import { TranslateService } from "@ngx-translate/core";
 
 @Component({
     selector: "app-settings",
@@ -27,12 +35,16 @@ export class SettingsPage {
 
     constructor(
         public config: ConfigService,
-        public appVersion: AppVersion,
-        public modalController: ModalController,
+        private appVersion: AppVersion,
+        private modalController: ModalController,
+        private loadingController: LoadingController,
         private firebase: FirebaseService,
         private iab: InAppBrowser,
         private safariViewController: SafariViewController,
         private kreta: KretaService,
+        private eugy: KretaEUgyService,
+        private data: DataService,
+        private translate: TranslateService,
         private hwButton: HwButtonService
     ) {}
 
@@ -116,6 +128,17 @@ export class SettingsPage {
                 });
             }
         });
+    }
+
+    async clearCache() {
+        const loading = await this.loadingController.create({
+            message: this.translate.instant("settings.clearing"),
+        });
+        await loading.present();
+
+        await Promise.all([this.eugy.clearAttachmentCache(), this.data.clearUrlCache()]);
+
+        loading.dismiss();
     }
 
     logout() {

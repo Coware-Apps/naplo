@@ -73,7 +73,7 @@ export class DataService {
         params?: HttpParams
     ): Promise<Blob> {
         return this.http
-            .get<Blob>(url, { headers: headers, params: params })
+            .get(url, { responseType: "blob", headers: headers, params: params })
             .toPromise();
     }
 
@@ -124,6 +124,10 @@ export class DataService {
 
     public clearExpired(ignoreOnlineStatus?: boolean): Promise<any> {
         return this.cache.clearExpired(ignoreOnlineStatus);
+    }
+
+    public clearUrlCache(): Promise<any> {
+        return this.cache.clearGroup("urlCache");
     }
 
     public clearAll(): Promise<any> {

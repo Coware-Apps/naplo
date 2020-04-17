@@ -152,6 +152,8 @@
         "error-reporting": "Hibejelentések küldése",
         "error-reporting-desc": "Névtelen információk továbbítása hibák esetén",
         "header-danger-zone": "Veszélyzóna",
+        "clear-cache": "Gyorsítótár törlése",
+        "clearing": "Törlés folyamatban...",
         "logout": "Kijelentkezés",
         "header-about": "Információk",
         "version": "Verzió",
