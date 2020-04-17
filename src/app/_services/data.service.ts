@@ -3,6 +3,7 @@ import { CacheService, CacheValueFactory } from "ionic-cache";
 import { Observable, from } from "rxjs";
 import { HttpHeaders, HttpClient, HttpParams } from "@angular/common/http";
 import { catchError, tap } from "rxjs/operators";
+import { StorageCacheItem } from "ionic-cache/dist/cache-storage";
 
 @Injectable({
     providedIn: "root",
@@ -82,6 +83,10 @@ export class DataService {
 
     public getItem<T>(key: string): Promise<T> {
         return this.cache.getItem<T>(key);
+    }
+
+    public getRawItem(key: string): Promise<StorageCacheItem> {
+        return this.cache.getRawItem(key);
     }
 
     public saveItem(key: string, data: any, groupKey?: string, ttl?: number): Promise<any> {

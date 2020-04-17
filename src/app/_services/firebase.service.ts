@@ -7,14 +7,19 @@ import { Jwt, Institute } from "../_models";
     providedIn: "root",
 })
 export class FirebaseService {
+    private initialized = false;
+
     constructor(private firebase: FirebaseX) {}
 
     public async initialize(currentUser: Jwt, institute: Institute) {
+        if (this.initialized) return;
+
         this.firebase.setUserId(currentUser["kreta:institute_user_unique_id"]);
         this.firebase.setUserProperty("kreta_institute_code", currentUser["kreta:institute_code"]);
         this.firebase.setUserProperty("kreta_institute_name", institute.Name);
         this.firebase.setUserProperty("kreta_institute_city", institute.City);
         this.firebase.setCrashlyticsUserId(currentUser["kreta:institute_user_unique_id"]);
+        this.initialized = true;
     }
 
     public setAnalyticsCollectionEnabled(enabled: boolean): Promise<any> {

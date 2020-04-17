@@ -57,8 +57,11 @@ export class KretaService {
         this._institute = await this.data.getSetting<Institute>("institute").catch(() => null);
 
         if (await this.isAuthenticated()) {
-            this._currentUser = this.jwtHelper.decodeToken(await this.getValidAccessToken());
-            this.firebase.initialize(this.currentUser, this.institute);
+            const token = await this.data.getRawItem("access_token").catch(() => null);
+            if (token && this.institute) {
+                this._currentUser = this.jwtHelper.decodeToken(token.value);
+                this.firebase.initialize(this.currentUser, this.institute);
+            }
         }
     }
 
@@ -78,7 +81,9 @@ export class KretaService {
 
         if (refresh_token) {
             console.debug("[LOGIN] Van valid RT, megújítás...");
-            return this.loginWithRefreshToken(refresh_token);
+            const accessToken = await this.loginWithRefreshToken(refresh_token);
+            this.firebase.initialize(this.jwtHelper.decodeToken(accessToken), this.institute);
+            return accessToken;
         }
     }
 
