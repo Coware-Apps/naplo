@@ -67,11 +67,9 @@ export class ErrorHandlerService extends ErrorHandler {
         if (!this.kreta.currentUser) return output;
 
         output += "\n\n---- Access Token ----\n";
-        output += `Not before: ${new Date(this.kreta.currentUser.nbf * 1000).toISOString()}\n`;
         output += `Auth time: ${new Date(this.kreta.currentUser.auth_time * 1000).toISOString()}\n`;
-        output += `Expiration: ${new Date(
-            this.kreta.currentUser.auth_time * 1000
-        ).toISOString()}\n`;
+        output += `Not before: ${new Date(this.kreta.currentUser.nbf * 1000).toISOString()}\n`;
+        output += `Expiration: ${new Date(this.kreta.currentUser.exp * 1000).toISOString()}\n`;
 
         return output;
     }

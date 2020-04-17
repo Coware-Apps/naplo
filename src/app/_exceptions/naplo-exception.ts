@@ -17,7 +17,7 @@ export class NaploException implements Error {
         iconName?: string,
         innerException?: Error
     ) {
-        this.name = name || "NaploException";
+        this.name = this.constructor.name || name || "NaploException";
         this.nameTranslationKey = nameTranslationKey;
         this.message = message;
         this.messageTranslationKey = messageTranslationKey;

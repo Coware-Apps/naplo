@@ -73,7 +73,7 @@ export class DataService {
         params?: HttpParams
     ): Promise<Blob> {
         return this.http
-            .get(url, { responseType: "blob", headers: headers, params: params })
+            .get<Blob>(url, { headers: headers, params: params })
             .toPromise();
     }
 
