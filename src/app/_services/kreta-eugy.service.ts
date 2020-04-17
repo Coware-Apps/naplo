@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { HttpParams, HttpHeaders } from "@angular/common/http";
 import { Observable } from "rxjs";
-import { map } from "rxjs/operators";
+import { map, tap } from "rxjs/operators";
 import { Institute, TokenResponse, Jwt } from "../_models";
 import {
     Message,
@@ -274,13 +274,22 @@ export class KretaEUgyService {
     }
 
     public getMessage(messageId: number, forceRefresh: boolean = false): Observable<Message> {
-        return this.data.getUrlWithCache<Message>(
-            this.host + this.endpoints.message + "/" + messageId,
-            null,
-            null,
-            null,
-            forceRefresh
-        );
+        return this.data
+            .getUrlWithCache<Message>(
+                this.host + this.endpoints.message + "/" + messageId,
+                null,
+                null,
+                null,
+                forceRefresh
+            )
+            .pipe(
+                tap({
+                    next: message => {
+                        if (!message || !message.uzenet)
+                            throw new KretaEUgyInvalidResponseException(message);
+                    },
+                })
+            );
     }
 
     /**
@@ -453,6 +462,23 @@ export class KretaEUgyService {
         );
     }
 
+    // const fileBlob = new Promise<Blob>((resolve, reject) => {
+    //     fileEntry.file(file => {
+    //         const reader = new FileReader();
+    //         reader.onload = () => {
+    //             const imgBlob = new Blob([reader.result], {
+    //                 type: file.type,
+    //             });
+
+    //             resolve(imgBlob);
+    //         };
+
+    //         reader.onerror = reject;
+
+    //         reader.readAsArrayBuffer(file);
+    //     });
+    // });
+
     // /**
     //  * Add an attachment to the temporary attachment storage. Used to draft messages WIP
     //  * @param tokens `Token` used for authentication
@@ -531,17 +557,28 @@ export class KretaEUgyService {
     /**
      * Gets an attachment from the final attachment storage. Use this for existing messages.
      * @param fileId The id of the file to get from the server
-     * @param fileName The name of the file to get form the server (used to save the file)
-     * @param fileExtension The extension of the file to get from the server
+     * @param fileName The name of the file to get form the server (used to save the file), with extension
      */
-    public async getAttachment(
-        fileId: number,
-        fileName: string,
-        fileExtension: string
-    ): Promise<FileEntry> {
-        const name = fileName + "_" + fileId + "." + fileExtension;
+    public async getAttachment(fileId: number, fileNameWithExt: string): Promise<FileEntry> {
+        const splitAt = (index: number) => (x: string) => [x.slice(0, index), x.slice(index)];
+        const newName = splitAt(fileNameWithExt.lastIndexOf("."))(fileNameWithExt);
+        newName[1] = newName[1].slice(1);
 
-        // TODO: check if file exists, and read it
+        const name = newName[0] + "_" + fileId + "." + newName[1];
+
+        const fileExists = await this.file
+            .checkFile(this.file.cacheDirectory, name)
+            .catch(() => false);
+        if (fileExists) {
+            console.debug("File exists in cache");
+            const fileEntry = await this.file
+                .getFile(await this.file.resolveDirectoryUrl(this.file.cacheDirectory), name, {
+                    create: false,
+                })
+                .catch(() => null);
+
+            if (fileEntry) return fileEntry;
+        }
 
         const file = await this.data.downloadBlobFromUrl(
             `${this.host}${this.endpoints.finalAttachmentStorage}/${fileId}`
@@ -550,70 +587,4 @@ export class KretaEUgyService {
             replace: true,
         });
     }
-
-    // /**
-    //  * Gets an attachment from the final attachment storage. Use this for existing messages.
-    //  * @param fileId The id of the file to get from the server
-    //  * @param fileName The name of the file to get form the server (used to save the file)
-    //  * @param fileExtension The extension of the file to get from the server
-    //  * @param tokens `Token` used for authentication
-    //  */
-    // public async getAttachment(
-    //     fileId: number,
-    //     fileName: string,
-    //     fileExtension: string,
-    //     tokens: Token
-    // ): Promise<string> {
-    //     let fileTransfer = this._transfer.create();
-    //     let uri = `${this._host}${this._endpoints.finalAttachmentStorage}/${fileId}`;
-    //     let fullFileName = fileName + "." + fileExtension;
-    //     try {
-    //         let url;
-    //         await this._platform.ready().then(async x => {
-    //             let entry = await fileTransfer.download(
-    //                 uri,
-    //                 (await this.getDownloadPath()) + fullFileName,
-    //                 false,
-    //                 {
-    //                     headers: {
-    //                         Authorization: `Bearer ${tokens.access_token}`,
-    //                         "User-Agent": this._userAgent,
-    //                     },
-    //                 }
-    //             );
-    //             url = entry.nativeURL;
-    //         });
-    //         return url;
-    //     } catch (error) {
-    //         console.error("Error trying to get file", error);
-    //         this._firebase.logError(`[KRETA->getMessageFile()]: ` + stringify(error));
-    //         if (error.status && error.status < 0)
-    //             throw new AdministrationNetworkError("getAttachment()");
-    //         throw new AdministrationFileError(
-    //             "getAttachment()",
-    //             error,
-    //             fileName,
-    //             "getAttachment.title",
-    //             "getAttachment.text"
-    //         );
-    //     }
-    // }
-
-    // protected async getDownloadPath() {
-    //     if (this._platform.is("ios")) {
-    //         return this._file.documentsDirectory;
-    //     }
-
-    //     await this._androidPermissions
-    //         .checkPermission(this._androidPermissions.PERMISSION.WRITE_EXTERNAL_STORAGE)
-    //         .then(result => {
-    //             if (!result.hasPermission) {
-    //                 this._androidPermissions.requestPermission(
-    //                     this._androidPermissions.PERMISSION.WRITE_EXTERNAL_STORAGE
-    //                 );
-    //             }
-    //         });
-
-    //     return this._file.dataDirectory;
-    // }
 }

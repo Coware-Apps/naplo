@@ -60,17 +60,27 @@
 
         <div class="message-text" [innerHTML]="message.uzenet.szoveg"></div>
 
-        <div *ngIf="this.message.uzenet.csatolmanyok.length > 0" class="attachment-container">
-            <ion-chip
-                (click)="getFile(f.azonosito, f.fajlNev)"
-                *ngFor="let f of message.uzenet.csatolmanyok"
-            >
+        <div class="attachment-container" *ngIf="this.message.uzenet.csatolmanyok.length > 0">
+            <ion-chip *ngIf="!attachmentsEnabled">
                 <ion-icon name="document-attach-outline"></ion-icon>
                 <ion-label>
-                    {{f.fajlNev}}
-                    <ion-spinner *ngIf="f.loading" name="lines-small"></ion-spinner>
+                    Csatolmányok betöltése...
+                    <ion-spinner name="lines-small"></ion-spinner>
                 </ion-label>
             </ion-chip>
+
+            <ng-container *ngIf="attachmentsEnabled">
+                <ion-chip
+                    (click)="getFile(f.azonosito, f.fajlNev)"
+                    *ngFor="let f of message.uzenet.csatolmanyok"
+                >
+                    <ion-icon name="document-attach-outline"></ion-icon>
+                    <ion-label>
+                        {{f.fajlNev}}
+                        <ion-spinner *ngIf="f.loading" name="lines-small"></ion-spinner>
+                    </ion-label>
+                </ion-chip>
+            </ng-container>
         </div>
 
         <div id="buttons" class="ion-text-center ion-align-self-baseline">

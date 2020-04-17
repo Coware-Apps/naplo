@@ -21,6 +21,7 @@ export class ReadPage implements OnInit {
     public message: Message;
     public sentDate: Date;
     public addresseeList: string;
+    public attachmentsEnabled: boolean;
 
     public pageState: PageState = PageState.Loading;
     public loadingInProgress: boolean;
@@ -75,7 +76,10 @@ export class ReadPage implements OnInit {
                     this.loadingInProgress = false;
                     throw error;
                 },
-                complete: () => (this.loadingInProgress = false),
+                complete: () => {
+                    this.loadingInProgress = false;
+                    this.attachmentsEnabled = true;
+                },
             });
     }
 
@@ -151,107 +155,19 @@ export class ReadPage implements OnInit {
         let attachment = this.message.uzenet.csatolmanyok.find(x => x.azonosito == id);
         attachment.loading = true;
 
-        const splitAt = (index: number) => (x: string) => [x.slice(0, index), x.slice(index)];
-        const newName = splitAt(fullName.lastIndexOf("."))(fullName);
-        newName[1] = newName[1].slice(1);
+        try {
+            const fileEntry = await this.eugy.getAttachment(id, fullName);
 
-        const filePath = await this.eugy.getAttachment(id, newName[0], newName[1]);
+            fileEntry.file(file => {
+                console.debug("DOWNLOADED FILE:", fileEntry, file.type);
+                this.fileOpener.showOpenWithDialog(fileEntry.nativeURL, file.type);
+            });
+        } catch (error) {
+            attachment.loading = false;
 
-        console.debug("DOWNLOADED FILE:", filePath, this.types[newName[1]]);
-        this.fileOpener.showOpenWithDialog(filePath.nativeURL, this.types[newName[1]]);
+            throw error;
+        }
 
         attachment.loading = false;
     }
-
-    public types = {
-        "3dmf": "x-world/x-3dmf",
-        "3dm": "x-world/x-3dmf",
-        avi: "video/x-msvideo",
-        ai: "application/postscript",
-        bin: "application/octet-stream",
-        bmp: "image/bmp",
-        cab: "application/x-shockwave-flash",
-        c: "text/plain",
-        "c++": "text/plain",
-        class: "application/java",
-        css: "text/css",
-        csv: "text/comma-separated-values",
-        cdr: "application/cdr",
-        doc: "application/msword",
-        dot: "application/msword",
-        docx: "application/msword",
-        dwg: "application/acad",
-        eps: "application/postscript",
-        exe: "application/octet-stream",
-        gif: "image/gif",
-        gz: "application/gzip",
-        gtar: "application/x-gtar",
-        flv: "video/x-flv",
-        fh4: "image/x-freehand",
-        fh5: "image/x-freehand",
-        fhc: "image/x-freehand",
-        help: "application/x-helpfile",
-        hlp: "application/x-helpfile",
-        html: "text/html",
-        htm: "text/html",
-        ico: "image/x-icon",
-        imap: "application/x-httpd-imap",
-        inf: "application/inf",
-        jpe: "image/jpeg",
-        jpeg: "image/jpeg",
-        jpg: "image/jpeg",
-        js: "application/x-javascript",
-        java: "text/x-java-source",
-        latex: "application/x-latex",
-        log: "text/plain",
-        m3u: "audio/x-mpequrl",
-        midi: "audio/midi",
-        mid: "audio/midi",
-        mov: "video/quicktime",
-        mp3: "audio/mpeg",
-        mpeg: "video/mpeg",
-        mpg: "video/mpeg",
-        mp2: "video/mpeg",
-        ogg: "application/ogg",
-        phtml: "application/x-httpd-php",
-        php: "application/x-httpd-php",
-        pdf: "application/pdf",
-        pgp: "application/pgp",
-        png: "image/png",
-        pps: "application/mspowerpoint",
-        ppt: "application/mspowerpoint",
-        ppz: "application/mspowerpoint",
-        pot: "application/mspowerpoint",
-        ps: "application/postscript",
-        qt: "video/quicktime",
-        qd3d: "x-world/x-3dmf",
-        qd3: "x-world/x-3dmf",
-        qxd: "application/x-quark-express",
-        rar: "application/x-rar-compressed",
-        ra: "audio/x-realaudio",
-        ram: "audio/x-pn-realaudio",
-        rm: "audio/x-pn-realaudio",
-        rtf: "text/rtf",
-        spr: "application/x-sprite",
-        sprite: "application/x-sprite",
-        stream: "audio/x-qt-stream",
-        swf: "application/x-shockwave-flash",
-        svg: "text/xml-svg",
-        sgml: "text/x-sgml",
-        sgm: "text/x-sgml",
-        tar: "application/x-tar",
-        tiff: "image/tiff",
-        tif: "image/tiff",
-        tgz: "application/x-compressed",
-        tex: "application/x-tex",
-        txt: "text/plain",
-        vob: "video/x-mpg",
-        wav: "audio/x-wav",
-        wrl: "model/vrml",
-        xla: "application/msexcel",
-        xls: "application/msexcel",
-        xlc: "application/vnd.ms-excel",
-        xml: "text/xml",
-        zip: "application/zip",
-    };
 }
