@@ -5,17 +5,23 @@
                 [name]="exception && exception.iconName ? exception.iconName : iconName"
             ></ion-icon>
             <ion-text class="ion-text-center">
-                <h1
-                    *ngIf="exception?.nameTranslationKey"
-                    [translate]="exception.nameTranslationKey"
-                ></h1>
-                <h1 *ngIf="!exception?.nameTranslationKey">{{ header }}</h1>
+                <ng-container *ngIf="exception || header">
+                    <h1
+                        *ngIf="exception?.nameTranslationKey"
+                        [translate]="exception?.nameTranslationKey"
+                    ></h1>
+                    <h1 *ngIf="!exception?.nameTranslationKey">{{ header }}</h1>
+                </ng-container>
 
-                <p
-                    *ngIf="exception?.messageTranslationKey"
-                    [translate]="exception.messageTranslationKey"
-                ></p>
-                <p *ngIf="!exception?.messageTranslationKey">{{ message || exception.message }}</p>
+                <ng-container *ngIf="exception || message">
+                    <p
+                        *ngIf="exception?.messageTranslationKey"
+                        [translate]="exception?.messageTranslationKey"
+                    ></p>
+                    <p *ngIf="!exception?.messageTranslationKey">
+                        {{ message || exception?.message }}
+                    </p>
+                </ng-container>
             </ion-text>
             <ion-button
                 color="primary"
