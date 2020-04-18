@@ -175,7 +175,7 @@ export class FolderPage {
     }
 
     public openNewMsgPage() {
-        this.router.navigateByUrl("messages/new-message");
+        this.router.navigateByUrl("messages/compose");
     }
 
     public async binSelected(action: "put" | "remove") {

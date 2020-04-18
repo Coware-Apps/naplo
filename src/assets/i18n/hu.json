@@ -123,19 +123,36 @@
             "header": "Az üzenetküldés ki van kapcsolva az intézményben",
             "message": "Vedd fel a kapcsolatot az intézményi KRÉTA adminisztrátorral, ha használni szeretnéd."
         },
-        "tab": {
-            "inbox": "Beérkezett",
-            "outbox": "Elküldött",
-            "deleted": "Törölt"
+        "folder": {
+            "tab": {
+                "inbox": "Beérkezett",
+                "outbox": "Elküldött",
+                "deleted": "Törölt"
+            },
+            "title": {
+                "inbox": "Beérkezett üzenetek",
+                "outbox": "Elküldött üzenetek",
+                "deleted": "Törölt üzenetek"
+            }
         },
-        "inbox": {
-            "title": "Beérkezett üzenetek"
+        "compose": {
+            "title": "Új üzenet",
+            "label-to": "Címzett",
+            "label-subject": "Tárgy",
+            "message-placeholder": "Ide írd az üzeneted...",
+            "all-fields-required": "Minden mező kitöltése kötelező",
+            "sending-message": "Az üzenet elküldése...",
+            "message-sent": "Az üzenet elküldve"
         },
-        "outbox": {
-            "title": "Elküldött üzenetek"
-        },
-        "deleted": {
-            "title": "Törölt üzenetek"
+        "addressee-modal": {
+            "type-select-placeholder": "Válasszon kategóriát...",
+            "search-placeholder": "Címzettek keresése...",
+            "classes": "Osztályok",
+            "groups": "Csoportok",
+            "list-empty": "A lista üres",
+            "choose-subtype": "Válassz osztályt vagy csoportot!",
+            "no-matching-addressee": "Nincs a feltételeknek megfelelő felhasználó a rendszerben.",
+            "num-selected": "{{value}} kiválasztott címzett"
         }
     },
     "settings": {

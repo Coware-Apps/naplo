@@ -12,6 +12,7 @@ import {
     AddresseeType,
     ParentAddresseeListItem,
     StudentAddresseeListItem,
+    MessageAttachmentToSend,
 } from "../_models/eugy";
 
 import {
@@ -363,32 +364,17 @@ export class KretaEUgyService {
         messageId: number,
         targy: string,
         szoveg: string,
-        attachmentList: { name: string; id: string }[]
-    ): Observable<any> {
-        //creating the attachments object from the attachmentList
-        let attachments: {
-            fajlNev: string;
-            fajl: { ideiglenesFajlAzonosito: string };
-            iktatoszam: any;
-        }[] = [];
-
-        attachmentList.forEach(a => {
-            attachments.push({
-                fajlNev: a.name,
-                fajl: { ideiglenesFajlAzonosito: a.id },
-                iktatoszam: null,
-            });
-        });
-
+        attachmentList: MessageAttachmentToSend[]
+    ): Promise<any> {
         const params = {
             targy: targy,
             szoveg: szoveg,
             elozoUzenetAzonosito: messageId,
             cimzettLista: [],
-            csatolmanyok: attachments,
+            csatolmanyok: attachmentList,
         };
 
-        return this.data.postUrl<any>(this.host + this.endpoints.newMessage, params);
+        return this.data.postUrl<any>(this.host + this.endpoints.newMessage, params).toPromise();
     }
 
     /**
@@ -403,32 +389,17 @@ export class KretaEUgyService {
         addresseeList: MessageAddressee[],
         targy: string,
         szoveg: string,
-        attachmentList: { name: string; id: string }[]
-    ): Observable<any> {
-        //creating the attachments object from the attachmentList
-        let attachments: {
-            fajlNev: string;
-            fajl: { ideiglenesFajlAzonosito: string };
-            iktatoszam: any;
-        }[] = [];
-
-        attachmentList.forEach(a => {
-            attachments.push({
-                fajlNev: a.name,
-                fajl: { ideiglenesFajlAzonosito: a.id },
-                iktatoszam: null,
-            });
-        });
-
+        attachmentList: MessageAttachmentToSend[]
+    ): Promise<any> {
         const params = {
             targy: targy,
             szoveg: szoveg,
             elozoUzenetAzonosito: null,
             cimzettLista: addresseeList,
-            csatolmanyok: attachments,
+            csatolmanyok: attachmentList,
         };
 
-        return this.data.postUrl<any>(this.host + this.endpoints.newMessage, params);
+        return this.data.postUrl<any>(this.host + this.endpoints.newMessage, params).toPromise();
     }
 
     /**
@@ -485,65 +456,68 @@ export class KretaEUgyService {
     //  * @param tokens `Token` used for authentication
     //  * @returns Promise that resolves to a string, that is the id of the file in the temporary storage
     //  */
-    // public async addAttachment(using: "camera" | "gallery" | "file"): Promise<AttachmentToSend> {
-    //     let uri = this.host + this.endpoints.temporaryAttachmentStorage;
-    //     let filePath, fileName;
-    //     const ios = this.platform.is("ios");
+    public async addAttachment(
+        using: "camera" | "gallery" | "file"
+    ): Promise<MessageAttachmentToSend> {
+        return;
+        // let uri = this.host + this.endpoints.temporaryAttachmentStorage;
+        // let filePath, fileName;
+        // const ios = this.platform.is("ios");
 
-    //     try {
-    //         if (using == "file") {
-    //             if (ios) {
-    //                 filePath = "file://" + (await this._iosFilePicker.pickFile());
-    //                 fileName = filePath.substr(filePath.lastIndexOf("/") + 1);
-    //             } else {
-    //                 filePath = await this._fileChooser.open();
-    //                 fileName = await this._filePath.resolveNativePath(filePath);
-    //                 fileName = fileName.split("/")[fileName.split("/").length - 1];
-    //             }
-    //         } else {
-    //             let opts: CameraOptions = {
-    //                 quality: 80,
-    //                 destinationType: ios
-    //                     ? this._camera.DestinationType.FILE_URI
-    //                     : this._camera.DestinationType.NATIVE_URI,
-    //                 sourceType:
-    //                     using == "camera"
-    //                         ? this._camera.PictureSourceType.CAMERA
-    //                         : this._camera.PictureSourceType.PHOTOLIBRARY,
-    //                 encodingType: this._camera.EncodingType.JPEG,
-    //                 saveToPhotoAlbum: false,
-    //                 allowEdit: true,
-    //             };
+        // try {
+        //     if (using == "file") {
+        //         if (ios) {
+        //             filePath = "file://" + (await this._iosFilePicker.pickFile());
+        //             fileName = filePath.substr(filePath.lastIndexOf("/") + 1);
+        //         } else {
+        //             filePath = await this._fileChooser.open();
+        //             fileName = await this._filePath.resolveNativePath(filePath);
+        //             fileName = fileName.split("/")[fileName.split("/").length - 1];
+        //         }
+        //     } else {
+        //         let opts: CameraOptions = {
+        //             quality: 80,
+        //             destinationType: ios
+        //                 ? this._camera.DestinationType.FILE_URI
+        //                 : this._camera.DestinationType.NATIVE_URI,
+        //             sourceType:
+        //                 using == "camera"
+        //                     ? this._camera.PictureSourceType.CAMERA
+        //                     : this._camera.PictureSourceType.PHOTOLIBRARY,
+        //             encodingType: this._camera.EncodingType.JPEG,
+        //             saveToPhotoAlbum: false,
+        //             allowEdit: true,
+        //         };
 
-    //             filePath = await this._camera.getPicture(opts);
-    //             if (!ios) filePath = await this._filePath.resolveNativePath(filePath);
-    //             fileName = filePath.split("/")[filePath.split("/").length - 1];
-    //         }
-    //     } catch (error) {
-    //         if (error != "User canceled." && error != "No Image Selected") {
-    //             throw new AdministrationFileError(
-    //                 "addAttachment()",
-    //                 error,
-    //                 fileName,
-    //                 "addAttachment.title",
-    //                 "addAttachment.text"
-    //             );
-    //         } else {
-    //             console.log("Aborting upload, no file/image selected");
-    //             return;
-    //         }
-    //     }
+        //         filePath = await this._camera.getPicture(opts);
+        //         if (!ios) filePath = await this._filePath.resolveNativePath(filePath);
+        //         fileName = filePath.split("/")[filePath.split("/").length - 1];
+        //     }
+        // } catch (error) {
+        //     if (error != "User canceled." && error != "No Image Selected") {
+        //         throw new AdministrationFileError(
+        //             "addAttachment()",
+        //             error,
+        //             fileName,
+        //             "addAttachment.title",
+        //             "addAttachment.text"
+        //         );
+        //     } else {
+        //         console.log("Aborting upload, no file/image selected");
+        //         return;
+        //     }
+        // }
 
-    //         let response = await this._http.uploadFile(uri, params, headers, filePath, "fajl");
-    //         let returnVal: AttachmentToSend = {
-    //             fajlNev: fileName,
-    //             fajl: {
-    //                 ideiglenesFajlAzonosito: response.data,
-    //             },
-    //             iktatoszam: null,
-    //         };
-    //         return returnVal;
-    // }
+        //     let response = await this._http.uploadFile(uri, params, headers, filePath, "fajl");
+        //     let returnVal: AttachmentToSend = {
+        //         fajlNev: fileName,
+        //         fajl: {
+        //             ideiglenesFajlAzonosito: response.data,
+        //         },
+        //         iktatoszam: null,
+        //     };
+        //     return returnVal;
+    }
 
     /**
      * Removes an attachment from the temporary attachment storage. Used for drafting messages.

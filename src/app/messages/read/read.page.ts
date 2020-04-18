@@ -89,12 +89,13 @@ export class ReadPage implements OnInit {
     }
 
     replyToMsg() {
-        // this.data.setData("replyData", this.message);
-        this.router.navigateByUrl("messages/new-message?replyDataKey=replyData");
+        this.router.navigateByUrl("messages/compose", { state: { replyToMsg: this.message } });
     }
+
     forwardMsg() {
-        // this.data.setData("forwardData", this.message);
-        this.router.navigateByUrl("messages/new-message?forwardDataKey=forwardData");
+        this.router.navigateByUrl("messages/compose", {
+            state: { forwardedMsg: this.message },
+        });
     }
 
     showStatusInfo() {

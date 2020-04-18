@@ -17,7 +17,15 @@ const routes: Routes = [
     {
         path: "read",
         loadChildren: () => import("./read/read.module").then(m => m.ReadPageModule),
-    },
+    },  {
+    path: 'compose',
+    loadChildren: () => import('./compose/compose.module').then( m => m.ComposePageModule)
+  },
+  {
+    path: 'addressee-modal',
+    loadChildren: () => import('./addressee-modal/addressee-modal.module').then( m => m.AddresseeModalPageModule)
+  },
+
 ];
 
 @NgModule({

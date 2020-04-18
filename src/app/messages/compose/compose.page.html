@@ -1,0 +1,78 @@
+<ion-header>
+    <ion-toolbar color="primary">
+        <ion-buttons slot="start">
+            <ion-back-button [defaultHref]="'messages'" icon="close-outline"></ion-back-button>
+        </ion-buttons>
+        <ion-title translate="messages.compose.title"></ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="sendMsg()" [disabled]="loadingInProgress">
+                <ion-icon slot="icon-only" name="send-sharp"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+    <ion-progress-bar type="indeterminate" *ngIf="loadingInProgress"></ion-progress-bar>
+</ion-header>
+
+<ion-content>
+    <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+        <ion-fab-button>
+            <ion-icon name="attach"></ion-icon>
+        </ion-fab-button>
+        <ion-fab-list side="top">
+            <ion-fab-button (click)="addAttachment('camera')">
+                <ion-icon name="camera"></ion-icon>
+            </ion-fab-button>
+            <ion-fab-button (click)="addAttachment('gallery')">
+                <ion-icon name="image"></ion-icon>
+            </ion-fab-button>
+            <ion-fab-button (click)="addAttachment('file')">
+                <ion-icon name="folder"></ion-icon>
+            </ion-fab-button>
+        </ion-fab-list>
+    </ion-fab>
+    <ion-list>
+        <div class="ion-padding-horizontal">
+            <!-- <ion-label position="floating" translate="messages.compose.label-to"></ion-label>
+            <ion-input [value]="getAddresseeString()" type="text" readonly> </ion-input> -->
+            <ion-label
+                position="floating"
+                translate="messages.compose.label-to"
+                style="margin-right: 25px;"
+            ></ion-label>
+            <ion-chip outline="true" *ngFor="let a of addresseeList">
+                <ion-label>{{ getName(a) }}</ion-label>
+                <ion-icon name="close-circle" (click)="removeAddressee(a)"></ion-icon>
+            </ion-chip>
+            <ion-chip color="primary" outline="true" (click)="selectAddressees()">
+                <ion-icon name="add-circle"></ion-icon>
+                <ion-label>Hozzáadás</ion-label>
+            </ion-chip>
+        </div>
+        <ion-item-divider></ion-item-divider>
+        <ion-item>
+            <ion-label position="floating" translate="messages.compose.label-subject"></ion-label>
+            <ion-input required [(ngModel)]="subject" type="text"> </ion-input>
+        </ion-item>
+        <ion-textarea
+            required
+            [placeholder]="'messages.compose.message-placeholder' | translate"
+            class="message-text ion-margin ion-no-padding"
+            autoGrow="true"
+            [(ngModel)]="text"
+        >
+        </ion-textarea>
+        <div
+            *ngIf="prevMsgText != null"
+            class="message-div selectableText"
+            [innerHTML]="prevMsgText"
+        ></div>
+    </ion-list>
+    <ion-item *ngFor="let a of attachmentList">
+        <ion-label>{{a.fajlNev}}</ion-label>
+        <ion-buttons slot="end">
+            <ion-button (click)="deleteAttachment(a)">
+                <ion-icon slot="icon-only" name="trash"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-item>
+</ion-content>

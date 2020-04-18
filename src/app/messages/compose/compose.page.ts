@@ -1,0 +1,273 @@
+import { Component } from "@angular/core";
+import {
+    AddresseeListItem,
+    instanceOfAddresseeListItem,
+    instanceOfParentAddresseeListItem,
+    instanceOfStudentAddresseeListItem,
+    MessageAttachmentToSend,
+    Message,
+    MessageAddressee,
+} from "src/app/_models/eugy";
+import { Subject } from "rxjs";
+import { Router, ActivatedRoute } from "@angular/router";
+import { KretaEUgyService, ConfigService } from "src/app/_services";
+import { LoadingController, ModalController } from "@ionic/angular";
+import { TranslateService } from "@ngx-translate/core";
+import { IDirty } from "src/app/_models";
+import { FirebaseX } from "@ionic-native/firebase-x/ngx";
+import { map, takeUntil } from "rxjs/operators";
+import { ErrorHelper } from "src/app/_helpers";
+import { AddresseeModalPage } from "../addressee-modal/addressee-modal.page";
+
+@Component({
+    selector: "app-compose",
+    templateUrl: "./compose.page.html",
+    styleUrls: ["./compose.page.scss"],
+})
+export class ComposePage implements IDirty {
+    public text: string;
+    public subject: string;
+    public addresseeList: AddresseeListItem[];
+    public attachmentList: MessageAttachmentToSend[];
+    public allowNavigationTo = ["/messages/addressee-selector", "/messages/list-addressees"];
+    public isMessageSent = false;
+
+    public loadingInProgress: boolean = false;
+    private unsubscribe$: Subject<void>;
+
+    //replies and forwarding
+    public prevMsgId: number;
+    public prevMsgText: string = "";
+    constructor(
+        private router: Router,
+        private route: ActivatedRoute,
+        private loadingCtrl: LoadingController,
+        private modalController: ModalController,
+        private translator: TranslateService,
+        public eugy: KretaEUgyService,
+        private config: ConfigService,
+        private firebase: FirebaseX,
+        private errorHelper: ErrorHelper
+    ) {}
+
+    public ionViewWillEnter() {
+        this.unsubscribe$ = new Subject<void>();
+        this.firebase.setScreenName("message_compose");
+
+        this.route.paramMap
+            .pipe(map(() => window.history.state))
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe({
+                next: state => {
+                    if (state.replyToMsg) {
+                        // REPLY ----- use the queryParam replyDataKey and it should point to the previous message
+                        let prevMsg: Message = state.replyToMsg;
+
+                        this.prevMsgId = prevMsg.uzenet.azonosito;
+                        this.prevMsgText =
+                            "<br><br>--------------------<br>" +
+                            `${this.translator.instant("pages.new-message.fromName")}: ${
+                                prevMsg.uzenet.feladoNev
+                            } (${prevMsg.uzenet.feladoTitulus})<br>` +
+                            `${this.translator.instant("pages.new-message.sentAtName")}: ${new Date(
+                                prevMsg.uzenet.kuldesDatum
+                            ).toLocaleString(this.config.locale, {
+                                //@ts-ignore
+                                dateStyle: "short",
+                                timeStyle: "short",
+                            })}<br>` +
+                            `${this.translator.instant("pages.new-message.subjectName")}: ${
+                                prevMsg.uzenet.targy
+                            }<br>` +
+                            prevMsg.uzenet.szoveg;
+
+                        this.subject =
+                            `${this.translator.instant("pages.new-message.replyName")}: ` +
+                            prevMsg.uzenet.targy;
+
+                        this.addresseeList.push({
+                            isAlairo: null,
+                            kretaAzonosito: null,
+                            nev: prevMsg.uzenet.feladoNev,
+                            titulus: null,
+                            isAdded: null,
+                            oktatasiAzonosito: null,
+                            tipus: null,
+                        });
+                    } else if (state.forwardedMsg) {
+                        // FORWARD ----- use the queryParam forwardDataKey and it should point to the previous message
+                        let prevMsg: Message = state.forwardedMsg;
+
+                        this.prevMsgText =
+                            "<br><br>--------------------<br>" +
+                            `${this.translator.instant("pages.new-message.fromName")}: ${
+                                prevMsg.uzenet.feladoNev
+                            } (${prevMsg.uzenet.feladoTitulus})<br>` +
+                            `${this.translator.instant("pages.new-message.sentAtName")}: ${new Date(
+                                prevMsg.uzenet.kuldesDatum
+                            ).toLocaleString(this.config.locale, {
+                                //@ts-ignore
+                                dateStyle: "short",
+                                timeStyle: "short",
+                            })}<br>` +
+                            `${this.translator.instant("pages.new-message.subjectName")}: ${
+                                prevMsg.uzenet.targy
+                            }<br>` +
+                            prevMsg.uzenet.szoveg;
+
+                        this.subject = "Továbbítva: " + prevMsg.uzenet.targy;
+
+                        prevMsg.uzenet.csatolmanyok.forEach(a => {
+                            this.attachmentList.push({
+                                azonosito: a.azonosito,
+                                fajlNev: a.fajlNev,
+                                fajl: null,
+                                iktatoszam: null,
+                            });
+                        });
+                    }
+                },
+            });
+    }
+
+    public isDirty() {
+        if (this.isMessageSent) return false;
+        return this.addresseeList.length > 0 || this.text != null || this.subject != null;
+    }
+
+    public async selectAddressees() {
+        // this.router.navigateByUrl("messages/addressee-selector");
+        // MODAL open
+        const modal = await this.modalController.create({
+            component: AddresseeModalPage,
+            componentProps: { selectedAddresseeList: this.addresseeList },
+        });
+
+        await modal.present();
+        const { data } = await modal.onWillDismiss();
+        if (data && data.addresseeList) {
+            console.log("addressee list", data.addresseeList);
+            this.addresseeList = data.addresseeList;
+        }
+    }
+
+    public removeAddressee(item: AddresseeListItem) {
+        this.addresseeList.splice(
+            this.addresseeList.findIndex(x => x == item),
+            1
+        );
+    }
+
+    public getName(a) {
+        if (instanceOfAddresseeListItem(a)) {
+            return a.nev;
+        } else if (instanceOfParentAddresseeListItem(a)) {
+            return a.gondviseloNev;
+        } else if (instanceOfStudentAddresseeListItem(a)) {
+            return a.vezetekNev + " " + a.keresztNev;
+        }
+    }
+
+    public async sendMsg() {
+        if (this.addresseeList.length == 0 || !this.text || !this.subject) {
+            this.errorHelper.presentToast(
+                this.translator.instant("messages.compose.all-fields-required")
+            );
+            return;
+        }
+
+        let loading = await this.loadingCtrl.create({
+            spinner: "crescent",
+            message: this.translator.instant("messages.compose.sending-message"),
+        });
+        await loading.present();
+
+        try {
+            if (!this.prevMsgId) {
+                // new message
+                let addressees: MessageAddressee[] = [];
+                this.addresseeList.forEach(e => {
+                    addressees.push({
+                        azonosito: null,
+                        nev: this.getName(e),
+                        kretaAzonosito: e.kretaAzonosito,
+                        tipus: e.tipus,
+                    });
+                });
+
+                console.debug(addressees);
+
+                const sendResult = await this.eugy.sendNewMessage(
+                    addressees,
+                    this.subject,
+                    this.text + this.prevMsgText,
+                    this.attachmentList
+                );
+
+                console.debug("send result", sendResult);
+            } else {
+                // reply
+                const sendResult = await this.eugy.replyToMessage(
+                    this.prevMsgId,
+                    this.subject,
+                    this.text + this.prevMsgText,
+                    this.attachmentList
+                );
+
+                console.debug("send result", sendResult);
+            }
+
+            this.errorHelper.presentToast(this.translator.instant("messages.compose.message-sent"));
+
+            this.isMessageSent = true;
+            this.router.navigateByUrl("messages");
+        } finally {
+            loading.dismiss();
+        }
+    }
+
+    public async addAttachment(using: "camera" | "gallery" | "file") {
+        this.loadingInProgress = true;
+        try {
+            let newAttachment = await this.eugy.addAttachment(using);
+            if (newAttachment != null) {
+                this.attachmentList.push(newAttachment);
+            }
+        } catch (error) {
+            throw error;
+        } finally {
+            this.loadingInProgress = false;
+        }
+    }
+
+    public async deleteAttachment(a: MessageAttachmentToSend) {
+        if (a.fajl == null) {
+            //the attachment came from the message that was forwarded, it isn't in the temporary storage, we don't need to delete it from there
+            for (let i = 0; i < this.attachmentList.length; i++) {
+                if (this.attachmentList[i].azonosito == a.azonosito) {
+                    this.attachmentList.splice(i, 1);
+                }
+            }
+        } else {
+            this.loadingInProgress = true;
+            try {
+                await this.eugy.removeAttachment(a.fajl.ideiglenesFajlAzonosito);
+                for (let i = 0; i < this.attachmentList.length; i++) {
+                    if (
+                        this.attachmentList[i].fajl.ideiglenesFajlAzonosito ==
+                        a.fajl.ideiglenesFajlAzonosito
+                    ) {
+                        this.attachmentList.splice(
+                            this.attachmentList.indexOf(this.attachmentList[i]),
+                            1
+                        );
+                    }
+                }
+            } catch (error) {
+                throw error;
+            } finally {
+                this.loadingInProgress = false;
+            }
+        }
+    }
+}
