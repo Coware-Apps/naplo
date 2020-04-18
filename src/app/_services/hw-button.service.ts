@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { Injectable, NgZone } from "@angular/core";
 import { Platform } from "@ionic/angular";
 import { Router } from "@angular/router";
 import { Subscription, Subject } from "rxjs";
@@ -8,14 +8,14 @@ import { takeUntil } from "rxjs/operators";
     providedIn: "root",
 })
 export class HwButtonService {
-    constructor(private platform: Platform, private router: Router) {}
+    constructor(private platform: Platform, private router: Router, private ngZone: NgZone) {}
 
     public registerHwBackButton(unsubscribe$: Subject<void>, exit: boolean = false): Subscription {
         if (this.platform.is("android")) {
             return this.platform.backButton.pipe(takeUntil(unsubscribe$)).subscribe({
                 next: () => {
                     if (exit) navigator["app"].exitApp();
-                    else this.router.navigateByUrl("/timetable");
+                    else this.ngZone.run(() => this.router.navigateByUrl("/timetable"));
                 },
             });
         } else {
