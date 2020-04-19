@@ -13,6 +13,7 @@ import { PageState } from "src/app/_models";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { NaploException } from "src/app/_exceptions";
+import { DiacriticsHelper } from "src/app/_helpers";
 
 @Component({
     selector: "app-addressee-modal",
@@ -161,7 +162,11 @@ export class AddresseeModalPage implements OnInit, OnDestroy {
         SZMK_KEPVISELOK: "szmk",
     };
 
-    constructor(private eugy: KretaEUgyService, private modalController: ModalController) {}
+    constructor(
+        private eugy: KretaEUgyService,
+        private modalController: ModalController,
+        private dicriticsHelper: DiacriticsHelper
+    ) {}
 
     async ngOnInit() {
         // load the addressee type list
@@ -325,7 +330,12 @@ export class AddresseeModalPage implements OnInit, OnDestroy {
     doFilter($event) {
         this.filteredAddresseeList = this.loadedAddresseeList.filter(x => {
             if ($event.target.value) {
-                return this.getName(x).toLowerCase().includes($event.target.value.toLowerCase());
+                return this.dicriticsHelper
+                    .removeDiacritics(this.getName(x))
+                    .toLowerCase()
+                    .includes(
+                        this.dicriticsHelper.removeDiacritics($event.target.value).toLowerCase()
+                    );
             } else return true;
         });
     }
