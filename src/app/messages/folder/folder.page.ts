@@ -8,6 +8,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { ErrorHelper, DiacriticsHelper } from "src/app/_helpers";
 import { AlertController } from "@ionic/angular";
 import "hammerjs";
+import { TranslateService } from "@ngx-translate/core";
 
 @Component({
     selector: "app-message-folder",
@@ -40,7 +41,8 @@ export class FolderPage {
         private route: ActivatedRoute,
         private errorHelper: ErrorHelper,
         private diacritics: DiacriticsHelper,
-        private alertController: AlertController
+        private alertController: AlertController,
+        private translate: TranslateService
     ) {}
 
     public async ionViewWillEnter() {
@@ -182,7 +184,9 @@ export class FolderPage {
         const ids = this.displayedMessages.filter(x => x.isSelected).map(x => x.azonosito);
         await this.eugy.binMessages(action, ids).toPromise();
         this.errorHelper.presentToast(
-            action == "put" ? "Az üzenetet a kukába helyeztük" : "Az üzenetet visszaállítottuk"
+            action == "put"
+                ? this.translate.instant("messages.folder.messages-recycled")
+                : this.translate.instant("messages.folder.messages-restored")
         );
         this.resetCheckboxes();
         this.loadMessages(true);
@@ -192,16 +196,16 @@ export class FolderPage {
         const ids = this.displayedMessages.filter(x => x.isSelected).map(x => x.azonosito);
 
         const alert = await this.alertController.create({
-            header: "Biztos vagy benne?",
-            message: "A törlés végleges, és nem vonható vissza!",
+            header: this.translate.instant("messages.folder.delete-permanently"),
+            message: this.translate.instant("messages.folder.delete-permanently-desc"),
             buttons: [
                 {
-                    text: "Mégse",
+                    text: this.translate.instant("common.cancel"),
                     role: "cancel",
                     cssClass: "secondary",
                 },
                 {
-                    text: "Törlés",
+                    text: this.translate.instant("messages.folder.delete"),
                     handler: async () => {
                         this.loadingInProgress = true;
                         await this.eugy.deleteMessages(ids).toPromise();
@@ -225,8 +229,8 @@ export class FolderPage {
         this.loadingInProgress = false;
         this.errorHelper.presentToast(
             state == "read"
-                ? "Az üzenetet olvasottnak jelöltük"
-                : "Az üzenetet olvassatlannak jelöltük"
+                ? this.translate.instant("messages.folder.set-as-read")
+                : this.translate.instant("messages.folder.set-as-unread")
         );
 
         this.resetCheckboxes();

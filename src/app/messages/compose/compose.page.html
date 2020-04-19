@@ -52,13 +52,13 @@
                 *ngIf="!prevMsgId"
             >
                 <ion-icon name="add-circle"></ion-icon>
-                <ion-label>Hozzáadás</ion-label>
+                <ion-label translate="messages.compose.add"></ion-label>
             </ion-chip>
         </div>
         <ion-item-divider></ion-item-divider>
         <ion-item>
             <ion-label position="floating" translate="messages.compose.label-subject"></ion-label>
-            <ion-input required [(ngModel)]="subject" type="text"> </ion-input>
+            <ion-input required [(ngModel)]="subject" type="text"></ion-input>
         </ion-item>
         <ion-textarea
             required
@@ -78,9 +78,7 @@
     <div class="attachment-container ion-margin">
         <ion-chip *ngFor="let f of attachmentList">
             <ion-icon name="document-attach-outline"></ion-icon>
-            <ion-label>
-                {{f.fajlNev}}
-            </ion-label>
+            <ion-label>{{f.fajlNev}}</ion-label>
             <ion-icon name="close-circle" (click)="deleteAttachment(f)"></ion-icon>
         </ion-chip>
 

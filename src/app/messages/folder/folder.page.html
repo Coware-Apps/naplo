@@ -21,7 +21,10 @@
                 </ion-button>
             </ion-buttons>
 
-            <ion-title>{{numberOfSelectedItems}} kijelölt üzenet</ion-title>
+            <ion-title
+                translate="messages.folder.selected-message"
+                [translateParams]="{value: numberOfSelectedItems}"
+            ></ion-title>
 
             <ion-buttons slot="end">
                 <ion-button *ngIf="this.folder != 'deleted'" (click)="binSelected('put')">
@@ -52,7 +55,7 @@
 
     <ion-toolbar color="secondary" *ngIf="searchbarEnabled">
         <ion-searchbar
-            placeholder="Keresés"
+            [placeholder]="'messages.folder.search'|translate"
             animated
             inputmode="search"
             type="search"
@@ -121,8 +124,9 @@
                             {{ m.uzenetCimzettLista[0].nev }}
                             <small>
                                 {{ m.uzenetCimzettLista.length == 1 ? "("+
-                                m.uzenetCimzettLista[0].tipus.rovidNev + ")" : "és " +
-                                (m.uzenetCimzettLista.length - 1) + " további címzett" }}
+                                m.uzenetCimzettLista[0].tipus.rovidNev + ")" :
+                                'messages.folder.and-more-recipient'|translate:{value:
+                                (m.uzenetCimzettLista.length - 1)} }}
                             </small>
                         </ng-container>
                     </h2>
@@ -136,16 +140,14 @@
             expand="block"
             fill="clear"
             *ngIf="toBeDisplayed.length > 0"
-        >
-            Több üzenet betöltése
-        </ion-button>
+            translate="messages.folder.load-more"
+        ></ion-button>
 
         <ion-infinite-scroll threshold="100px" (ionInfinite)="loadMoreData($event)">
             <ion-infinite-scroll-content
                 loadingSpinner="bubbles"
-                loadingText="További üzenetek betöltése..."
-            >
-            </ion-infinite-scroll-content>
+                [loadingText]="'messages.folder.load-more'|translate"
+            ></ion-infinite-scroll-content>
         </ion-infinite-scroll>
 
         <ion-fab vertical="bottom" horizontal="end" slot="fixed">

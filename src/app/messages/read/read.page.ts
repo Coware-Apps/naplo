@@ -10,6 +10,7 @@ import { takeUntil } from "rxjs/operators";
 import { ErrorHelper } from "src/app/_helpers";
 import { Location } from "@angular/common";
 import { AlertController } from "@ionic/angular";
+import { TranslateService } from "@ngx-translate/core";
 
 @Component({
     selector: "app-read",
@@ -40,7 +41,8 @@ export class ReadPage implements OnInit {
         private errorHelper: ErrorHelper,
         private alertController: AlertController,
         private fileOpener: FileOpener,
-        private changeDetector: ChangeDetectorRef
+        private changeDetector: ChangeDetectorRef,
+        private translate: TranslateService
     ) {}
 
     ngOnInit() {
@@ -61,7 +63,7 @@ export class ReadPage implements OnInit {
                     this.addresseeList = message.uzenet.cimzettLista
                         .map(x =>
                             this.eugy.currentUser["kreta:institute_user_id"] == x.kretaAzonosito
-                                ? "én"
+                                ? this.translate.instant("messages.read.me")
                                 : x.nev
                         )
                         .join(", ");
@@ -105,14 +107,16 @@ export class ReadPage implements OnInit {
                 `Státusz: ${this.message.uzenet.statusz.azonosito} (${this.message.uzenet.statusz.leiras})<br>` +
                 `Hibakód: ${this.message.uzenet.hibaCorrellationId}`,
             undefined,
-            "Az üzenet nem lett kézbesítve"
+            this.translate.instant("messages.read.not-delivered")
         );
     }
 
     async binMsg(action: "put" | "remove") {
         await this.eugy.binMessages(action, [this.message.azonosito]).toPromise();
         this.errorHelper.presentToast(
-            action == "put" ? "Az üzenetet a kukába helyeztük" : "Az üzenetet visszaállítottuk"
+            action == "put"
+                ? this.translate.instant("messages.read.message-recycled")
+                : this.translate.instant("messages.read.message-restored")
         );
 
         this.location.back();
@@ -120,17 +124,16 @@ export class ReadPage implements OnInit {
 
     async deleteMsg() {
         const alert = await this.alertController.create({
-            header: "Végleges törlés",
-            message:
-                "Egy kukában lévő üzenetet tervezel törölni. Ez végleges, és nem vonható vissza!",
+            header: this.translate.instant("messages.read.delete-permanently"),
+            message: this.translate.instant("messages.read.delete-permanently-desc"),
             buttons: [
                 {
-                    text: "Mégse",
+                    text: this.translate.instant("common.cancel"),
                     role: "cancel",
                     cssClass: "secondary",
                 },
                 {
-                    text: "Törlés",
+                    text: this.translate.instant("messages.read.delete"),
                     handler: async () => {
                         this.loadingInProgress = true;
                         await this.eugy.deleteMessages([this.messageId]).toPromise();
@@ -149,7 +152,7 @@ export class ReadPage implements OnInit {
         this.loadingInProgress = true;
         await this.eugy.changeMessageState("unread", [this.message.azonosito]).toPromise();
         this.loadingInProgress = false;
-        this.errorHelper.presentToast("Az üzenet olvasatlannak lett jelölve");
+        this.errorHelper.presentToast(this.translate.instant("messages.read.set-as-unread"));
         this.location.back();
     }
 
@@ -166,7 +169,6 @@ export class ReadPage implements OnInit {
             });
 
             fileEntry.file(file => {
-                console.debug("DOWNLOADED FILE:", fileEntry, file.type);
                 this.fileOpener.showOpenWithDialog(fileEntry.nativeURL, file.type);
             });
             attachment.isDownloadFailed = false;

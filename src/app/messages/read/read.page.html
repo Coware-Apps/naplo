@@ -38,7 +38,10 @@
         >
             <ion-item button (click)="showStatusInfo()" color="danger">
                 <ion-icon name="warning" slot="start"></ion-icon>
-                <ion-label>Kiküldés állapota: {{this.message.uzenet.statusz.rovidNev}}</ion-label>
+                <ion-label>
+                    {{ 'messages.read.delivery-status' | translate }}:
+                    {{this.message.uzenet.statusz.rovidNev}}
+                </ion-label>
             </ion-item>
         </ion-list>
 
@@ -54,7 +57,9 @@
                         'short'}) }}
                     </small>
                 </h2>
-                <ion-note>címzett: {{addresseeList}}</ion-note>
+                <ion-note>
+                    {{ 'messages.read.to' | translate }}: {{addresseeList}}
+                </ion-note>
             </ion-label>
         </div>
 
@@ -64,7 +69,7 @@
             <ion-chip *ngIf="!attachmentsEnabled">
                 <ion-icon name="document-attach-outline"></ion-icon>
                 <ion-label>
-                    Csatolmányok betöltése...
+                    {{ 'messages.read.loading-attachments' | translate }}
                     <ion-spinner name="lines-small"></ion-spinner>
                 </ion-label>
             </ion-chip>
@@ -92,16 +97,16 @@
         <div id="buttons" class="ion-text-center ion-align-self-baseline">
             <ion-button (click)="this.replyToMsg()" class="bottomBtns" color="dark" fill="outline">
                 <ion-icon slot="start" name="return-up-back"></ion-icon>
-                Válasz
+                {{ 'messages.read.reply' | translate }}
             </ion-button>
             <ion-button (click)="this.forwardMsg()" class="bottomBtns" color="dark" fill="outline">
                 <ion-icon slot="start" name="return-up-forward"></ion-icon>
-                Továbbítás
+                {{ 'messages.read.forward' | translate }}
             </ion-button>
         </div>
     </ng-container>
 
-    <div class="message-text" *ngIf="this.pageState == 'LOADING'">
+    <ng-container *ngIf="this.pageState == 'LOADING'">
         <ion-skeleton-text animated style="width: 80%;"></ion-skeleton-text>
         <ion-skeleton-text animated style="width: 80%;"></ion-skeleton-text>
 
@@ -120,18 +125,7 @@
             <ion-skeleton-text animated style="width: 80;"></ion-skeleton-text>
             <ion-skeleton-text animated style="width: 80;"></ion-skeleton-text>
         </div>
-
-        <div id="buttons" class="ion-text-center ion-align-self-baseline">
-            <ion-button disabled class="bottomBtns" color="dark" fill="outline">
-                <ion-icon slot="start" name="return-up-back"></ion-icon>
-                Válasz
-            </ion-button>
-            <ion-button disabled class="bottomBtns" color="dark" fill="outline">
-                <ion-icon slot="start" name="return-up-forward"></ion-icon>
-                Továbbítás
-            </ion-button>
-        </div>
-    </div>
+    </ng-container>
 
     <app-page-state-display
         *ngIf="pageState == 'ERROR'"
