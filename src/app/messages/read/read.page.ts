@@ -6,10 +6,9 @@ import { TranslateService } from "@ngx-translate/core";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 
-import { FirebaseX } from "@ionic-native/firebase-x/ngx";
 import { FileOpener } from "@ionic-native/file-opener/ngx";
 
-import { DataService, KretaEUgyService, ConfigService } from "src/app/_services";
+import { DataService, KretaEUgyService, ConfigService, FirebaseService } from "src/app/_services";
 import { Message } from "src/app/_models/eugy";
 import { PageState } from "src/app/_models";
 import { ErrorHelper } from "src/app/_helpers";
@@ -38,7 +37,7 @@ export class ReadPage implements OnInit {
         private eugy: KretaEUgyService,
         private router: Router,
         private route: ActivatedRoute,
-        private firebase: FirebaseX,
+        private firebase: FirebaseService,
         private errorHelper: ErrorHelper,
         private alertController: AlertController,
         private fileOpener: FileOpener,
@@ -51,7 +50,7 @@ export class ReadPage implements OnInit {
     }
 
     async ionViewWillEnter() {
-        this.firebase.setScreenName("message-read");
+        this.firebase.setScreenName("messages_read");
 
         this.pageState = PageState.Loading;
         this.eugy
@@ -93,16 +92,19 @@ export class ReadPage implements OnInit {
     }
 
     replyToMsg() {
+        this.firebase.logEvent("messages_read_reply");
         this.router.navigateByUrl("messages/compose", { state: { replyToMsg: this.message } });
     }
 
     forwardMsg() {
+        this.firebase.logEvent("messages_read_forward");
         this.router.navigateByUrl("messages/compose", {
             state: { forwardedMsg: this.message },
         });
     }
 
     showStatusInfo() {
+        this.firebase.logEvent("messages_read_statusinfo_clicked");
         this.errorHelper.presentAlert(
             `Azonosító: ${this.message.azonosito}<br>` +
                 `Státusz: ${this.message.uzenet.statusz.azonosito} (${this.message.uzenet.statusz.leiras})<br>` +
@@ -119,6 +121,7 @@ export class ReadPage implements OnInit {
                 ? this.translate.instant("messages.read.message-recycled")
                 : this.translate.instant("messages.read.message-restored")
         );
+        this.firebase.logEvent("messages_read_action_bin");
 
         this.router.navigate(["/messages/folder/inbox"], {
             queryParams: { forceRefresh: true },
@@ -140,6 +143,8 @@ export class ReadPage implements OnInit {
                     handler: async () => {
                         this.loadingInProgress = true;
                         await this.eugy.deleteMessages([this.messageId]).toPromise();
+                        this.firebase.logEvent("messages_read_action_delete");
+
                         this.loadingInProgress = false;
 
                         this.router.navigate(["/messages/folder/deleted"], {
@@ -156,6 +161,7 @@ export class ReadPage implements OnInit {
     async setAsUnread() {
         this.loadingInProgress = true;
         await this.eugy.changeMessageState("unread", [this.message.azonosito]).toPromise();
+        this.firebase.logEvent("messages_read_action_setunread");
         this.loadingInProgress = false;
         this.errorHelper.presentToast(this.translate.instant("messages.read.set-as-unread"));
 
@@ -176,6 +182,7 @@ export class ReadPage implements OnInit {
                 }
             });
 
+            this.firebase.logEvent("messages_read_attachment_opened");
             fileEntry.file(file => {
                 this.fileOpener.showOpenWithDialog(fileEntry.nativeURL, file.type);
             });

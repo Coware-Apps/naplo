@@ -10,11 +10,10 @@ import {
 } from "src/app/_models/eugy";
 import { Subject } from "rxjs";
 import { Router, ActivatedRoute } from "@angular/router";
-import { KretaEUgyService, ConfigService } from "src/app/_services";
+import { KretaEUgyService, ConfigService, FirebaseService } from "src/app/_services";
 import { LoadingController, ModalController, Platform } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { IDirty } from "src/app/_models";
-import { FirebaseX } from "@ionic-native/firebase-x/ngx";
 import { map, takeUntil } from "rxjs/operators";
 import { ErrorHelper } from "src/app/_helpers";
 import { AddresseeModalPage } from "../addressee-modal/addressee-modal.page";
@@ -52,7 +51,7 @@ export class ComposePage implements IDirty {
         private translator: TranslateService,
         private eugy: KretaEUgyService,
         private config: ConfigService,
-        private firebase: FirebaseX,
+        private firebase: FirebaseService,
         private errorHelper: ErrorHelper,
         private platform: Platform,
         private camera: Camera,
@@ -64,7 +63,7 @@ export class ComposePage implements IDirty {
 
     public ionViewWillEnter() {
         this.unsubscribe$ = new Subject<void>();
-        this.firebase.setScreenName("message_compose");
+        this.firebase.setScreenName("messages_compose");
 
         this.route.paramMap
             .pipe(map(() => window.history.state))
@@ -197,7 +196,7 @@ export class ComposePage implements IDirty {
                     this.attachmentList
                 );
 
-                console.debug("send result", sendResult);
+                this.firebase.logEvent("messages_sent_new");
             } else {
                 // reply
                 const sendResult = await this.eugy.replyToMessage(
@@ -207,7 +206,7 @@ export class ComposePage implements IDirty {
                     this.attachmentList
                 );
 
-                console.debug("send result", sendResult);
+                this.firebase.logEvent("messages_sent_reply");
             }
 
             this.errorHelper.presentToast(this.translator.instant("messages.compose.message-sent"));
@@ -269,7 +268,11 @@ export class ComposePage implements IDirty {
                 }
             });
 
-            if (newAttachment) this.attachmentList.push(newAttachment);
+            if (newAttachment) {
+                this.attachmentList.push(newAttachment);
+                this.firebase.logEvent("messages_attachment_uploaded");
+            }
+
             this.currentlyUploading = undefined;
         } catch (error) {
             this.currentlyUploading.isFailedUpload = true;
@@ -300,6 +303,7 @@ export class ComposePage implements IDirty {
                     ),
                     1
                 );
+                this.firebase.logEvent("messages_attachment_deleted");
             } finally {
                 this.loadingInProgress = false;
             }

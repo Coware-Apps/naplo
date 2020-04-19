@@ -7,7 +7,7 @@ import {
     instanceOfParentAddresseeListItem,
     instanceOfStudentAddresseeListItem,
 } from "src/app/_models/eugy";
-import { KretaEUgyService } from "src/app/_services";
+import { KretaEUgyService, FirebaseService } from "src/app/_services";
 import { ModalController } from "@ionic/angular";
 import { PageState } from "src/app/_models";
 import { Subject } from "rxjs";
@@ -52,6 +52,7 @@ export class AddresseeModalPage implements OnInit, OnDestroy {
             x.isAdded = value;
             this.checkboxChanged(x, value);
         });
+        this.firebase.logEvent("messages_selector_all_selected");
     }
 
     public addresseeTypesToSend: AddresseeType[] = [
@@ -165,7 +166,8 @@ export class AddresseeModalPage implements OnInit, OnDestroy {
     constructor(
         private eugy: KretaEUgyService,
         private modalController: ModalController,
-        private dicriticsHelper: DiacriticsHelper
+        private dicriticsHelper: DiacriticsHelper,
+        private firebase: FirebaseService
     ) {}
 
     async ngOnInit() {
@@ -344,6 +346,8 @@ export class AddresseeModalPage implements OnInit, OnDestroy {
         if (!enabled) {
             this.filter = null;
             this.filteredAddresseeList = this.loadedAddresseeList;
+        } else {
+            this.firebase.logEvent("messages_selector_searchbar_opened");
         }
 
         this.showSearchbar = enabled;

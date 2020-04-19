@@ -1,7 +1,7 @@
 import { Component } from "@angular/core";
 import { MessageListItem } from "src/app/_models/eugy";
 import { Subject } from "rxjs";
-import { ConfigService, KretaEUgyService } from "src/app/_services";
+import { ConfigService, KretaEUgyService, FirebaseService } from "src/app/_services";
 import { takeUntil } from "rxjs/operators";
 import { PageState } from "src/app/_models";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -42,10 +42,12 @@ export class FolderPage {
         private errorHelper: ErrorHelper,
         private diacritics: DiacriticsHelper,
         private alertController: AlertController,
-        private translate: TranslateService
+        private translate: TranslateService,
+        private firebase: FirebaseService
     ) {}
 
     public async ionViewWillEnter() {
+        this.firebase.setScreenName("messages_folder_" + this.folder);
         this.route.params
             .pipe(takeUntil(this.unsubscribe$))
             .subscribe(p => (this.folder = p.folder));
@@ -173,16 +175,20 @@ export class FolderPage {
 
         if (!enabled) {
             this.resetDisplay();
+        } else {
+            this.firebase.logEvent("messages_folder_searchbar_opened");
         }
     }
 
     public openNewMsgPage() {
+        this.firebase.logEvent("messages_new_message_fab_clicked");
         this.router.navigateByUrl("messages/compose");
     }
 
     public async binSelected(action: "put" | "remove") {
         const ids = this.displayedMessages.filter(x => x.isSelected).map(x => x.azonosito);
         await this.eugy.binMessages(action, ids).toPromise();
+        this.firebase.logEvent("messages_folder_action_bin", { action: action });
         this.errorHelper.presentToast(
             action == "put"
                 ? this.translate.instant("messages.folder.messages-recycled")
@@ -209,6 +215,7 @@ export class FolderPage {
                     handler: async () => {
                         this.loadingInProgress = true;
                         await this.eugy.deleteMessages(ids).toPromise();
+                        this.firebase.logEvent("messages_folder_action_delete");
                         this.loadingInProgress = false;
 
                         this.resetCheckboxes();
@@ -225,6 +232,7 @@ export class FolderPage {
         this.loadingInProgress = true;
         const ids = this.displayedMessages.filter(x => x.isSelected).map(x => x.azonosito);
         await this.eugy.changeMessageState(state, ids).toPromise();
+        this.firebase.logEvent("messages_folder_state_change", { newState: state });
 
         this.loadingInProgress = false;
         this.errorHelper.presentToast(
@@ -239,10 +247,13 @@ export class FolderPage {
 
     public async openMessage(message: MessageListItem) {
         if (!message.isElolvasva) {
-            await this.eugy.changeMessageState("read", [message.azonosito]).toPromise();
-            this.loadMessages(true);
+            this.eugy
+                .changeMessageState("read", [message.azonosito])
+                .toPromise()
+                .then(() => this.loadMessages(true));
         }
 
+        this.firebase.logEvent("messages_folder_message_open");
         this.router.navigateByUrl("/messages/read/" + message.azonosito);
     }
 
@@ -259,6 +270,7 @@ export class FolderPage {
     public messagePress(message: MessageListItem) {
         this.checkboxesShown = true;
         this.messageTap(message);
+        this.firebase.logEvent("messages_folder_longpress");
     }
 
     public updateCheckboxToolbar() {
@@ -282,6 +294,7 @@ export class FolderPage {
                         this.swipeRouterData[this.swipeRouterData.indexOf(this.folder) + 1]
                 );
             }
+            this.firebase.logEvent("messages_folder_swipe", { direction: "left" });
         } else {
             //swiped right, needs to load page to the left
             if (this.swipeRouterData.indexOf(this.folder) != 0) {
@@ -290,6 +303,7 @@ export class FolderPage {
                         this.swipeRouterData[this.swipeRouterData.indexOf(this.folder) - 1]
                 );
             }
+            this.firebase.logEvent("messages_folder_swipe", { direction: "right" });
         }
     }
 }
