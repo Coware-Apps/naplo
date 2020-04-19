@@ -73,6 +73,6 @@ export class FirebaseService {
     }
 
     public getConfigValue(key: string): Promise<any> {
-        return this.firebase.getValue(key);
+        return this.firebase.getValue(key) || environment.deviceDefaultConfig[key];
     }
 }

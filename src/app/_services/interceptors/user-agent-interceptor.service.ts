@@ -14,7 +14,7 @@ export class UserAgentInterceptorService implements HttpInterceptor {
             return next.handle(req);
         }
 
-        return from(this.getUserAgent()).pipe(
+        return from(this.firebase.getConfigValue("user_agent")).pipe(
             mergeMap(userAgent => {
                 req = req.clone({
                     setHeaders: {
@@ -25,15 +25,5 @@ export class UserAgentInterceptorService implements HttpInterceptor {
                 return next.handle(req);
             })
         );
-    }
-
-    private async getUserAgent(): Promise<string> {
-        let remoteUA = await this.firebase.getConfigValue("user_agent");
-
-        if (!remoteUA)
-            remoteUA =
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36";
-
-        return remoteUA;
     }
 }
