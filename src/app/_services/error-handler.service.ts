@@ -1,13 +1,13 @@
 import { Injectable, ErrorHandler } from "@angular/core";
+import { TranslateService } from "@ngx-translate/core";
 import { FirebaseX } from "@ionic-native/firebase-x/ngx";
+import * as StackTrace from "stacktrace-js";
+
+import { NaploHttpUnauthorizedException } from "../_exceptions";
 import { ErrorHelper } from "../_helpers";
 import { ConfigService } from "./config.service";
-import { TranslateService } from "@ngx-translate/core";
-
-import * as StackTrace from "stacktrace-js";
 import { KretaService } from "./kreta.service";
-import { NaploHttpUnauthorizedException } from "../_exceptions";
-import { KretaEUgyService } from ".";
+import { KretaEUgyService } from "./kreta-eugy.service";
 
 @Injectable({
     providedIn: "root",
