@@ -7,6 +7,7 @@ import { TranslateService } from "@ngx-translate/core";
 import * as StackTrace from "stacktrace-js";
 import { KretaService } from "./kreta.service";
 import { NaploHttpUnauthorizedException } from "../_exceptions";
+import { KretaEUgyService } from ".";
 
 @Injectable({
     providedIn: "root",
@@ -16,6 +17,7 @@ export class ErrorHandlerService extends ErrorHandler {
         private firebase: FirebaseX,
         private config: ConfigService,
         private kreta: KretaService,
+        private eugy: KretaEUgyService,
         private errorHelper: ErrorHelper,
         private translate: TranslateService
     ) {
@@ -64,12 +66,27 @@ export class ErrorHandlerService extends ErrorHandler {
     private appendAuthDebugToError(error: any): string {
         let output = typeof error.toString === "function" ? error.toString() : error;
 
-        if (!this.kreta.currentUser) return output;
+        if (this.kreta.currentUser) {
+            output += "\n\n---- Kreta Access Token ----\n";
+            output += `Auth time: ${new Date(
+                this.kreta.currentUser.auth_time * 1000
+            ).toISOString()}\n`;
+            output += `Not before: ${new Date(this.kreta.currentUser.nbf * 1000).toISOString()}\n`;
+            output += `Expiration: ${new Date(this.kreta.currentUser.exp * 1000).toISOString()}\n`;
+        }
 
-        output += "\n\n---- Access Token ----\n";
-        output += `Auth time: ${new Date(this.kreta.currentUser.auth_time * 1000).toISOString()}\n`;
-        output += `Not before: ${new Date(this.kreta.currentUser.nbf * 1000).toISOString()}\n`;
-        output += `Expiration: ${new Date(this.kreta.currentUser.exp * 1000).toISOString()}\n`;
+        if (this.eugy.currentEugyUser) {
+            output += "\n---- Eugy Access Token ----\n";
+            output += `Auth time: ${new Date(
+                this.eugy.currentEugyUser.auth_time * 1000
+            ).toISOString()}\n`;
+            output += `Not before: ${new Date(
+                this.eugy.currentEugyUser.nbf * 1000
+            ).toISOString()}\n`;
+            output += `Expiration: ${new Date(
+                this.eugy.currentEugyUser.exp * 1000
+            ).toISOString()}\n`;
+        }
 
         return output;
     }

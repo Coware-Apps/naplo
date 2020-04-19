@@ -1,5 +1,6 @@
 import { Injectable } from "@angular/core";
-import { DataService } from "./data.service";
+import { HttpHeaders, HttpParams } from "@angular/common/http";
+
 import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
 import {
@@ -21,9 +22,11 @@ import {
     KretaMissingRoleException,
     KretaInvalidPasswordException,
     KretaInvalidResponseException,
+    KretaException,
 } from "../_exceptions";
+
+import { DataService } from "./data.service";
 import { FirebaseService } from "./firebase.service";
-import { HttpHeaders, HttpParams } from "@angular/common/http";
 
 @Injectable({
     providedIn: "root",
@@ -89,7 +92,7 @@ export class KretaService {
 
     async loginWithUsername(username: string, password: string): Promise<TokenResponse> {
         if (!this.institute || !this.institute.Url)
-            throw Error("Nincs intézmény kiválasztva! (loginWithUsername())");
+            throw new KretaException("Nincs intézmény kiválasztva! (loginWithUsername())");
 
         try {
             const body = new HttpParams()
@@ -118,6 +121,14 @@ export class KretaService {
                 throw new KretaMissingRoleException();
             }
 
+            Promise.all([
+                this.getNaploEnum("MulasztasTipusEnum"),
+                this.getNaploEnum("EsemenyTipusEnum"),
+                this.getNaploEnum("ErtekelesModEnum"),
+                this.getNaploEnum("ErtekelesTipusEnum"),
+                this.getNaploEnum("OsztalyzatTipusEnum"),
+            ]);
+
             await Promise.all([
                 this.data.saveItem(
                     "access_token",
@@ -133,16 +144,7 @@ export class KretaService {
                 ),
             ]);
 
-            Promise.all([
-                this.getNaploEnum("MulasztasTipusEnum"),
-                this.getNaploEnum("EsemenyTipusEnum"),
-                this.getNaploEnum("ErtekelesModEnum"),
-                this.getNaploEnum("ErtekelesTipusEnum"),
-                this.getNaploEnum("OsztalyzatTipusEnum"),
-            ]);
-
             this.firebase.initialize(this.currentUser, this.institute);
-
             return response;
         } catch (error) {
             if (error.response.status == 400) throw new KretaInvalidPasswordException();
@@ -199,11 +201,7 @@ export class KretaService {
                 ]);
 
                 this._currentUser = this.jwtHelper.decodeToken(response.access_token);
-                console.debug(
-                    "[LOGIN] AT sikeresen megújítva RT-el",
-                    response.access_token,
-                    this._currentUser
-                );
+                console.debug("[LOGIN] AT sikeresen megújítva RT-el");
 
                 this.firebase.stopTrace("token_refresh_time");
 

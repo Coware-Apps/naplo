@@ -33,6 +33,7 @@ import {
     FileUploadOptions,
     FileTransferObject,
 } from "@ionic-native/file-transfer/ngx";
+import { JwtDecodeHelper } from "../_helpers";
 
 @Injectable({
     providedIn: "root",
@@ -77,12 +78,18 @@ export class KretaEUgyService {
         return this.kreta.currentUser;
     }
 
+    private _currentEugyUser: Jwt;
+    public get currentEugyUser(): Jwt {
+        return this._currentEugyUser;
+    }
+
     constructor(
         private data: DataService,
         private kreta: KretaService,
         private file: File,
         private fileTransfer: FileTransfer,
-        private firebase: FirebaseService
+        private firebase: FirebaseService,
+        private tokenHelper: JwtDecodeHelper
     ) {}
 
     /**
@@ -96,8 +103,10 @@ export class KretaEUgyService {
             return null;
         });
 
-        if (access_token) return access_token;
-
+        if (access_token) {
+            this._currentEugyUser = this.tokenHelper.decodeToken(access_token);
+            return access_token;
+        }
         // If there isn't or it's expried, we refresh it
         const refresh_token = await this.data.getItem<string>("eugy_refresh_token").catch(() => {
             throw new KretaEUgyNotLoggedInException();
@@ -215,6 +224,7 @@ export class KretaEUgyService {
                 ),
             ]);
 
+            this._currentEugyUser = this.tokenHelper.decodeToken(response.access_token);
             return response.access_token;
         } finally {
             this.loginInProgress = false;
