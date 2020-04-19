@@ -329,6 +329,10 @@ export class KretaEUgyService {
             postaladaElemAzonositoLista: messageIdList,
         };
 
+        messageIdList.map(id =>
+            this.data.removeItem(this.host + this.endpoints.message + "/" + id).catch(() => null)
+        );
+        this.data.removeItem(this.host + this.endpoints.deletedList).catch(() => null);
         return this.data.postUrl<any>(this.host + this.endpoints.manageBin, params);
     }
 
@@ -337,12 +341,14 @@ export class KretaEUgyService {
      * @param messageIdList The `uzenetAzonosito` fields of the messages to perform the operation on
      */
     public deleteMessages(messageIdList: number[]): Observable<any> {
-        const params = new HttpParams();
+        const queryParams: string[] = [];
         messageIdList.forEach(messageId =>
-            params.append("postaladaElemAzonositok", messageId.toString())
+            queryParams.push("postaladaElemAzonositok=" + messageId.toString())
         );
 
-        return this.data.deleteUrl<any>(this.host + this.endpoints.delete, null, params);
+        return this.data.deleteUrl<any>(
+            this.host + this.endpoints.delete + "?" + queryParams.join("&")
+        );
     }
 
     /**
@@ -359,6 +365,9 @@ export class KretaEUgyService {
             postaladaElemAzonositoLista: messageIdList,
         };
 
+        messageIdList.map(id =>
+            this.data.removeItem(this.host + this.endpoints.message + "/" + id).catch(() => null)
+        );
         return this.data.postUrl<any>(this.host + this.endpoints.manageState, params);
     }
 

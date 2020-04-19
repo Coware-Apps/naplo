@@ -1,16 +1,18 @@
 import { Component, OnInit, ChangeDetectorRef } from "@angular/core";
-import { Subject } from "rxjs";
-import { DataService, KretaEUgyService, ConfigService } from "src/app/_services";
 import { Router, ActivatedRoute } from "@angular/router";
-import { Message } from "src/app/_models/eugy";
-import { PageState } from "src/app/_models";
+import { AlertController } from "@ionic/angular";
+
+import { TranslateService } from "@ngx-translate/core";
+import { Subject } from "rxjs";
+import { takeUntil } from "rxjs/operators";
+
 import { FirebaseX } from "@ionic-native/firebase-x/ngx";
 import { FileOpener } from "@ionic-native/file-opener/ngx";
-import { takeUntil } from "rxjs/operators";
+
+import { DataService, KretaEUgyService, ConfigService } from "src/app/_services";
+import { Message } from "src/app/_models/eugy";
+import { PageState } from "src/app/_models";
 import { ErrorHelper } from "src/app/_helpers";
-import { Location } from "@angular/common";
-import { AlertController } from "@ionic/angular";
-import { TranslateService } from "@ngx-translate/core";
 
 @Component({
     selector: "app-read",
@@ -36,7 +38,6 @@ export class ReadPage implements OnInit {
         private eugy: KretaEUgyService,
         private router: Router,
         private route: ActivatedRoute,
-        private location: Location,
         private firebase: FirebaseX,
         private errorHelper: ErrorHelper,
         private alertController: AlertController,
@@ -119,7 +120,9 @@ export class ReadPage implements OnInit {
                 : this.translate.instant("messages.read.message-restored")
         );
 
-        this.location.back();
+        this.router.navigate(["/messages/folder/inbox"], {
+            queryParams: { forceRefresh: true },
+        });
     }
 
     async deleteMsg() {
@@ -139,7 +142,9 @@ export class ReadPage implements OnInit {
                         await this.eugy.deleteMessages([this.messageId]).toPromise();
                         this.loadingInProgress = false;
 
-                        this.location.back();
+                        this.router.navigate(["/messages/folder/deleted"], {
+                            queryParams: { forceRefresh: true },
+                        });
                     },
                 },
             ],
@@ -153,7 +158,10 @@ export class ReadPage implements OnInit {
         await this.eugy.changeMessageState("unread", [this.message.azonosito]).toPromise();
         this.loadingInProgress = false;
         this.errorHelper.presentToast(this.translate.instant("messages.read.set-as-unread"));
-        this.location.back();
+
+        this.router.navigate(["/messages/folder/inbox"], {
+            queryParams: { forceRefresh: true },
+        });
     }
 
     async getFile(id: number, fullName: string) {
