@@ -1,14 +1,17 @@
 import { Injectable, RendererFactory2, Inject, Renderer2 } from "@angular/core";
-import { Globalization } from "@ionic-native/globalization/ngx";
-import { DataService } from "./data.service";
-import { StatusBar } from "@ionic-native/status-bar/ngx";
+import { Platform } from "@ionic/angular";
 import { DOCUMENT, registerLocaleData } from "@angular/common";
+import { TranslateService } from "@ngx-translate/core";
+
+import { Globalization } from "@ionic-native/globalization/ngx";
+import { StatusBar } from "@ionic-native/status-bar/ngx";
+
+import { FirebaseService } from "./firebase.service";
+import { DataService } from "./data.service";
+
 import { themes } from "../../theme/themes";
 import { Institute, ErtekelesTipus } from "../_models";
 import { environment } from "src/environments/environment";
-import { FirebaseService } from "./firebase.service";
-import { TranslateService } from "@ngx-translate/core";
-import { Platform } from "@ionic/angular";
 
 @Injectable({
     providedIn: "root",
@@ -85,13 +88,17 @@ export class ConfigService {
     }
 
     public async onInit() {
-        await Promise.all([this.applyTheme(), this.applyLocale()]);
+        const res = await Promise.all([
+            this.applyTheme(),
+            this.applyLocale(),
+            this.data.getSetting<Institute>("debugging").catch(() => null),
+            this.data.getSetting<Institute>("analytics").catch(() => null),
+            this.data.getSetting<ErtekelesTipus>("defaultErtekelesTipus").catch(() => null),
+        ]);
 
-        this._debugging = await this.data.getSetting<Institute>("debugging").catch(() => null);
-        this._analytics = await this.data.getSetting<Institute>("analytics").catch(() => null);
-        this._defaultErtekelesTipus = await this.data
-            .getSetting<ErtekelesTipus>("defaultErtekelesTipus")
-            .catch(() => null);
+        this._debugging = res[2];
+        this._analytics = res[3];
+        this._defaultErtekelesTipus = res[4];
 
         if (!environment.production) {
             this.firebase.setAnalyticsCollectionEnabled(false);
@@ -133,7 +140,7 @@ export class ConfigService {
 
     private async applyLocale(locale?: string) {
         if (!locale) {
-            locale = await await this.data
+            locale = await this.data
                 .getSetting<string>("locale")
                 .catch(async () =>
                     (await this.globalization.getLocaleName()).value.substring(0, 2)
