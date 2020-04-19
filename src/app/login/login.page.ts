@@ -6,6 +6,7 @@ import {
     ConnectionStatus,
     FirebaseService,
     HwButtonService,
+    KretaEUgyService,
 } from "../_services";
 import { ActivatedRoute, Router } from "@angular/router";
 import {
@@ -41,6 +42,7 @@ export class LoginPage {
 
     constructor(
         private kreta: KretaService,
+        private eugy: KretaEUgyService,
         private router: Router,
         private route: ActivatedRoute,
         private loadingController: LoadingController,
@@ -84,7 +86,7 @@ export class LoginPage {
     }
 
     async doLogin() {
-        await this.firebase.startTrace("login_time");
+        this.firebase.startTrace("login_time");
         this.loading = true;
         const loading = await this.loadingController.create({
             message: this.translate.instant("login.logging-in"),
@@ -93,6 +95,7 @@ export class LoginPage {
 
         try {
             await this.kreta.loginWithUsername(this.username, this.password);
+            this.eugy.getToken(this.username, this.password, this.kreta.institute);
 
             console.log("Sikeres bejelentkezés, átirányítás: ", this.returnUrl);
 
@@ -105,9 +108,7 @@ export class LoginPage {
                 this.config.applyTheme("light"),
             ]);
 
-            this.loading = false;
-            this.firebase.stopTrace("login_time");
-            await this.router.navigate([this.returnUrl], { replaceUrl: true });
+            this.router.navigate([this.returnUrl], { replaceUrl: true });
         } catch (e) {
             console.log("Hiba a felhasználóneves bejelentkezés során: ", e);
 
@@ -126,9 +127,9 @@ export class LoginPage {
                         },
                         {
                             text: this.translate.instant("common.yes"),
-                            handler: async () => {
-                                await this.firebase.logEvent("login_ariszto_opened");
-                                await this.market.open("hu.coware.ellenorzo");
+                            handler: () => {
+                                this.firebase.logEvent("login_ariszto_opened");
+                                this.market.open("hu.coware.ellenorzo");
                             },
                         },
                     ],
@@ -144,6 +145,7 @@ export class LoginPage {
         } finally {
             loading.dismiss();
             this.loading = false;
+            this.firebase.stopTrace("login_time");
         }
     }
 

@@ -147,7 +147,8 @@ export class KretaService {
             this.firebase.initialize(this.currentUser, this.institute);
             return response;
         } catch (error) {
-            if (error.response.status == 400) throw new KretaInvalidPasswordException();
+            if (error.response && error.response.status == 400)
+                throw new KretaInvalidPasswordException();
             throw error;
         }
     }
