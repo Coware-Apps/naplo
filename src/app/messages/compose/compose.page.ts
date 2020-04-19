@@ -27,8 +27,8 @@ import { AddresseeModalPage } from "../addressee-modal/addressee-modal.page";
 export class ComposePage implements IDirty {
     public text: string;
     public subject: string;
-    public addresseeList: AddresseeListItem[];
-    public attachmentList: MessageAttachmentToSend[];
+    public addresseeList: AddresseeListItem[] = [];
+    public attachmentList: MessageAttachmentToSend[] = [];
     public allowNavigationTo = ["/messages/addressee-selector", "/messages/list-addressees"];
     public isMessageSent = false;
 
@@ -44,7 +44,7 @@ export class ComposePage implements IDirty {
         private loadingCtrl: LoadingController,
         private modalController: ModalController,
         private translator: TranslateService,
-        public eugy: KretaEUgyService,
+        private eugy: KretaEUgyService,
         private config: ConfigService,
         private firebase: FirebaseX,
         private errorHelper: ErrorHelper
@@ -59,72 +59,58 @@ export class ComposePage implements IDirty {
             .pipe(takeUntil(this.unsubscribe$))
             .subscribe({
                 next: state => {
-                    if (state.replyToMsg) {
-                        // REPLY ----- use the queryParam replyDataKey and it should point to the previous message
-                        let prevMsg: Message = state.replyToMsg;
+                    if (state.replyToMsg || state.forwardedMsg) {
+                        let prevMsg: Message = state.replyToMsg
+                            ? state.replyToMsg
+                            : state.forwardedMsg;
 
-                        this.prevMsgId = prevMsg.uzenet.azonosito;
                         this.prevMsgText =
                             "<br><br>--------------------<br>" +
-                            `${this.translator.instant("pages.new-message.fromName")}: ${
+                            `${this.translator.instant("messages.compose.from")}: ${
                                 prevMsg.uzenet.feladoNev
                             } (${prevMsg.uzenet.feladoTitulus})<br>` +
-                            `${this.translator.instant("pages.new-message.sentAtName")}: ${new Date(
+                            `${this.translator.instant("messages.compose.sent-at")}: ${new Date(
                                 prevMsg.uzenet.kuldesDatum
                             ).toLocaleString(this.config.locale, {
                                 //@ts-ignore
                                 dateStyle: "short",
                                 timeStyle: "short",
                             })}<br>` +
-                            `${this.translator.instant("pages.new-message.subjectName")}: ${
+                            `${this.translator.instant("messages.compose.label-subject")}: ${
                                 prevMsg.uzenet.targy
-                            }<br>` +
+                            }<br><br>` +
                             prevMsg.uzenet.szoveg;
 
-                        this.subject =
-                            `${this.translator.instant("pages.new-message.replyName")}: ` +
-                            prevMsg.uzenet.targy;
+                        if (state.replyToMsg) {
+                            this.prevMsgId = prevMsg.uzenet.azonosito;
+                            this.subject =
+                                `${this.translator.instant("messages.compose.reply-prefix")}: ` +
+                                prevMsg.uzenet.targy;
 
-                        this.addresseeList.push({
-                            isAlairo: null,
-                            kretaAzonosito: null,
-                            nev: prevMsg.uzenet.feladoNev,
-                            titulus: null,
-                            isAdded: null,
-                            oktatasiAzonosito: null,
-                            tipus: null,
-                        });
-                    } else if (state.forwardedMsg) {
-                        // FORWARD ----- use the queryParam forwardDataKey and it should point to the previous message
-                        let prevMsg: Message = state.forwardedMsg;
-
-                        this.prevMsgText =
-                            "<br><br>--------------------<br>" +
-                            `${this.translator.instant("pages.new-message.fromName")}: ${
-                                prevMsg.uzenet.feladoNev
-                            } (${prevMsg.uzenet.feladoTitulus})<br>` +
-                            `${this.translator.instant("pages.new-message.sentAtName")}: ${new Date(
-                                prevMsg.uzenet.kuldesDatum
-                            ).toLocaleString(this.config.locale, {
-                                //@ts-ignore
-                                dateStyle: "short",
-                                timeStyle: "short",
-                            })}<br>` +
-                            `${this.translator.instant("pages.new-message.subjectName")}: ${
-                                prevMsg.uzenet.targy
-                            }<br>` +
-                            prevMsg.uzenet.szoveg;
-
-                        this.subject = "Továbbítva: " + prevMsg.uzenet.targy;
-
-                        prevMsg.uzenet.csatolmanyok.forEach(a => {
-                            this.attachmentList.push({
-                                azonosito: a.azonosito,
-                                fajlNev: a.fajlNev,
-                                fajl: null,
-                                iktatoszam: null,
+                            this.addresseeList.push({
+                                isAlairo: null,
+                                kretaAzonosito: null,
+                                nev: prevMsg.uzenet.feladoNev,
+                                titulus: prevMsg.uzenet.feladoTitulus,
+                                isAdded: null,
+                                oktatasiAzonosito: null,
+                                tipus: null,
                             });
-                        });
+                        } else if (state.forwardedMsg) {
+                            let prevMsg: Message = state.forwardedMsg;
+                            this.subject =
+                                `${this.translator.instant("messages.compose.forward-prefix")}: ` +
+                                prevMsg.uzenet.targy;
+
+                            prevMsg.uzenet.csatolmanyok.forEach(a => {
+                                this.attachmentList.push({
+                                    azonosito: a.azonosito,
+                                    fajlNev: a.fajlNev,
+                                    fajl: null,
+                                    iktatoszam: null,
+                                });
+                            });
+                        }
                     }
                 },
             });
@@ -136,8 +122,6 @@ export class ComposePage implements IDirty {
     }
 
     public async selectAddressees() {
-        // this.router.navigateByUrl("messages/addressee-selector");
-        // MODAL open
         const modal = await this.modalController.create({
             component: AddresseeModalPage,
             componentProps: { selectedAddresseeList: this.addresseeList },
@@ -146,7 +130,6 @@ export class ComposePage implements IDirty {
         await modal.present();
         const { data } = await modal.onWillDismiss();
         if (data && data.addresseeList) {
-            console.log("addressee list", data.addresseeList);
             this.addresseeList = data.addresseeList;
         }
     }
@@ -195,8 +178,6 @@ export class ComposePage implements IDirty {
                     });
                 });
 
-                console.debug(addressees);
-
                 const sendResult = await this.eugy.sendNewMessage(
                     addressees,
                     this.subject,
@@ -233,38 +214,32 @@ export class ComposePage implements IDirty {
             if (newAttachment != null) {
                 this.attachmentList.push(newAttachment);
             }
-        } catch (error) {
-            throw error;
         } finally {
             this.loadingInProgress = false;
         }
     }
 
     public async deleteAttachment(a: MessageAttachmentToSend) {
-        if (a.fajl == null) {
-            //the attachment came from the message that was forwarded, it isn't in the temporary storage, we don't need to delete it from there
-            for (let i = 0; i < this.attachmentList.length; i++) {
-                if (this.attachmentList[i].azonosito == a.azonosito) {
-                    this.attachmentList.splice(i, 1);
-                }
-            }
+        if (!a.fajl) {
+            // the attachment came from the message that was forwarded,
+            // it isn't in the temporary storage, we don't need to delete it from there
+
+            this.attachmentList.splice(
+                this.attachmentList.findIndex(x => x.azonosito == a.azonosito),
+                1
+            );
         } else {
             this.loadingInProgress = true;
+
             try {
                 await this.eugy.removeAttachment(a.fajl.ideiglenesFajlAzonosito);
-                for (let i = 0; i < this.attachmentList.length; i++) {
-                    if (
-                        this.attachmentList[i].fajl.ideiglenesFajlAzonosito ==
-                        a.fajl.ideiglenesFajlAzonosito
-                    ) {
-                        this.attachmentList.splice(
-                            this.attachmentList.indexOf(this.attachmentList[i]),
-                            1
-                        );
-                    }
-                }
-            } catch (error) {
-                throw error;
+
+                this.attachmentList.splice(
+                    this.attachmentList.findIndex(
+                        x => x.fajl.ideiglenesFajlAzonosito == a.fajl.ideiglenesFajlAzonosito
+                    ),
+                    1
+                );
             } finally {
                 this.loadingInProgress = false;
             }

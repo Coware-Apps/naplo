@@ -123,19 +123,40 @@
             "header": "Messaging is disabled in your institution",
             "message": "Please contact your school's KRETA administrator, if you'd like to use it"
         },
-        "tab": {
-            "inbox": "Inbox",
-            "outbox": "Sent",
-            "deleted": "Trash"
+        "folder": {
+            "tab": {
+                "inbox": "Inbox",
+                "outbox": "Sent",
+                "deleted": "Trash"
+            },
+            "title": {
+                "inbox": "Incoming messages",
+                "outbox": "Sent messages",
+                "deleted": "Deleted messages"
+            }
         },
-        "inbox": {
-            "title": "Inbox"
+        "compose": {
+            "title": "New message",
+            "label-to": "To",
+            "label-subject": "Subject",
+            "reply-prefix": "Reply",
+            "forward-prefix": "Fwd",
+            "from": "From",
+            "sent-at": "Sent",
+            "message-placeholder": "Type your message here...",
+            "all-fields-required": "Please fill all fields!",
+            "sending-message": "Sending message...",
+            "message-sent": "Message sent"
         },
-        "outbox": {
-            "title": "Sent messages"
-        },
-        "deleted": {
-            "title": "Trash"
+        "addressee-modal": {
+            "type-select-placeholder": "Select category...",
+            "search-placeholder": "Search users...",
+            "classes": "Classes",
+            "groups": "Groups",
+            "list-empty": "The list is empty",
+            "choose-subtype": "Please select a class or group!",
+            "no-matching-addressee": "No users matching the given criteria in the system.",
+            "num-selected": "{{value}} selected recipients"
         }
     },
     "settings": {

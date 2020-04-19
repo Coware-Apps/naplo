@@ -32,18 +32,21 @@
     </ion-fab>
     <ion-list>
         <div class="ion-padding-horizontal">
-            <!-- <ion-label position="floating" translate="messages.compose.label-to"></ion-label>
-            <ion-input [value]="getAddresseeString()" type="text" readonly> </ion-input> -->
-            <ion-label
-                position="floating"
-                translate="messages.compose.label-to"
-                style="margin-right: 25px;"
-            ></ion-label>
+            <ion-label translate="messages.compose.label-to" class="recipient-label"></ion-label>
             <ion-chip outline="true" *ngFor="let a of addresseeList">
                 <ion-label>{{ getName(a) }}</ion-label>
-                <ion-icon name="close-circle" (click)="removeAddressee(a)"></ion-icon>
+                <ion-icon
+                    name="close-circle"
+                    (click)="removeAddressee(a)"
+                    *ngIf="!prevMsgId"
+                ></ion-icon>
             </ion-chip>
-            <ion-chip color="primary" outline="true" (click)="selectAddressees()">
+            <ion-chip
+                color="primary"
+                outline="true"
+                (click)="selectAddressees()"
+                *ngIf="!prevMsgId"
+            >
                 <ion-icon name="add-circle"></ion-icon>
                 <ion-label>Hozzáadás</ion-label>
             </ion-chip>
@@ -62,17 +65,19 @@
         >
         </ion-textarea>
         <div
-            *ngIf="prevMsgText != null"
-            class="message-div selectableText"
+            *ngIf="prevMsgText"
+            class="prev-message ion-margin-horizontal"
             [innerHTML]="prevMsgText"
         ></div>
     </ion-list>
-    <ion-item *ngFor="let a of attachmentList">
-        <ion-label>{{a.fajlNev}}</ion-label>
-        <ion-buttons slot="end">
-            <ion-button (click)="deleteAttachment(a)">
-                <ion-icon slot="icon-only" name="trash"></ion-icon>
-            </ion-button>
-        </ion-buttons>
-    </ion-item>
+
+    <div class="attachment-container ion-margin">
+        <ion-chip *ngFor="let f of attachmentList">
+            <ion-icon name="document-attach-outline"></ion-icon>
+            <ion-label>
+                {{f.fajlNev}}
+            </ion-label>
+            <ion-icon name="close-circle" (click)="deleteAttachment(f)"></ion-icon>
+        </ion-chip>
+    </div>
 </ion-content>

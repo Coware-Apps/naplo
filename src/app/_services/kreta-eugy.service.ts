@@ -523,10 +523,12 @@ export class KretaEUgyService {
      * Removes an attachment from the temporary attachment storage. Used for drafting messages.
      * @param attachmentId The id of the attachment to remove
      */
-    public removeAttachment(attachmentId: string): Observable<any> {
-        return this.data.deleteUrl<any>(
-            this.host + this.endpoints.temporaryAttachmentStorage + `/${attachmentId}`
-        );
+    public removeAttachment(attachmentId: string): Promise<any> {
+        return this.data
+            .deleteUrl<any>(
+                this.host + this.endpoints.temporaryAttachmentStorage + `/${attachmentId}`
+            )
+            .toPromise();
     }
 
     /**

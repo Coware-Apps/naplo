@@ -139,13 +139,17 @@
             "title": "Új üzenet",
             "label-to": "Címzett",
             "label-subject": "Tárgy",
+            "reply-prefix": "Válasz",
+            "forward-prefix": "Továbbítva",
+            "from": "Feladó",
+            "sent-at": "Elküldve",
             "message-placeholder": "Ide írd az üzeneted...",
             "all-fields-required": "Minden mező kitöltése kötelező",
             "sending-message": "Az üzenet elküldése...",
             "message-sent": "Az üzenet elküldve"
         },
         "addressee-modal": {
-            "type-select-placeholder": "Válasszon kategóriát...",
+            "type-select-placeholder": "Válassz kategóriát...",
             "search-placeholder": "Címzettek keresése...",
             "classes": "Osztályok",
             "groups": "Csoportok",
