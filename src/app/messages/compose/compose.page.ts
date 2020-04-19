@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectorRef } from "@angular/core";
 import {
     AddresseeListItem,
     instanceOfAddresseeListItem,
@@ -11,13 +11,18 @@ import {
 import { Subject } from "rxjs";
 import { Router, ActivatedRoute } from "@angular/router";
 import { KretaEUgyService, ConfigService } from "src/app/_services";
-import { LoadingController, ModalController } from "@ionic/angular";
+import { LoadingController, ModalController, Platform } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { IDirty } from "src/app/_models";
 import { FirebaseX } from "@ionic-native/firebase-x/ngx";
 import { map, takeUntil } from "rxjs/operators";
 import { ErrorHelper } from "src/app/_helpers";
 import { AddresseeModalPage } from "../addressee-modal/addressee-modal.page";
+import { Camera, CameraOptions } from "@ionic-native/camera/ngx";
+import { FileChooser } from "@ionic-native/file-chooser/ngx";
+import { IOSFilePicker } from "@ionic-native/file-picker/ngx";
+import { FilePath } from "@ionic-native/file-path/ngx";
+import { KretaEUgyMessageAttachmentException } from "src/app/_exceptions";
 
 @Component({
     selector: "app-compose",
@@ -33,6 +38,7 @@ export class ComposePage implements IDirty {
     public isMessageSent = false;
 
     public loadingInProgress: boolean = false;
+    public currentlyUploading: MessageAttachmentToSend;
     private unsubscribe$: Subject<void>;
 
     //replies and forwarding
@@ -47,7 +53,13 @@ export class ComposePage implements IDirty {
         private eugy: KretaEUgyService,
         private config: ConfigService,
         private firebase: FirebaseX,
-        private errorHelper: ErrorHelper
+        private errorHelper: ErrorHelper,
+        private platform: Platform,
+        private camera: Camera,
+        private androidChooser: FileChooser,
+        private iosChooser: IOSFilePicker,
+        private filePath: FilePath,
+        private changeDetector: ChangeDetectorRef
     ) {}
 
     public ionViewWillEnter() {
@@ -208,12 +220,60 @@ export class ComposePage implements IDirty {
     }
 
     public async addAttachment(using: "camera" | "gallery" | "file") {
-        this.loadingInProgress = true;
+        const ios = this.platform.is("ios");
+        let filePath: string;
+        let fileName: string;
+
         try {
-            let newAttachment = await this.eugy.addAttachment(using);
-            if (newAttachment != null) {
-                this.attachmentList.push(newAttachment);
+            if (using == "file") {
+                if (ios) {
+                    filePath = "file://" + (await this.iosChooser.pickFile());
+                } else {
+                    filePath = await this.androidChooser.open();
+                }
+            } else {
+                const opts: CameraOptions = {
+                    quality: 80,
+                    destinationType: ios
+                        ? this.camera.DestinationType.FILE_URI
+                        : this.camera.DestinationType.NATIVE_URI,
+                    sourceType:
+                        using == "camera"
+                            ? this.camera.PictureSourceType.CAMERA
+                            : this.camera.PictureSourceType.PHOTOLIBRARY,
+                    encodingType: this.camera.EncodingType.JPEG,
+                    saveToPhotoAlbum: false,
+                    allowEdit: false,
+                };
+
+                filePath = await this.camera.getPicture(opts);
             }
+
+            if (!ios) filePath = await this.filePath.resolveNativePath(filePath);
+            fileName = filePath.substr(filePath.lastIndexOf("/") + 1);
+        } catch (error) {
+            if (error == "User canceled." && error == "No Image Selected") {
+                console.log("Aborting upload, no file/image selected");
+            }
+
+            throw new KretaEUgyMessageAttachmentException(error, filePath);
+        }
+
+        this.loadingInProgress = true;
+        this.currentlyUploading = { fajlNev: fileName, fajl: null, uploadProgressPercent: 0 };
+        try {
+            let newAttachment = await this.eugy.addAttachment(filePath, event => {
+                if (event.lengthComputable) {
+                    this.currentlyUploading.uploadProgressPercent = event.loaded / event.total;
+                    this.changeDetector.detectChanges();
+                }
+            });
+
+            if (newAttachment) this.attachmentList.push(newAttachment);
+            this.currentlyUploading = undefined;
+        } catch (error) {
+            this.currentlyUploading.isFailedUpload = true;
+            throw error;
         } finally {
             this.loadingInProgress = false;
         }
@@ -244,5 +304,9 @@ export class ComposePage implements IDirty {
                 this.loadingInProgress = false;
             }
         }
+    }
+
+    public resetCurrentlyUploading() {
+        this.currentlyUploading = undefined;
     }
 }

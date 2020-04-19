@@ -20,11 +20,19 @@ import {
     KretaEUgyInvalidPasswordException,
     KretaEUgyNotLoggedInException,
     KretaEUgyException,
+    KretaEUgyMessageAttachmentException,
 } from "../_exceptions";
 
 import { DataService } from "./data.service";
 import { KretaService } from "./kreta.service";
+import { FirebaseService } from "./firebase.service";
+
 import { File, FileEntry } from "@ionic-native/file/ngx";
+import {
+    FileTransfer,
+    FileUploadOptions,
+    FileTransferObject,
+} from "@ionic-native/file-transfer/ngx";
 
 @Injectable({
     providedIn: "root",
@@ -69,7 +77,13 @@ export class KretaEUgyService {
         return this.kreta.currentUser;
     }
 
-    constructor(private data: DataService, private kreta: KretaService, private file: File) {}
+    constructor(
+        private data: DataService,
+        private kreta: KretaService,
+        private file: File,
+        private fileTransfer: FileTransfer,
+        private firebase: FirebaseService
+    ) {}
 
     /**
      * Gets a valid access_token from storage or from the IDP
@@ -434,89 +448,87 @@ export class KretaEUgyService {
         );
     }
 
-    // const fileBlob = new Promise<Blob>((resolve, reject) => {
-    //     fileEntry.file(file => {
-    //         const reader = new FileReader();
-    //         reader.onload = () => {
-    //             const imgBlob = new Blob([reader.result], {
-    //                 type: file.type,
-    //             });
-
-    //             resolve(imgBlob);
-    //         };
-
-    //         reader.onerror = reject;
-
-    //         reader.readAsArrayBuffer(file);
-    //     });
-    // });
-
-    // /**
-    //  * Add an attachment to the temporary attachment storage. Used to draft messages WIP
-    //  * @param tokens `Token` used for authentication
-    //  * @returns Promise that resolves to a string, that is the id of the file in the temporary storage
-    //  */
+    /**
+     * Add an attachment to the temporary attachment storage.
+     * @param filePath The device native file path
+     * @returns Promise
+     */
     public async addAttachment(
-        using: "camera" | "gallery" | "file"
+        filePath: string,
+        onProgressCallback?: (event: ProgressEvent) => any
     ): Promise<MessageAttachmentToSend> {
-        return;
-        // let uri = this.host + this.endpoints.temporaryAttachmentStorage;
-        // let filePath, fileName;
-        // const ios = this.platform.is("ios");
+        if (!filePath)
+            throw new KretaEUgyMessageAttachmentException("Missing file path on upload", null);
 
-        // try {
-        //     if (using == "file") {
-        //         if (ios) {
-        //             filePath = "file://" + (await this._iosFilePicker.pickFile());
-        //             fileName = filePath.substr(filePath.lastIndexOf("/") + 1);
-        //         } else {
-        //             filePath = await this._fileChooser.open();
-        //             fileName = await this._filePath.resolveNativePath(filePath);
-        //             fileName = fileName.split("/")[fileName.split("/").length - 1];
-        //         }
-        //     } else {
-        //         let opts: CameraOptions = {
-        //             quality: 80,
-        //             destinationType: ios
-        //                 ? this._camera.DestinationType.FILE_URI
-        //                 : this._camera.DestinationType.NATIVE_URI,
-        //             sourceType:
-        //                 using == "camera"
-        //                     ? this._camera.PictureSourceType.CAMERA
-        //                     : this._camera.PictureSourceType.PHOTOLIBRARY,
-        //             encodingType: this._camera.EncodingType.JPEG,
-        //             saveToPhotoAlbum: false,
-        //             allowEdit: true,
+        const fileName = filePath.substr(filePath.lastIndexOf("/") + 1);
+
+        const fileTransfer: FileTransferObject = this.fileTransfer.create();
+        if (onProgressCallback) fileTransfer.onProgress(onProgressCallback);
+
+        let options: FileUploadOptions = {
+            fileKey: "fajl",
+            fileName: fileName,
+            headers: {
+                Authorization: "Bearer " + (await this.getValidAccessToken()),
+                "User-Agent": await this.firebase.getConfigValue("user_agent"),
+            },
+        };
+
+        let response;
+        try {
+            response = await fileTransfer.upload(
+                filePath,
+                this.host + this.endpoints.temporaryAttachmentStorage,
+                options
+            );
+        } catch (error) {
+            throw new KretaEUgyMessageAttachmentException(
+                error.exception,
+                fileName,
+                error.code,
+                error.http_status,
+                error.body
+            );
+        }
+
+        if (response && response.response.length != 36)
+            throw new KretaEUgyInvalidResponseException(response.response);
+
+        console.debug("upload response", response);
+
+        // const fileEntry = <FileEntry>await this.file.resolveLocalFilesystemUrl(filePath);
+        // const fileBlob = await new Promise<Blob>((resolve, reject) => {
+        //     fileEntry.file(file => {
+        //         const reader = new FileReader();
+        //         reader.onload = () => {
+        //             resolve(
+        //                 new Blob([reader.result], {
+        //                     type: file.type,
+        //                 })
+        //             );
         //         };
 
-        //         filePath = await this._camera.getPicture(opts);
-        //         if (!ios) filePath = await this._filePath.resolveNativePath(filePath);
-        //         fileName = filePath.split("/")[filePath.split("/").length - 1];
-        //     }
-        // } catch (error) {
-        //     if (error != "User canceled." && error != "No Image Selected") {
-        //         throw new AdministrationFileError(
-        //             "addAttachment()",
-        //             error,
-        //             fileName,
-        //             "addAttachment.title",
-        //             "addAttachment.text"
-        //         );
-        //     } else {
-        //         console.log("Aborting upload, no file/image selected");
-        //         return;
-        //     }
-        // }
+        //         reader.onerror = reject;
+        //         reader.readAsArrayBuffer(file);
+        //     });
+        // });
 
-        //     let response = await this._http.uploadFile(uri, params, headers, filePath, "fajl");
-        //     let returnVal: AttachmentToSend = {
-        //         fajlNev: fileName,
-        //         fajl: {
-        //             ideiglenesFajlAzonosito: response.data,
-        //         },
-        //         iktatoszam: null,
-        //     };
-        //     return returnVal;
+        // let formData: FormData = new FormData();
+        // formData.append("fajl", fileBlob, fileName);
+        // const response = await this.data.postFormData(
+        //     this.host + this.endpoints.temporaryAttachmentStorage,
+        //     formData
+        // );
+
+        let returnVal: MessageAttachmentToSend = {
+            fajlNev: fileName,
+            fajl: {
+                ideiglenesFajlAzonosito: response.response,
+            },
+            iktatoszam: null,
+        };
+
+        return returnVal;
     }
 
     /**
@@ -534,9 +546,14 @@ export class KretaEUgyService {
     /**
      * Gets an attachment from the final attachment storage. Use this for existing messages.
      * @param fileId The id of the file to get from the server
-     * @param fileName The name of the file to get form the server (used to save the file), with extension
+     * @param fileNameWithExt The name of the file to get form the server (used to save the file), with extension
+     * @param onProgressCallback Listener that takes a progress event.
      */
-    public async getAttachment(fileId: number, fileNameWithExt: string): Promise<FileEntry> {
+    public async getAttachment(
+        fileId: number,
+        fileNameWithExt: string,
+        onProgressCallback?: (event: ProgressEvent) => any
+    ): Promise<FileEntry> {
         const splitAt = (index: number) => (x: string) => [x.slice(0, index), x.slice(index)];
         const newName = splitAt(fileNameWithExt.lastIndexOf("."))(fileNameWithExt);
         newName[1] = newName[1].slice(1);
@@ -563,12 +580,40 @@ export class KretaEUgyService {
             if (fileEntry) return fileEntry;
         }
 
-        const file = await this.data.downloadBlobFromUrl(
-            `${this.host}${this.endpoints.finalAttachmentStorage}/${fileId}`
-        );
-        return this.file.writeFile(messageCacheDir.toInternalURL(), name, file, {
-            replace: true,
-        });
+        const fileTransfer: FileTransferObject = this.fileTransfer.create();
+        if (onProgressCallback) fileTransfer.onProgress(onProgressCallback);
+
+        let fileEntry: FileEntry;
+        try {
+            fileEntry = await fileTransfer.download(
+                `${this.host}${this.endpoints.finalAttachmentStorage}/${fileId}`,
+                messageCacheDir.toInternalURL() + name,
+                undefined,
+                {
+                    headers: {
+                        Authorization: "Bearer " + (await this.getValidAccessToken()),
+                        "User-Agent": await this.firebase.getConfigValue("user_agent"),
+                    },
+                }
+            );
+        } catch (error) {
+            throw new KretaEUgyMessageAttachmentException(
+                error.exception,
+                name,
+                error.code,
+                error.http_status,
+                error.body
+            );
+        }
+
+        return fileEntry;
+
+        // const file = await this.data.downloadBlobFromUrl(
+        //     `${this.host}${this.endpoints.finalAttachmentStorage}/${fileId}`
+        // );
+        // return this.file.writeFile(messageCacheDir.toInternalURL(), name, file, {
+        //     replace: true,
+        // });
     }
 
     public clearAttachmentCache(): Promise<void> {

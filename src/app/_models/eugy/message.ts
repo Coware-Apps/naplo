@@ -19,7 +19,8 @@ interface MessageCsatolmanyok {
     fajlNev: string;
 
     //not from the server
-    loading?: boolean;
+    downloadProgressPercent?: number;
+    isDownloadFailed?: boolean;
 }
 
 interface MessageUzenet {
@@ -87,4 +88,8 @@ export interface MessageAttachmentToSend {
      * Only used when forwarding a message (prevMsg.uzenet.csatolmanyok[0].azonosito)
      */
     azonosito?: number;
+
+    // not from the server
+    uploadProgressPercent?: number;
+    isFailedUpload?: boolean;
 }

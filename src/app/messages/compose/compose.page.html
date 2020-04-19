@@ -10,12 +10,16 @@
             </ion-button>
         </ion-buttons>
     </ion-toolbar>
-    <ion-progress-bar type="indeterminate" *ngIf="loadingInProgress"></ion-progress-bar>
+    <ion-progress-bar
+        type="indeterminate"
+        *ngIf="loadingInProgress"
+        color="warning"
+    ></ion-progress-bar>
 </ion-header>
 
 <ion-content>
     <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-        <ion-fab-button>
+        <ion-fab-button [disabled]="loadingInProgress">
             <ion-icon name="attach"></ion-icon>
         </ion-fab-button>
         <ion-fab-list side="top">
@@ -78,6 +82,34 @@
                 {{f.fajlNev}}
             </ion-label>
             <ion-icon name="close-circle" (click)="deleteAttachment(f)"></ion-icon>
+        </ion-chip>
+
+        <ion-chip
+            *ngIf="currentlyUploading"
+            outline
+            [color]="currentlyUploading.isFailedUpload ? 'danger' : 'primary'"
+        >
+            <ion-icon
+                [name]="currentlyUploading.isFailedUpload ? 'alert-circle' : 'document-attach-outline'"
+            ></ion-icon>
+
+            <ion-label>
+                {{currentlyUploading.fajlNev}}
+                <ng-container *ngIf="!currentlyUploading.isFailedUpload">
+                    , {{currentlyUploading.uploadProgressPercent * 100 | number:'1.0-0'}}%
+                </ng-container>
+            </ion-label>
+            <ion-progress-bar
+                type="determinate"
+                [value]="currentlyUploading.uploadProgressPercent"
+                color="primary"
+                *ngIf="!currentlyUploading.isFailedUpload"
+            ></ion-progress-bar>
+            <ion-icon
+                name="close-circle"
+                (click)="resetCurrentlyUploading()"
+                *ngIf="currentlyUploading.isFailedUpload"
+            ></ion-icon>
         </ion-chip>
     </div>
 </ion-content>

@@ -21,6 +21,7 @@ import { AppVersion } from "@ionic-native/app-version/ngx";
 import { Network } from "@ionic-native/network/ngx";
 import { FirebaseX } from "@ionic-native/firebase-x/ngx";
 import { File } from "@ionic-native/file/ngx";
+import { FileTransfer } from "@ionic-native/file-transfer/ngx";
 
 import { AppComponent } from "./app.component";
 import { AppRoutingModule } from "./app-routing.module";
@@ -79,6 +80,7 @@ export function createTranslateLoader(http: HttpClient) {
         Network,
         FirebaseX,
         File,
+        FileTransfer,
         interceptorProviders,
         {
             provide: APP_INITIALIZER,

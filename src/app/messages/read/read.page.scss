@@ -33,9 +33,9 @@
 .attachment-container {
     margin-top: 30px;
 
-    ion-spinner {
-        vertical-align: middle;
-        margin-left: 5px;
+    ion-chip ion-progress-bar {
+        position: absolute;
+        bottom: -2px;
     }
 }
 

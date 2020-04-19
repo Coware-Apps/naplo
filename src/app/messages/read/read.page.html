@@ -73,12 +73,18 @@
                 <ion-chip
                     (click)="getFile(f.azonosito, f.fajlNev)"
                     *ngFor="let f of message.uzenet.csatolmanyok"
+                    [color]="f.isDownloadFailed ? 'danger': ''"
                 >
-                    <ion-icon name="document-attach-outline"></ion-icon>
-                    <ion-label>
-                        {{f.fajlNev}}
-                        <ion-spinner *ngIf="f.loading" name="lines-small"></ion-spinner>
-                    </ion-label>
+                    <ion-icon
+                        [name]="f.isDownloadFailed ? 'alert-circle' : 'document-attach-outline'"
+                    ></ion-icon>
+                    <ion-label>{{f.fajlNev}}</ion-label>
+                    <ion-progress-bar
+                        type="determinate"
+                        [value]="f.downloadProgressPercent"
+                        color="primary"
+                        *ngIf="!f.isDownloadFailed && f.downloadProgressPercent"
+                    ></ion-progress-bar>
                 </ion-chip>
             </ng-container>
         </div>

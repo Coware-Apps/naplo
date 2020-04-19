@@ -45,15 +45,40 @@ export class KretaEUgyInvalidResponseException extends KretaEUgyException {
     }
 }
 
-export class KretaEUgyMessageAttachmentDownloadException extends KretaEUgyException {
+export class KretaEUgyMessageAttachmentException extends KretaEUgyException {
     protected filename;
+    protected code;
+    protected http_status;
+    protected response_body;
 
-    constructor(error, filename) {
-        super(error, "MessageAttachmentDownloadException");
+    constructor(
+        error,
+        filename: string,
+        code?: number,
+        http_status?: number,
+        response_body?: string
+    ) {
+        super(
+            error,
+            "MessageAttachmentException",
+            "exceptions.file-transfer.message",
+            "exceptions.file-transfer.title",
+            "code-download-outline"
+        );
         this.filename = filename;
+        this.code = code;
+        this.http_status = http_status;
+        this.response_body = response_body;
     }
 
-    toString() {
-        return `${this.name} (${this.filename}): ${this.message}`;
+    toString(): string {
+        return (
+            super.toString() +
+            `\n\n` +
+            `File name: ${this.filename} \n` +
+            `Code: ${this.code}\n` +
+            `HTTP status: ${this.http_status}\n` +
+            `Response body: ${this.response_body ? this.response_body.slice(0, 500) : null}\n`
+        );
     }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectorRef } from "@angular/core";
 import { Subject } from "rxjs";
 import { DataService, KretaEUgyService, ConfigService } from "src/app/_services";
 import { Router, ActivatedRoute } from "@angular/router";
@@ -39,7 +39,8 @@ export class ReadPage implements OnInit {
         private firebase: FirebaseX,
         private errorHelper: ErrorHelper,
         private alertController: AlertController,
-        private fileOpener: FileOpener
+        private fileOpener: FileOpener,
+        private changeDetector: ChangeDetectorRef
     ) {}
 
     ngOnInit() {
@@ -154,21 +155,27 @@ export class ReadPage implements OnInit {
 
     async getFile(id: number, fullName: string) {
         let attachment = this.message.uzenet.csatolmanyok.find(x => x.azonosito == id);
-        attachment.loading = true;
+        this.loadingInProgress = true;
 
         try {
-            const fileEntry = await this.eugy.getAttachment(id, fullName);
+            const fileEntry = await this.eugy.getAttachment(id, fullName, event => {
+                if (event.lengthComputable) {
+                    attachment.downloadProgressPercent = event.loaded / event.total;
+                    this.changeDetector.detectChanges();
+                }
+            });
 
             fileEntry.file(file => {
                 console.debug("DOWNLOADED FILE:", fileEntry, file.type);
                 this.fileOpener.showOpenWithDialog(fileEntry.nativeURL, file.type);
             });
+            attachment.isDownloadFailed = false;
         } catch (error) {
-            attachment.loading = false;
-
+            attachment.isDownloadFailed = true;
             throw error;
+        } finally {
+            attachment.downloadProgressPercent = undefined;
+            this.loadingInProgress = false;
         }
-
-        attachment.loading = false;
     }
 }

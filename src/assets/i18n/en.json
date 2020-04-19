@@ -192,6 +192,8 @@
         "network-exception.message": "A network error occurred. Please check your internet connection!",
         "server-side-error.message": "The server indicated, that it has an internal error. This usually occurs when the KRETA is under maintenance.",
         "logged-out.title": "KRETA logged you out",
-        "logged-out.message": "The server ended your login session. Please log in again."
+        "logged-out.message": "The server ended your login session. Please log in again.",
+        "file-transfer.title": "File transfer error",
+        "file-transfer.message": "An error occurred during the file transfer. KRETA is probably under maintenance."
     }
 }

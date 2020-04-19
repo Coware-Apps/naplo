@@ -20,3 +20,8 @@ ion-item-divider {
 .attachment-container {
     margin-top: 20px;
 }
+
+ion-chip ion-progress-bar {
+    position: absolute;
+    bottom: -2px;
+}
