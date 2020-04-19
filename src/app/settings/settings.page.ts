@@ -141,7 +141,11 @@ export class SettingsPage {
         loading.dismiss();
     }
 
-    logout() {
+    async logout() {
+        const loading = await this.loadingController.create({
+            message: this.translate.instant("settings.logging-out"),
+        });
+        await loading.present();
         this.kreta.logout();
     }
 }
