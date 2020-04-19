@@ -213,7 +213,7 @@ export class ComposePage implements IDirty {
             this.errorHelper.presentToast(this.translator.instant("messages.compose.message-sent"));
 
             this.isMessageSent = true;
-            this.router.navigateByUrl("messages");
+            this.router.navigateByUrl("messages/folder/inbox");
         } finally {
             loading.dismiss();
         }

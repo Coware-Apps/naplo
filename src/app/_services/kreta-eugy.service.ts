@@ -398,6 +398,7 @@ export class KretaEUgyService {
             csatolmanyok: attachmentList,
         };
 
+        this.data.removeItem(this.host + this.endpoints.outboxList).catch(() => null);
         return this.data.postUrl<any>(this.host + this.endpoints.newMessage, params).toPromise();
     }
 
@@ -423,6 +424,7 @@ export class KretaEUgyService {
             csatolmanyok: attachmentList,
         };
 
+        this.data.removeItem(this.host + this.endpoints.outboxList).catch(() => null);
         return this.data.postUrl<any>(this.host + this.endpoints.newMessage, params).toPromise();
     }
 
