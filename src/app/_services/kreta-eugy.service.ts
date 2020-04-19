@@ -504,32 +504,6 @@ export class KretaEUgyService {
         if (response && response.response.length != 36)
             throw new KretaEUgyInvalidResponseException(response.response);
 
-        console.debug("upload response", response);
-
-        // const fileEntry = <FileEntry>await this.file.resolveLocalFilesystemUrl(filePath);
-        // const fileBlob = await new Promise<Blob>((resolve, reject) => {
-        //     fileEntry.file(file => {
-        //         const reader = new FileReader();
-        //         reader.onload = () => {
-        //             resolve(
-        //                 new Blob([reader.result], {
-        //                     type: file.type,
-        //                 })
-        //             );
-        //         };
-
-        //         reader.onerror = reject;
-        //         reader.readAsArrayBuffer(file);
-        //     });
-        // });
-
-        // let formData: FormData = new FormData();
-        // formData.append("fajl", fileBlob, fileName);
-        // const response = await this.data.postFormData(
-        //     this.host + this.endpoints.temporaryAttachmentStorage,
-        //     formData
-        // );
-
         let returnVal: MessageAttachmentToSend = {
             fajlNev: fileName,
             fajl: {
@@ -617,13 +591,6 @@ export class KretaEUgyService {
         }
 
         return fileEntry;
-
-        // const file = await this.data.downloadBlobFromUrl(
-        //     `${this.host}${this.endpoints.finalAttachmentStorage}/${fileId}`
-        // );
-        // return this.file.writeFile(messageCacheDir.toInternalURL(), name, file, {
-        //     replace: true,
-        // });
     }
 
     public clearAttachmentCache(): Promise<void> {

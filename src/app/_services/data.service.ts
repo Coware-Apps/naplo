@@ -67,25 +67,6 @@ export class DataService {
         return this.http.post<T>(url, body, { params: params, headers: headers });
     }
 
-    public postFormData(url: string, formData: FormData): Promise<string> {
-        return this.http
-            .post(url, formData, {
-                headers: new HttpHeaders().set("Content-Type", "multipart/form-data"),
-                responseType: "text",
-            })
-            .toPromise();
-    }
-
-    public downloadBlobFromUrl(
-        url: string,
-        headers?: HttpHeaders,
-        params?: HttpParams
-    ): Promise<Blob> {
-        return this.http
-            .get(url, { responseType: "blob", headers: headers, params: params })
-            .toPromise();
-    }
-
     public deleteUrl<T>(url: string, headers?: HttpHeaders, params?: HttpParams): Observable<T> {
         return this.http.delete<T>(url, { params: params, headers: headers });
     }
