@@ -45,7 +45,7 @@ export class AddresseeModalPage implements OnInit, OnDestroy {
 
     get allSelected(): boolean {
         if (!this.filteredAddresseeList) return false;
-        return !this.filteredAddresseeList.filter(x => !x.isAdded);
+        return !this.filteredAddresseeList.find(x => !x.isAdded);
     }
     set allSelected(value: boolean) {
         this.filteredAddresseeList.map(x => {
