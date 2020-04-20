@@ -170,8 +170,8 @@ export class FolderPage {
         this.displayMessages(this.initNumberMessages);
     }
 
-    public toggleSearchbar(enabled: boolean = true) {
-        this.searchbarEnabled = enabled;
+    public toggleSearchbar(enabled?: boolean) {
+        this.searchbarEnabled = enabled || !this.searchbarEnabled;
 
         if (!enabled) {
             this.resetDisplay();

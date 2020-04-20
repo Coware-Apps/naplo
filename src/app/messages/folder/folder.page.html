@@ -62,7 +62,8 @@
             (ionChange)="onSearchChange($event)"
             (ionCancel)="toggleSearchbar(false)"
             [debounce]="250"
-            showCancelButton="250"
+            showCancelButton="focus"
+            [cancelButtonText]="'common.cancel'|translate"
         ></ion-searchbar>
     </ion-toolbar>
 
