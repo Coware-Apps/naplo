@@ -109,7 +109,13 @@ export class ConfigService {
             this.firebase.setAnalyticsCollectionEnabled(this.analytics);
         }
 
-        this.firebase.fetchConfig().then(() => this.firebase.activateFetchedConfig());
+        this.firebase
+            .fetchConfig()
+            .then(() =>
+                this.firebase
+                    .activateFetchedConfig()
+                    .catch(error => console.warn("Firebase remote config error", error))
+            );
     }
 
     public async applyTheme(theme?: string, setStatusbar: boolean = true) {
