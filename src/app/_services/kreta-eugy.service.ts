@@ -498,7 +498,7 @@ export class KretaEUgyService {
         let response;
         try {
             response = await fileTransfer.upload(
-                filePath,
+                encodeURI(filePath),
                 this.host + this.endpoints.temporaryAttachmentStorage,
                 options
             );
