@@ -15,7 +15,7 @@ import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { Location } from "@angular/common";
 import { Subject } from "rxjs";
-import { takeUntil, switchMap, tap } from "rxjs/operators";
+import { takeUntil, switchMap, tap, finalize } from "rxjs/operators";
 
 interface loadDataOptions {
     date: Date;
@@ -73,11 +73,9 @@ export class TimetablePage implements OnInit {
                     this.firebase.startTrace("timetable_day_load_time");
                     this.loadingInProgress = true;
                     return this.kreta.getOraLista(options.date, options.forceRefresh).pipe(
-                        tap({
-                            complete: () => {
-                                this.loadingInProgress = false;
-                                this.firebase.stopTrace("timetable_day_load_time");
-                            },
+                        finalize(() => {
+                            this.loadingInProgress = false;
+                            this.firebase.stopTrace("timetable_day_load_time");
                         })
                     );
                 }),
@@ -109,7 +107,7 @@ export class TimetablePage implements OnInit {
             .pipe(takeUntil(this.unsubscribe$))
             .subscribe({
                 next: x => {
-                    if (x === ConnectionStatus.Online) this.loadTimetable();
+                    if (x === ConnectionStatus.Online) this.loadTimetable(true, true);
                 },
             });
 
@@ -145,6 +143,11 @@ export class TimetablePage implements OnInit {
             this.pageState = PageState.Loading;
         }
 
+        // recovery after error (loadData$ completes on error)
+        if (this.loadData$.observers.length == 0) {
+            this.ionViewWillLeave();
+            this.ionViewWillEnter();
+        }
         this.loadData$.next({ date: this.date, forceRefresh: forceRefresh });
 
         if ($event) {

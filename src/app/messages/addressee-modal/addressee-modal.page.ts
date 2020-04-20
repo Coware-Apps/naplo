@@ -48,6 +48,8 @@ export class AddresseeModalPage implements OnInit, OnDestroy {
         return !this.filteredAddresseeList.find(x => !x.isAdded);
     }
     set allSelected(value: boolean) {
+        if (!this.filteredAddresseeList) return;
+
         this.filteredAddresseeList.map(x => {
             x.isAdded = value;
             this.checkboxChanged(x, value);
@@ -330,6 +332,8 @@ export class AddresseeModalPage implements OnInit, OnDestroy {
     }
 
     doFilter($event) {
+        if (!this.filteredAddresseeList) return;
+
         this.filteredAddresseeList = this.loadedAddresseeList.filter(x => {
             if ($event.target.value) {
                 return this.dicriticsHelper
@@ -345,7 +349,7 @@ export class AddresseeModalPage implements OnInit, OnDestroy {
     toggleSearchbar(enabled: boolean) {
         if (!enabled) {
             this.filter = null;
-            this.filteredAddresseeList = this.loadedAddresseeList;
+            if (this.loadedAddresseeList) this.filteredAddresseeList = this.loadedAddresseeList;
         } else {
             this.firebase.logEvent("messages_selector_searchbar_opened");
         }

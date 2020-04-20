@@ -102,6 +102,7 @@ export class FolderPage {
 
     public resetDisplay() {
         this.displayedMessages = [];
+        if (!this.messages) return;
         this.toBeDisplayed = [...this.messages];
         this.displayMessages(this.initNumberMessages);
     }
@@ -128,6 +129,7 @@ export class FolderPage {
             this.resetDisplay();
             return;
         }
+        if (!this.messages) return;
 
         this.toBeDisplayed = this.messages.filter(x => {
             const search = this.diacritics.removeDiacritics(event.detail.value).toLowerCase();

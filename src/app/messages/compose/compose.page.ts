@@ -10,7 +10,13 @@ import {
 } from "src/app/_models/eugy";
 import { Subject } from "rxjs";
 import { Router, ActivatedRoute } from "@angular/router";
-import { KretaEUgyService, ConfigService, FirebaseService } from "src/app/_services";
+import {
+    KretaEUgyService,
+    ConfigService,
+    FirebaseService,
+    NetworkStatusService,
+    ConnectionStatus,
+} from "src/app/_services";
 import { LoadingController, ModalController, Platform, MenuController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { IDirty } from "src/app/_models";
@@ -37,6 +43,7 @@ export class ComposePage implements IDirty {
     private _isDirty = false;
 
     public loadingInProgress: boolean = false;
+    public currentlyOffline: boolean = false;
     public currentlyUploading: MessageAttachmentToSend;
     private unsubscribe$: Subject<void>;
 
@@ -59,7 +66,8 @@ export class ComposePage implements IDirty {
         private iosChooser: IOSFilePicker,
         private filePath: FilePath,
         private changeDetector: ChangeDetectorRef,
-        private menuController: MenuController
+        private menuController: MenuController,
+        private networkStatus: NetworkStatusService
     ) {}
 
     public ionViewWillEnter() {
@@ -125,6 +133,15 @@ export class ComposePage implements IDirty {
                             });
                         }
                     }
+                },
+            });
+
+        this.networkStatus
+            .onNetworkChange()
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe({
+                next: status => {
+                    this.currentlyOffline = status === ConnectionStatus.Offline;
                 },
             });
     }

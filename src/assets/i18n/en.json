@@ -173,7 +173,8 @@
             "message-placeholder": "Type your message here...",
             "all-fields-required": "Please fill all fields!",
             "sending-message": "Sending message...",
-            "message-sent": "Message sent"
+            "message-sent": "Message sent",
+            "offline-warning": "The message cannot be sent without internet"
         },
         "addressee-modal": {
             "type-select-placeholder": "Select category...",

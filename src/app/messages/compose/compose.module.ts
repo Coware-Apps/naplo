@@ -13,6 +13,7 @@ import { Camera } from "@ionic-native/camera/ngx";
 import { FileChooser } from "@ionic-native/file-chooser/ngx";
 import { IOSFilePicker } from "@ionic-native/file-picker/ngx";
 import { FilePath } from "@ionic-native/file-path/ngx";
+import { ComponentsModule } from "src/app/_components/components.module";
 
 @NgModule({
     imports: [
@@ -22,6 +23,7 @@ import { FilePath } from "@ionic-native/file-path/ngx";
         ComposePageRoutingModule,
         TranslateModule,
         AddresseeModalPageModule,
+        ComponentsModule,
     ],
     declarations: [ComposePage],
     entryComponents: [AddresseeModalPage],

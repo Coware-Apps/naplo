@@ -173,7 +173,8 @@
             "message-placeholder": "Ide írd az üzeneted...",
             "all-fields-required": "Minden mező kitöltése kötelező",
             "sending-message": "Az üzenet elküldése...",
-            "message-sent": "Az üzenet elküldve"
+            "message-sent": "Az üzenet elküldve",
+            "offline-warning": "Az üzenet nem küldhető el amíg nincs internet"
         },
         "addressee-modal": {
             "type-select-placeholder": "Válassz kategóriát...",
