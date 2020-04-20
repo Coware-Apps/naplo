@@ -7,9 +7,14 @@
             [placeholder]="'institute-selector.filter'|translate"
             (ionChange)="doFilter($event)"
             [debounce]="250"
-            showCancelButton="250"
+            [showCancelButton]="platform.is('ios') ? 'never' : 'always'"
             (ionCancel)="dismiss()"
+            color="light"
         ></ion-searchbar>
+
+        <ion-buttons slot="end" *ngIf="platform.is('ios')">
+            <ion-button (click)="dismiss()" fill="clear" translate="common.close"></ion-button>
+        </ion-buttons>
     </ion-toolbar>
 </ion-header>
 
