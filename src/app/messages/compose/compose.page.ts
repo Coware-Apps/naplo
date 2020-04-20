@@ -11,7 +11,7 @@ import {
 import { Subject } from "rxjs";
 import { Router, ActivatedRoute } from "@angular/router";
 import { KretaEUgyService, ConfigService, FirebaseService } from "src/app/_services";
-import { LoadingController, ModalController, Platform } from "@ionic/angular";
+import { LoadingController, ModalController, Platform, MenuController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { IDirty } from "src/app/_models";
 import { map, takeUntil } from "rxjs/operators";
@@ -34,7 +34,7 @@ export class ComposePage implements IDirty {
     public addresseeList: AddresseeListItem[] = [];
     public attachmentList: MessageAttachmentToSend[] = [];
     public allowNavigationTo = ["/messages/addressee-selector", "/messages/list-addressees"];
-    public isMessageSent = false;
+    private _isDirty = false;
 
     public loadingInProgress: boolean = false;
     public currentlyUploading: MessageAttachmentToSend;
@@ -44,13 +44,13 @@ export class ComposePage implements IDirty {
     public prevMsgId: number;
     public prevMsgText: string = "";
     constructor(
+        public config: ConfigService,
         private router: Router,
         private route: ActivatedRoute,
         private loadingCtrl: LoadingController,
         private modalController: ModalController,
         private translator: TranslateService,
         private eugy: KretaEUgyService,
-        private config: ConfigService,
         private firebase: FirebaseService,
         private errorHelper: ErrorHelper,
         private platform: Platform,
@@ -58,12 +58,14 @@ export class ComposePage implements IDirty {
         private androidChooser: FileChooser,
         private iosChooser: IOSFilePicker,
         private filePath: FilePath,
-        private changeDetector: ChangeDetectorRef
+        private changeDetector: ChangeDetectorRef,
+        private menuController: MenuController
     ) {}
 
     public ionViewWillEnter() {
         this.unsubscribe$ = new Subject<void>();
         this.firebase.setScreenName("messages_compose");
+        this.menuController.swipeGesture(false);
 
         this.route.paramMap
             .pipe(map(() => window.history.state))
@@ -127,9 +129,20 @@ export class ComposePage implements IDirty {
             });
     }
 
+    public ionViewWillLeave() {
+        this.menuController.swipeGesture(true);
+        this.config.swipeGestureEnabled = true;
+        this.unsubscribe$.next();
+        this.unsubscribe$.complete();
+    }
+
     public isDirty() {
-        if (this.isMessageSent) return false;
-        return this.addresseeList.length > 0 || this.text != null || this.subject != null;
+        return this._isDirty;
+    }
+
+    public makeItDirty() {
+        this.config.swipeGestureEnabled = false;
+        this._isDirty = true;
     }
 
     public async selectAddressees() {
@@ -142,6 +155,7 @@ export class ComposePage implements IDirty {
         const { data } = await modal.onWillDismiss();
         if (data && data.addresseeList) {
             this.addresseeList = data.addresseeList;
+            if (data.addresseeList.length > 0) this._isDirty = true;
         }
     }
 
@@ -211,7 +225,6 @@ export class ComposePage implements IDirty {
 
             this.errorHelper.presentToast(this.translator.instant("messages.compose.message-sent"));
 
-            this.isMessageSent = true;
             this.router.navigateByUrl("messages/folder/inbox");
         } finally {
             loading.dismiss();

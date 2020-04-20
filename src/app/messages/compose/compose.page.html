@@ -1,7 +1,10 @@
 <ion-header>
     <ion-toolbar color="primary">
         <ion-buttons slot="start">
-            <ion-back-button [defaultHref]="'messages'" icon="close-outline"></ion-back-button>
+            <ion-back-button
+                defaultHref="messages"
+                [text]="config.getBackButtonText()"
+            ></ion-back-button>
         </ion-buttons>
         <ion-title translate="messages.compose.title"></ion-title>
         <ion-buttons slot="end">
@@ -58,7 +61,12 @@
         <ion-item-divider></ion-item-divider>
         <ion-item>
             <ion-label position="floating" translate="messages.compose.label-subject"></ion-label>
-            <ion-input required [(ngModel)]="subject" type="text"></ion-input>
+            <ion-input
+                required
+                [(ngModel)]="subject"
+                type="text"
+                (ionInput)="makeItDirty()"
+            ></ion-input>
         </ion-item>
         <ion-textarea
             required
@@ -66,6 +74,7 @@
             class="message-text ion-margin ion-no-padding"
             autoGrow="true"
             [(ngModel)]="text"
+            (ionInput)="makeItDirty()"
         >
         </ion-textarea>
         <div
