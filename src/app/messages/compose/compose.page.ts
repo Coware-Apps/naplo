@@ -264,8 +264,14 @@ export class ComposePage implements IDirty {
             if (!ios) filePath = await this.filePath.resolveNativePath(filePath);
             fileName = filePath.substr(filePath.lastIndexOf("/") + 1);
         } catch (error) {
-            if (error == "User canceled." && error == "No Image Selected") {
-                console.log("Aborting upload, no file/image selected");
+            if (
+                typeof error === "string" &&
+                (error.includes("canceled") ||
+                    error == "No Image Selected" ||
+                    error == "No camera available")
+            ) {
+                console.log("Aborting upload, no file/image selected.", error);
+                return;
             }
 
             throw new KretaEUgyMessageAttachmentException(error, filePath);
