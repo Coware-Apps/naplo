@@ -223,8 +223,8 @@ export class ComposePage implements IDirty {
                 this.firebase.logEvent("messages_sent_reply");
             }
 
+            this._isDirty = false;
             this.errorHelper.presentToast(this.translator.instant("messages.compose.message-sent"));
-
             this.router.navigateByUrl("messages/folder/inbox");
         } finally {
             loading.dismiss();
