@@ -174,7 +174,10 @@
             "all-fields-required": "Please fill all fields!",
             "sending-message": "Sending message...",
             "message-sent": "Message sent",
-            "offline-warning": "The message cannot be sent without internet"
+            "offline-warning": "The message cannot be sent without internet",
+            "attachment.file": "File",
+            "attachment.gallery": "Gallery",
+            "attachment.camera": "Camera"
         },
         "addressee-modal": {
             "type-select-placeholder": "Select category...",

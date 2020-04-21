@@ -6,14 +6,15 @@ import { TranslateModule } from "@ngx-translate/core";
 
 import { ComposePageRoutingModule } from "./compose-routing.module";
 import { ComposePage } from "./compose.page";
-import { AddresseeModalPage } from "../addressee-modal/addressee-modal.page";
-import { AddresseeModalPageModule } from "../addressee-modal/addressee-modal.module";
+import { AddresseeModalPage } from "./addressee-modal/addressee-modal.page";
+import { AddresseeModalPageModule } from "./addressee-modal/addressee-modal.module";
 
 import { Camera } from "@ionic-native/camera/ngx";
 import { FileChooser } from "@ionic-native/file-chooser/ngx";
 import { IOSFilePicker } from "@ionic-native/file-picker/ngx";
 import { FilePath } from "@ionic-native/file-path/ngx";
 import { ComponentsModule } from "src/app/_components/components.module";
+import { AttachmentOptionsComponent } from "./attachment-options/attachment-options.component";
 
 @NgModule({
     imports: [
@@ -25,8 +26,8 @@ import { ComponentsModule } from "src/app/_components/components.module";
         AddresseeModalPageModule,
         ComponentsModule,
     ],
-    declarations: [ComposePage],
-    entryComponents: [AddresseeModalPage],
+    declarations: [ComposePage, AttachmentOptionsComponent],
+    entryComponents: [AddresseeModalPage, AttachmentOptionsComponent],
     providers: [Camera, FileChooser, IOSFilePicker, FilePath],
 })
 export class ComposePageModule {}

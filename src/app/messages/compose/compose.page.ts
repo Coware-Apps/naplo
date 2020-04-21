@@ -17,17 +17,24 @@ import {
     NetworkStatusService,
     ConnectionStatus,
 } from "src/app/_services";
-import { LoadingController, ModalController, Platform, MenuController } from "@ionic/angular";
+import {
+    LoadingController,
+    ModalController,
+    Platform,
+    MenuController,
+    PopoverController,
+} from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { IDirty } from "src/app/_models";
 import { map, takeUntil } from "rxjs/operators";
 import { ErrorHelper } from "src/app/_helpers";
-import { AddresseeModalPage } from "../addressee-modal/addressee-modal.page";
+import { AddresseeModalPage } from "./addressee-modal/addressee-modal.page";
 import { Camera, CameraOptions } from "@ionic-native/camera/ngx";
 import { FileChooser } from "@ionic-native/file-chooser/ngx";
 import { IOSFilePicker } from "@ionic-native/file-picker/ngx";
 import { FilePath } from "@ionic-native/file-path/ngx";
 import { KretaEUgyMessageAttachmentException } from "src/app/_exceptions";
+import { AttachmentOptionsComponent } from "./attachment-options/attachment-options.component";
 
 @Component({
     selector: "app-compose",
@@ -67,7 +74,8 @@ export class ComposePage implements IDirty {
         private filePath: FilePath,
         private changeDetector: ChangeDetectorRef,
         private menuController: MenuController,
-        private networkStatus: NetworkStatusService
+        private networkStatus: NetworkStatusService,
+        private popoverController: PopoverController
     ) {}
 
     public ionViewWillEnter() {
@@ -246,6 +254,19 @@ export class ComposePage implements IDirty {
         } finally {
             loading.dismiss();
         }
+    }
+
+    public async chooseAttachmentSource($event: any) {
+        const popover = await this.popoverController.create({
+            component: AttachmentOptionsComponent,
+            event: $event,
+        });
+
+        await popover.present();
+        const { data } = await popover.onWillDismiss();
+        if (!data || !data.result) return;
+
+        this.addAttachment(data.result);
     }
 
     public async addAttachment(using: "camera" | "gallery" | "file") {

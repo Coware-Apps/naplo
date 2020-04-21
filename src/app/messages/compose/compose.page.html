@@ -8,8 +8,14 @@
         </ion-buttons>
         <ion-title translate="messages.compose.title"></ion-title>
         <ion-buttons slot="end">
+            <ion-button
+                (click)="chooseAttachmentSource($event)"
+                [disabled]="loadingInProgress || currentlyOffline"
+            >
+                <ion-icon slot="icon-only" name="attach"></ion-icon>
+            </ion-button>
             <ion-button (click)="sendMsg()" [disabled]="loadingInProgress || currentlyOffline">
-                <ion-icon slot="icon-only" name="send-sharp"></ion-icon>
+                <ion-icon slot="icon-only" name="send-outline"></ion-icon>
             </ion-button>
         </ion-buttons>
     </ion-toolbar>
@@ -25,22 +31,6 @@
 </ion-header>
 
 <ion-content>
-    <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-        <ion-fab-button [disabled]="loadingInProgress || currentlyOffline">
-            <ion-icon name="attach"></ion-icon>
-        </ion-fab-button>
-        <ion-fab-list side="top">
-            <ion-fab-button (click)="addAttachment('camera')">
-                <ion-icon name="camera"></ion-icon>
-            </ion-fab-button>
-            <ion-fab-button (click)="addAttachment('gallery')">
-                <ion-icon name="image"></ion-icon>
-            </ion-fab-button>
-            <ion-fab-button (click)="addAttachment('file')">
-                <ion-icon name="folder"></ion-icon>
-            </ion-fab-button>
-        </ion-fab-list>
-    </ion-fab>
     <ion-list>
         <div class="ion-padding-horizontal">
             <ion-label translate="messages.compose.label-to" class="recipient-label"></ion-label>
