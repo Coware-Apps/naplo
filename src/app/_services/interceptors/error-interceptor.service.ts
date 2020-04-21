@@ -46,7 +46,7 @@ export class ErrorInterceptorService implements HttpInterceptor {
                 }
 
                 // HTTP 401: comes from API endpoints if wrong access_token is provided
-                // TODO: try to refresh it before failing
+                // at this point we already retried the request with a new token
                 if (error.status == 401)
                     return throwError(new NaploHttpUnauthorizedException(req, error));
 

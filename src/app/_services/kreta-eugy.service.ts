@@ -95,17 +95,20 @@ export class KretaEUgyService {
      * Gets a valid access_token from storage or from the IDP
      * @returns A promise that resolves to a valid access_token
      */
-    public async getValidAccessToken(): Promise<string> {
-        // If there's a valid access token in the cache, we use that
-        const access_token = await this.data.getItem<string>("eugy_access_token").catch(() => {
-            console.debug("[EUGY] Nincs valid AT");
-            return null;
-        });
+    public async getValidAccessToken(forceRefresh: boolean = false): Promise<string> {
+        if (!forceRefresh) {
+            // If there's a valid access token in the cache, we use that
+            const access_token = await this.data.getItem<string>("eugy_access_token").catch(() => {
+                console.debug("[EUGY] Nincs valid AT");
+                return null;
+            });
 
-        if (access_token) {
-            this._currentEugyUser = this.tokenHelper.decodeToken(access_token);
-            return access_token;
+            if (access_token) {
+                this._currentEugyUser = this.tokenHelper.decodeToken(access_token);
+                return access_token;
+            }
         }
+
         // If there isn't or it's expried, we refresh it
         const refresh_token = await this.data.getItem<string>("eugy_refresh_token").catch(() => {
             throw new KretaEUgyNotLoggedInException();

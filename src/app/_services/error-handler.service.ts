@@ -40,7 +40,7 @@ export class ErrorHandlerService extends ErrorHandler {
 
         // 400 - KretaInvalidRefreshTokenException comes from the IDP on wrong refresh token
         // 401 - NaploHttpUnauthorizedException comes from API endpoints with wrong access_token
-        // TODO: try to refresh token in error-interceptor on 401
+        // at this point we already retried the request with a new token
         if (
             error instanceof KretaInvalidRefreshTokenException ||
             error instanceof NaploHttpUnauthorizedException

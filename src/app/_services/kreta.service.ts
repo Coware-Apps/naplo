@@ -20,7 +20,6 @@ import {
 import { JwtDecodeHelper } from "../_helpers";
 import {
     KretaMissingRoleException,
-    KretaInvalidPasswordException,
     KretaInvalidResponseException,
     KretaException,
 } from "../_exceptions";
@@ -68,14 +67,16 @@ export class KretaService {
         }
     }
 
-    public async getValidAccessToken(): Promise<string> {
-        // ha van érvényes access_token elmentve, visszaadjuk azt
-        const access_token = await this.data.getItem<string>("access_token").catch(() => {
-            console.debug("[LOGIN] Nincs valid AT");
-            return null;
-        });
+    public async getValidAccessToken(forceRefresh: boolean = false): Promise<string> {
+        if (!forceRefresh) {
+            // ha van érvényes access_token elmentve, visszaadjuk azt
+            const access_token = await this.data.getItem<string>("access_token").catch(() => {
+                console.debug("[LOGIN] Nincs valid AT");
+                return null;
+            });
 
-        if (access_token) return access_token;
+            if (access_token) return access_token;
+        }
 
         //ha nincs vagy lejárt az access_token, de van refresh_token, megújítunk azzal
         const refresh_token = await this.data.getItem<string>("refresh_token").catch(() => {
