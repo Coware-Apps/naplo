@@ -3,7 +3,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { FirebaseX } from "@ionic-native/firebase-x/ngx";
 import * as StackTrace from "stacktrace-js";
 
-import { NaploHttpUnauthorizedException } from "../_exceptions";
+import { NaploHttpUnauthorizedException, KretaInvalidRefreshTokenException } from "../_exceptions";
 import { ErrorHelper } from "../_helpers";
 import { ConfigService } from "./config.service";
 import { KretaService } from "./kreta.service";
@@ -36,10 +36,15 @@ export class ErrorHandlerService extends ErrorHandler {
         }
 
         this.firebase.logError(this.appendAuthDebugToError(error), stackframes);
-        console.log("SENT TO CRASHLYTICS", this.appendAuthDebugToError(error), stackframes);
+        console.log("SENT TO CRASHLYTICS:\n", this.appendAuthDebugToError(error), stackframes);
 
-        // 401 unauthorized logout
-        if (error instanceof NaploHttpUnauthorizedException) {
+        // 400 - KretaInvalidRefreshTokenException comes from the IDP on wrong refresh token
+        // 401 - NaploHttpUnauthorizedException comes from API endpoints with wrong access_token
+        // TODO: try to refresh token in error-interceptor on 401
+        if (
+            error instanceof KretaInvalidRefreshTokenException ||
+            error instanceof NaploHttpUnauthorizedException
+        ) {
             this.errorHelper.presentAlertFromError(error, () => {
                 this.kreta.logout();
             });

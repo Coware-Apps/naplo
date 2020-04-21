@@ -13,12 +13,6 @@ export class KretaEUgyException extends NaploException {
     }
 }
 
-export class KretaEUgyInvalidPasswordException extends KretaEUgyException {
-    constructor() {
-        super("Invalid username or bad password.", "InvalidPasswordException");
-    }
-}
-
 export class KretaEUgyNotLoggedInException extends KretaEUgyException {
     constructor() {
         super("No logged in user.", "NotLoggedInException");

@@ -52,7 +52,7 @@
     },
     "password-confirm": {
         "header": "Bejelentkezés",
-        "message": "A funkció használatához ismét meg kell adnod a jelszavad.",
+        "message": "Mivel ez a funkció még nem létezett, amikor bejelentkeztél az alkalmazásba, most ismét meg kell adnod a jelszavad.",
         "password-required": "A jelszó mező kitöltése kötelező!"
     },
     "institute-selector": {

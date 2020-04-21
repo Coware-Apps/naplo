@@ -1,22 +1,4 @@
-<ng-container *ngIf="eugyLoggedIn == false">
-    <ion-header>
-        <ion-toolbar color="primary">
-            <ion-buttons slot="start">
-                <ion-menu-button></ion-menu-button>
-            </ion-buttons>
-
-            <ion-title translate="messages.title"></ion-title>
-        </ion-toolbar>
-    </ion-header>
-
-    <ion-content>
-        <app-password-confirm-required
-            (onSuccessfulLogin)="onSuccessfulLogin()"
-        ></app-password-confirm-required>
-    </ion-content>
-</ng-container>
-
-<ion-tabs *ngIf="eugyLoggedIn && messagingEnabled">
+<ion-tabs *ngIf="eugyLoggedIn && messagingEnabled; else messagesErrorContainer">
     <ion-tab-bar slot="bottom">
         <ion-tab-button tab="inbox">
             <ion-icon name="file-tray-full-outline"></ion-icon>
@@ -35,7 +17,7 @@
     </ion-tab-bar>
 </ion-tabs>
 
-<ng-container *ngIf="eugyLoggedIn && !messagingEnabled">
+<ng-template #messagesErrorContainer>
     <ion-header>
         <ion-toolbar color="primary">
             <ion-buttons slot="start">
@@ -44,13 +26,33 @@
 
             <ion-title translate="messages.title"></ion-title>
         </ion-toolbar>
+
+        <app-offline-warning-bar></app-offline-warning-bar>
+        <ion-progress-bar
+            type="indeterminate"
+            color="warning"
+            *ngIf="loadingInProgress"
+        ></ion-progress-bar>
     </ion-header>
 
-    <ion-content>
+    <ion-content class="ion-padding">
+        <app-password-confirm-required
+            *ngIf="eugyLoggedIn == false"
+            (onSuccessfulLogin)="onSuccessfulLogin()"
+        ></app-password-confirm-required>
+
         <app-page-state-display
+            *ngIf="pageState == 'ERROR'"
+            [exception]="exception"
+            buttonTextKey="common.retry"
+            (onButtonClicked)="ionviewWillLeave(); ionViewWillEnter()"
+        ></app-page-state-display>
+
+        <app-page-state-display
+            *ngIf="eugyLoggedIn && messagingEnabled == false"
             iconName="chatbubbles-outline"
             [header]="'messages.not-enabled.header'|translate"
             [message]="'messages.not-enabled.message'|translate"
         ></app-page-state-display>
     </ion-content>
-</ng-container>
+</ng-template>

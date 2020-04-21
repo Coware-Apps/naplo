@@ -2,8 +2,8 @@ import { Component, OnInit, Output, EventEmitter } from "@angular/core";
 import { Platform } from "@ionic/angular";
 import { KretaService, KretaEUgyService } from "src/app/_services";
 import { ErrorHelper } from "src/app/_helpers";
-import { KretaEUgyInvalidPasswordException } from "src/app/_exceptions";
 import { TranslateService } from "@ngx-translate/core";
+import { KretaInvalidPasswordException } from "src/app/_exceptions";
 
 @Component({
     selector: "app-password-confirm-required",
@@ -39,7 +39,7 @@ export class PasswordConfirmRequiredComponent implements OnInit {
             );
             if (result) this.onSuccessfulLogin.emit(true);
         } catch (error) {
-            if (error instanceof KretaEUgyInvalidPasswordException)
+            if (error instanceof KretaInvalidPasswordException)
                 return this.error.presentAlert(this.translate.instant("login.bad-credentials"));
 
             throw error;

@@ -48,11 +48,11 @@
         "forgot-password": "If you forgot your credentials, contact your institution's KRETA administrator.",
         "permission-needed": "Permission denied",
         "teacher-role-needed": "Only teachers can log in to this app.<br><br>For students and their parents, we recommend the Arisztokreta app. Do you want to open it in the store?",
-        "no-internet-institute-list": "The institute list can't be loaded, because there's no internet connection."
+        "no-internet-institute-list": "The institute list can't be loaded, because there's no connection to the internet."
     },
     "password-confirm": {
-        "header": "Log in",
-        "message": "To use this function, you'll have to enter your password again.",
+        "header": "Log in again",
+        "message": "Since this function was not yet available when you logged in to the app, you'll have to enter your password again.",
         "password-required": "Please enter your password!"
     },
     "institute-selector": {

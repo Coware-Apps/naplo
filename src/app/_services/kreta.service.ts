@@ -94,63 +94,57 @@ export class KretaService {
         if (!this.institute || !this.institute.Url)
             throw new KretaException("Nincs intézmény kiválasztva! (loginWithUsername())");
 
-        try {
-            const body = new HttpParams()
-                .set("institute_code", this.institute.InstituteCode)
-                .set("userName", username)
-                .set("password", password)
-                .set("grant_type", "password")
-                .set("client_id", "kreta-naplo-mobile");
+        const body = new HttpParams()
+            .set("institute_code", this.institute.InstituteCode)
+            .set("userName", username)
+            .set("password", password)
+            .set("grant_type", "password")
+            .set("client_id", "kreta-naplo-mobile");
 
-            const response = await this.data
-                .postUrl<TokenResponse>(
-                    this.idpUrl + "/connect/Token",
-                    body.toString(),
-                    new HttpHeaders().set("Content-Type", "application/x-www-form-urlencoded")
-                )
-                .toPromise();
+        const response = await this.data
+            .postUrl<TokenResponse>(
+                this.idpUrl + "/connect/Token",
+                body.toString(),
+                new HttpHeaders().set("Content-Type", "application/x-www-form-urlencoded")
+            )
+            .toPromise();
 
-            if (!response.access_token) throw new KretaInvalidResponseException(response);
+        if (!response.access_token) throw new KretaInvalidResponseException(response);
 
-            this._currentUser = this.jwtHelper.decodeToken(response.access_token);
+        this._currentUser = this.jwtHelper.decodeToken(response.access_token);
 
-            console.debug("[LOGIN] Roles we have: ", this.currentUser.role);
-            if (this.currentUser.role.indexOf("Tanar") === -1) {
-                console.debug("[LOGIN] Missing role: 'Tanar' in ", this.currentUser.role);
+        console.debug("[LOGIN] Roles we have: ", this.currentUser.role);
+        if (this.currentUser.role.indexOf("Tanar") === -1) {
+            console.debug("[LOGIN] Missing role: 'Tanar' in ", this.currentUser.role);
 
-                throw new KretaMissingRoleException();
-            }
-
-            Promise.all([
-                this.getNaploEnum("MulasztasTipusEnum"),
-                this.getNaploEnum("EsemenyTipusEnum"),
-                this.getNaploEnum("ErtekelesModEnum"),
-                this.getNaploEnum("ErtekelesTipusEnum"),
-                this.getNaploEnum("OsztalyzatTipusEnum"),
-            ]);
-
-            await Promise.all([
-                this.data.saveItem(
-                    "access_token",
-                    response.access_token,
-                    null,
-                    response.expires_in - 30
-                ),
-                this.data.saveItem(
-                    "refresh_token",
-                    response.refresh_token,
-                    null,
-                    this.longtermStorageExpiry
-                ),
-            ]);
-
-            this.firebase.initialize(this.currentUser, this.institute);
-            return response;
-        } catch (error) {
-            if (error.response && error.response.status == 400)
-                throw new KretaInvalidPasswordException();
-            throw error;
+            throw new KretaMissingRoleException();
         }
+
+        Promise.all([
+            this.getNaploEnum("MulasztasTipusEnum"),
+            this.getNaploEnum("EsemenyTipusEnum"),
+            this.getNaploEnum("ErtekelesModEnum"),
+            this.getNaploEnum("ErtekelesTipusEnum"),
+            this.getNaploEnum("OsztalyzatTipusEnum"),
+        ]);
+
+        await Promise.all([
+            this.data.saveItem(
+                "access_token",
+                response.access_token,
+                null,
+                response.expires_in - 30
+            ),
+            this.data.saveItem(
+                "refresh_token",
+                response.refresh_token,
+                null,
+                this.longtermStorageExpiry
+            ),
+        ]);
+
+        this.firebase.initialize(this.currentUser, this.institute);
+        return response;
     }
 
     private delay(timer: number): Promise<void> {

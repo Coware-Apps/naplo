@@ -17,7 +17,6 @@ import {
 
 import {
     KretaEUgyInvalidResponseException,
-    KretaEUgyInvalidPasswordException,
     KretaEUgyNotLoggedInException,
     KretaEUgyException,
     KretaEUgyMessageAttachmentException,
@@ -128,48 +127,43 @@ export class KretaEUgyService {
         password: string,
         institute: Institute
     ): Promise<TokenResponse> {
-        try {
-            const params = {
-                userName: username,
-                password: password,
-                institute_code: institute.InstituteCode,
-                grant_type: "password",
-                client_id: "kozelkep-js-web",
-            };
+        const params = {
+            userName: username,
+            password: password,
+            institute_code: institute.InstituteCode,
+            grant_type: "password",
+            client_id: "kozelkep-js-web",
+        };
 
-            const response = await this.data
-                .postUrl<TokenResponse>(
-                    "https://idp.e-kreta.hu/connect/Token",
-                    new HttpParams({ fromObject: params }).toString(),
-                    new HttpHeaders().set("Content-Type", "application/x-www-form-urlencoded")
-                )
-                .toPromise();
+        const response = await this.data
+            .postUrl<TokenResponse>(
+                "https://idp.e-kreta.hu/connect/Token",
+                new HttpParams({ fromObject: params }).toString(),
+                new HttpHeaders().set("Content-Type", "application/x-www-form-urlencoded")
+            )
+            .toPromise();
 
-            console.debug("[EUGY] getToken result:", response);
+        console.debug("[EUGY] getToken result:", response);
 
-            if (!response.access_token) throw new KretaEUgyInvalidResponseException(response);
+        if (!response.access_token) throw new KretaEUgyInvalidResponseException(response);
 
-            await Promise.all([
-                this.data.saveItem(
-                    "eugy_access_token",
-                    response.access_token,
-                    null,
-                    response.expires_in - 30
-                ),
-                this.data.saveItem(
-                    "eugy_refresh_token",
-                    response.refresh_token,
-                    null,
-                    this.longtermStorageExpiry
-                ),
-                this.data.saveSetting("eugy_institute", await this.getInstituteDetails()),
-            ]);
+        await Promise.all([
+            this.data.saveItem(
+                "eugy_access_token",
+                response.access_token,
+                null,
+                response.expires_in - 30
+            ),
+            this.data.saveItem(
+                "eugy_refresh_token",
+                response.refresh_token,
+                null,
+                this.longtermStorageExpiry
+            ),
+            this.data.saveSetting("eugy_institute", await this.getInstituteDetails()),
+        ]);
 
-            return response;
-        } catch (error) {
-            if (error.status == 400) throw new KretaEUgyInvalidPasswordException();
-            throw error;
-        }
+        return response;
     }
 
     private delay(timer: number): Promise<void> {

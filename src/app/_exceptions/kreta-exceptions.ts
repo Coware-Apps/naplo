@@ -24,6 +24,17 @@ export class KretaInvalidPasswordException extends KretaException {
     }
 }
 
+export class KretaInvalidRefreshTokenException extends KretaException {
+    constructor() {
+        super(
+            "Invalid refresh token.",
+            "InvalidRefreshTokenException",
+            "exceptions.logged-out.message",
+            "exceptions.logged-out.title"
+        );
+    }
+}
+
 export class KretaMissingRoleException extends KretaException {
     constructor() {
         super("Missing role.", "MissingRoleException");
