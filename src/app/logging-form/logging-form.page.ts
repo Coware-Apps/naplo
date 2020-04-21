@@ -457,6 +457,9 @@ export class LoggingFormPage implements IDirty {
                 );
 
                 console.error("Form validation error:", result[0].Exception.Message, result);
+                this.firebase.logEvent("logging-form_validation_error", {
+                    message: result[0].Exception.Message,
+                });
                 return;
             }
 

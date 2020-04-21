@@ -1,5 +1,5 @@
 import { Component } from "@angular/core";
-import { KretaEUgyService, HwButtonService } from "../_services";
+import { KretaEUgyService, HwButtonService, FirebaseService } from "../_services";
 import { Subject } from "rxjs";
 import { PageState } from "../_models";
 
@@ -17,7 +17,11 @@ export class MessagesPage {
     public loadingInProgress: boolean;
     private unsubscribe$: Subject<void>;
 
-    constructor(public eugy: KretaEUgyService, private hwButton: HwButtonService) {}
+    constructor(
+        public eugy: KretaEUgyService,
+        private hwButton: HwButtonService,
+        private firebase: FirebaseService
+    ) {}
 
     public async ionViewWillEnter() {
         this.unsubscribe$ = new Subject<void>();
@@ -27,6 +31,7 @@ export class MessagesPage {
             this.eugyLoggedIn = await this.eugy.isAuthenticated();
             if (this.eugyLoggedIn) {
                 this.messagingEnabled = await this.eugy.isMessagingEnabled();
+                if (this.messagingEnabled == false) this.firebase.logEvent("messages_disabled");
             }
         } catch (error) {
             if (typeof this.messagingEnabled == "undefined") {
@@ -50,5 +55,6 @@ export class MessagesPage {
     public async onSuccessfulLogin() {
         this.eugyLoggedIn = true;
         this.messagingEnabled = await this.eugy.isMessagingEnabled();
+        this.firebase.logEvent("messages_successful_eugy_login");
     }
 }
