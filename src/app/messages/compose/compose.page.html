@@ -71,46 +71,47 @@
             (ionInput)="makeItDirty()"
         >
         </ion-textarea>
+
+        <div class="attachment-container ion-margin">
+            <ion-chip *ngFor="let f of attachmentList">
+                <ion-icon name="document-attach-outline"></ion-icon>
+                <ion-label>{{f.fajlNev}}</ion-label>
+                <ion-icon name="close-circle" (click)="deleteAttachment(f)"></ion-icon>
+            </ion-chip>
+
+            <ion-chip
+                *ngIf="currentlyUploading"
+                outline
+                [color]="currentlyUploading.isFailedUpload ? 'danger' : 'primary'"
+            >
+                <ion-icon
+                    [name]="currentlyUploading.isFailedUpload ? 'alert-circle' : 'document-attach-outline'"
+                ></ion-icon>
+
+                <ion-label>
+                    {{currentlyUploading.fajlNev}}
+                    <ng-container *ngIf="!currentlyUploading.isFailedUpload">
+                        &ndash; {{currentlyUploading.uploadProgressPercent * 100 | number:'1.0-0'}}%
+                    </ng-container>
+                </ion-label>
+                <ion-progress-bar
+                    type="determinate"
+                    [value]="currentlyUploading.uploadProgressPercent"
+                    color="primary"
+                    *ngIf="!currentlyUploading.isFailedUpload"
+                ></ion-progress-bar>
+                <ion-icon
+                    name="close-circle"
+                    (click)="resetCurrentlyUploading()"
+                    *ngIf="currentlyUploading.isFailedUpload"
+                ></ion-icon>
+            </ion-chip>
+        </div>
+
         <div
             *ngIf="prevMsgText"
             class="prev-message ion-margin-horizontal"
             [innerHTML]="prevMsgText"
         ></div>
     </ion-list>
-
-    <div class="attachment-container ion-margin">
-        <ion-chip *ngFor="let f of attachmentList">
-            <ion-icon name="document-attach-outline"></ion-icon>
-            <ion-label>{{f.fajlNev}}</ion-label>
-            <ion-icon name="close-circle" (click)="deleteAttachment(f)"></ion-icon>
-        </ion-chip>
-
-        <ion-chip
-            *ngIf="currentlyUploading"
-            outline
-            [color]="currentlyUploading.isFailedUpload ? 'danger' : 'primary'"
-        >
-            <ion-icon
-                [name]="currentlyUploading.isFailedUpload ? 'alert-circle' : 'document-attach-outline'"
-            ></ion-icon>
-
-            <ion-label>
-                {{currentlyUploading.fajlNev}}
-                <ng-container *ngIf="!currentlyUploading.isFailedUpload">
-                    , {{currentlyUploading.uploadProgressPercent * 100 | number:'1.0-0'}}%
-                </ng-container>
-            </ion-label>
-            <ion-progress-bar
-                type="determinate"
-                [value]="currentlyUploading.uploadProgressPercent"
-                color="primary"
-                *ngIf="!currentlyUploading.isFailedUpload"
-            ></ion-progress-bar>
-            <ion-icon
-                name="close-circle"
-                (click)="resetCurrentlyUploading()"
-                *ngIf="currentlyUploading.isFailedUpload"
-            ></ion-icon>
-        </ion-chip>
-    </div>
 </ion-content>

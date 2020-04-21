@@ -94,7 +94,7 @@ export class ComposePage implements IDirty {
                             : state.forwardedMsg;
 
                         this.prevMsgText =
-                            "<br><br>--------------------<br>" +
+                            "<br>--------------------<br>" +
                             `${this.translator.instant("messages.compose.from")}: ${
                                 prevMsg.uzenet.feladoNev
                             } (${prevMsg.uzenet.feladoTitulus})<br>` +
