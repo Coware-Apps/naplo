@@ -334,7 +334,7 @@ export class ComposePage implements IDirty {
         this.loadingInProgress = true;
         this.currentlyUploading = { fajlNev: fileName, fajl: null, uploadProgressPercent: 0 };
         try {
-            let newAttachment = await this.eugy.addAttachment(filePath, event => {
+            const newAttachment = await this.eugy.addAttachment(filePath, event => {
                 if (event.lengthComputable) {
                     this.currentlyUploading.uploadProgressPercent = event.loaded / event.total;
                     this.changeDetector.detectChanges();
@@ -371,9 +371,10 @@ export class ComposePage implements IDirty {
                 await this.eugy.removeAttachment(a.fajl.ideiglenesFajlAzonosito);
 
                 this.attachmentList.splice(
-                    this.attachmentList.findIndex(
-                        x => x.fajl.ideiglenesFajlAzonosito == a.fajl.ideiglenesFajlAzonosito
-                    ),
+                    this.attachmentList.findIndex(x => {
+                        if (!x.fajl || !x.fajl.ideiglenesFajlAzonosito) return false;
+                        return x.fajl.ideiglenesFajlAzonosito == a.fajl.ideiglenesFajlAzonosito;
+                    }),
                     1
                 );
                 this.firebase.logEvent("messages_attachment_deleted");

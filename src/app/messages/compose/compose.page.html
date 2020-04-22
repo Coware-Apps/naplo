@@ -44,6 +44,7 @@
                         name="close-circle"
                         (click)="removeAddressee(a)"
                         *ngIf="!prevMsgId"
+                        color="dark"
                     ></ion-icon>
                 </ion-chip>
                 <ion-chip
@@ -87,13 +88,17 @@
         <ion-item
             class="attachment-container"
             lines="none"
-            *ngIf="attachmentList && attachmentList.length > 0"
+            *ngIf="(attachmentList && attachmentList.length) > 0 || currentlyUploading"
         >
             <div class="ion-text-wrap">
-                <ion-chip *ngFor="let f of attachmentList">
+                <ion-chip *ngFor="let f of attachmentList" color="dark">
                     <ion-icon name="document-attach-outline"></ion-icon>
                     <ion-label>{{f.fajlNev}}</ion-label>
-                    <ion-icon name="close-circle" (click)="deleteAttachment(f)"></ion-icon>
+                    <ion-icon
+                        name="close-circle"
+                        (click)="deleteAttachment(f)"
+                        color="dark"
+                    ></ion-icon>
                 </ion-chip>
 
                 <ion-chip
@@ -103,6 +108,7 @@
                 >
                     <ion-icon
                         [name]="currentlyUploading.isFailedUpload ? 'alert-circle' : 'document-attach-outline'"
+                        color="dark"
                     ></ion-icon>
 
                     <ion-label>
@@ -122,6 +128,7 @@
                         name="close-circle"
                         (click)="resetCurrentlyUploading()"
                         *ngIf="currentlyUploading.isFailedUpload"
+                        color="dark"
                     ></ion-icon>
                 </ion-chip>
             </div>
