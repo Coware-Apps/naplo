@@ -1,3 +1,5 @@
+import { HttpErrorResponse } from "@angular/common/http";
+
 export class NaploException implements Error {
     public name: string;
     public message: string;
@@ -34,6 +36,13 @@ export class NaploException implements Error {
         output.push(`Date: ${new Date().toISOString()}`);
         output.push(`Message: ${this.message}`);
         output.push(`InnerException: ${this.innerException}`);
+
+        if (this.innerException instanceof HttpErrorResponse) {
+            output.push(`\n----- Inner Exception -----`);
+            output.push(`Name: ${this.innerException.constructor.name}`);
+            output.push(`Status: ${this.innerException.status} ${this.innerException.statusText}`);
+            output.push(`Error: ${this.innerException.error}`);
+        }
 
         return output.join("\n");
     }

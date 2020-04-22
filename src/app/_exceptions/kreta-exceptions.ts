@@ -25,12 +25,14 @@ export class KretaInvalidPasswordException extends KretaException {
 }
 
 export class KretaInvalidRefreshTokenException extends KretaException {
-    constructor() {
+    constructor(innerException?: Error) {
         super(
             "Invalid refresh token.",
             "InvalidRefreshTokenException",
             "exceptions.logged-out.message",
-            "exceptions.logged-out.title"
+            "exceptions.logged-out.title",
+            undefined,
+            innerException
         );
     }
 }

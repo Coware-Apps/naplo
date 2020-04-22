@@ -41,7 +41,7 @@ export class ErrorInterceptorService implements HttpInterceptor {
                     )
                         return throwError(new KretaInvalidPasswordException());
                     else if (error.error && error.error.error == "invalid_grant")
-                        return throwError(new KretaInvalidRefreshTokenException());
+                        return throwError(new KretaInvalidRefreshTokenException(error));
                     else return throwError(new NaploHttpInvalidRequestException(req, error));
                 }
 

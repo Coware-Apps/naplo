@@ -8,6 +8,8 @@ import { ErrorHelper } from "../_helpers";
 import { ConfigService } from "./config.service";
 import { KretaService } from "./kreta.service";
 import { KretaEUgyService } from "./kreta-eugy.service";
+import { StorageCacheItem } from "ionic-cache/dist/cache-storage";
+import { DataService } from "./data.service";
 
 @Injectable({
     providedIn: "root",
@@ -19,7 +21,8 @@ export class ErrorHandlerService extends ErrorHandler {
         private kreta: KretaService,
         private eugy: KretaEUgyService,
         private errorHelper: ErrorHelper,
-        private translate: TranslateService
+        private translate: TranslateService,
+        private data: DataService
     ) {
         super();
     }
@@ -35,8 +38,9 @@ export class ErrorHandlerService extends ErrorHandler {
             stackframes = await StackTrace.fromError(error).catch(() => undefined);
         }
 
-        this.firebase.logError(this.appendAuthDebugToError(error), stackframes);
-        console.log("SENT TO CRASHLYTICS:\n", this.appendAuthDebugToError(error), stackframes);
+        const errorReportString = await this.appendAuthDebugToError(error);
+        this.firebase.logError(errorReportString, stackframes);
+        console.log("SENT TO CRASHLYTICS:\n", errorReportString, stackframes);
 
         // 400 - KretaInvalidRefreshTokenException comes from the IDP on wrong refresh token
         // 401 - NaploHttpUnauthorizedException comes from API endpoints with wrong access_token
@@ -68,20 +72,33 @@ export class ErrorHandlerService extends ErrorHandler {
         super.handleError(error);
     }
 
-    private appendAuthDebugToError(error: any): string {
+    private async appendAuthDebugToError(error: any): Promise<string> {
         let output = typeof error.toString === "function" ? error.toString() : error;
 
         if (this.kreta.currentUser) {
-            output += "\n\n---- Kreta Access Token ----\n";
+            output += "\n\n---- Kreta Token Debug ----\n";
             output += `Auth time: ${new Date(
                 this.kreta.currentUser.auth_time * 1000
             ).toISOString()}\n`;
             output += `Not before: ${new Date(this.kreta.currentUser.nbf * 1000).toISOString()}\n`;
             output += `Expiration: ${new Date(this.kreta.currentUser.exp * 1000).toISOString()}\n`;
+
+            // refresh token debug
+            const rawRefreshToken = <StorageCacheItem>(
+                await this.data.getRawItem("refresh_token").catch(x => null)
+            );
+            if (rawRefreshToken) {
+                output += `Refresh token cache expiry: ${new Date(rawRefreshToken.expires)}\n`;
+                output += `Refresh token length: ${
+                    rawRefreshToken.value ? rawRefreshToken.value.length : "null"
+                }\n`;
+            } else {
+                output += "Refresh token: does not exists\n";
+            }
         }
 
         if (this.eugy.currentEugyUser) {
-            output += "\n---- Eugy Access Token ----\n";
+            output += "\n---- Eugy Token Debug ----\n";
             output += `Auth time: ${new Date(
                 this.eugy.currentEugyUser.auth_time * 1000
             ).toISOString()}\n`;
@@ -91,6 +108,19 @@ export class ErrorHandlerService extends ErrorHandler {
             output += `Expiration: ${new Date(
                 this.eugy.currentEugyUser.exp * 1000
             ).toISOString()}\n`;
+
+            // refresh token debug
+            const rawRefreshToken = <StorageCacheItem>(
+                await this.data.getRawItem("eugy_refresh_token").catch(x => null)
+            );
+            if (rawRefreshToken) {
+                output += `Refresh token cache expiry: ${new Date(rawRefreshToken.expires)}\n`;
+                output += `Refresh token length: ${
+                    rawRefreshToken.value ? rawRefreshToken.value.length : "null"
+                }\n`;
+            } else {
+                output += "Refresh token: does not exists\n";
+            }
         }
 
         return output;
