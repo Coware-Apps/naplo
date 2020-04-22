@@ -103,9 +103,11 @@ export class ComposePage implements IDirty {
                             `${this.translator.instant("messages.compose.sent-at")}: ${new Date(
                                 prevMsg.uzenet.kuldesDatum
                             ).toLocaleString(this.config.locale, {
-                                //@ts-ignore
-                                dateStyle: "short",
-                                timeStyle: "short",
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                                hour: "numeric",
+                                minute: "numeric",
                             })}<br>` +
                             `${this.translator.instant("messages.compose.label-subject")}: ${
                                 prevMsg.uzenet.targy

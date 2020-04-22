@@ -63,8 +63,8 @@
                 <h2>
                     {{message.uzenet.feladoNev}}
                     <small>
-                        {{ sentDate.toLocaleString(config.locale, { dateStyle: 'short', timeStyle:
-                        'short'}) }}
+                        {{ sentDate.toLocaleString(config.locale, { year: 'numeric', month: 'short',
+                        day: 'numeric', hour: 'numeric', minute: 'numeric' }) }}
                     </small>
                 </h2>
                 <ion-note>
