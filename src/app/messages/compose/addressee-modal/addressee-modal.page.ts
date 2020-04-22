@@ -322,7 +322,8 @@ export class AddresseeModalPage implements OnInit, OnDestroy {
         );
 
         if (model.isAdded) {
-            this.selectedAddresseeList.push(model);
+            if (!this.selectedAddresseeList.find(x => x.kretaAzonosito == model.kretaAzonosito))
+                this.selectedAddresseeList.push(model);
         } else {
             this.selectedAddresseeList.splice(
                 this.selectedAddresseeList.findIndex(x => x.kretaAzonosito == model.kretaAzonosito),
