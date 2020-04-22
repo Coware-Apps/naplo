@@ -3,8 +3,8 @@
 
 <p align="center">
     <img class="center" src="https://coware-apps.github.io/naplo/naplo_logo.png" width="200"/><br>
-    <a href='https://play.google.com/store/apps/details?id=hu.coware.naplo&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Szerezd meg: Google Play' src='https://coware-apps.github.io/naplo/assets/badges/playstore.png' height="80" /></a>
-    <a href="https://apps.apple.com/hu/app/napl%C3%B3/id1502625866?mt=8"><img src="https://coware-apps.github.io/naplo/assets/badges/appstore.png" width="80" /></a>
+    <a href='https://play.google.com/store/apps/details?id=hu.coware.naplo&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Szerezd meg: Google Play' src='https://coware-apps.github.io/naplo/assets/badges/playstore.png' height="60" /></a>
+    <a href="https://apps.apple.com/hu/app/napl%C3%B3/id1502625866?mt=8"><img src="https://coware-apps.github.io/naplo/assets/badges/appstore.png" height="60" /></a>
 </p>
 
 Egy független **tanári** napló alkalmazás, ami kompatibilis a magyarországi KRÉTA-rendszerrel.
