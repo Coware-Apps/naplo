@@ -1,16 +1,16 @@
 <p align="center" class="header">
     <img class="center" src="https://coware-apps.github.io/naplo/naplo_logo.png" width="200"/><br>
     <span class="badges">
-      <a id="badge-android" href='https://play.google.com/store/apps/details?id=hu.coware.naplo&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Szerezd meg: Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/hu_badge_web_generic.png' width="200" /></a>
-      <a id="badge-ios" href="https://apps.apple.com/hu/app/napl%C3%B3/id1502625866?mt=8"><img src="https://linkmaker.itunes.apple.com/en-us/badge-lrg.svg?releaseDate=2020-03-23&kind=iossoftware&bubble=ios_apps" width="170" /></a>
+      <a id="badge-android" href='https://play.google.com/store/apps/details?id=hu.coware.naplo&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Szerezd meg: Google Play' src='/assets/badges/playstore.png' height="80" /></a>
+      <a id="badge-ios" href="https://apps.apple.com/hu/app/napl%C3%B3/id1502625866?mt=8"><img src="/assets/badges/appstore.png" height="80" /></a>
   </span>
 </p>
 
-Ez egy nem hivatalos **tanári** napló alkalmazás, ami kompatibilis a magyarországi KRÉTA-rendszerrel.
+Egy független **tanári** napló alkalmazás, ami kompatibilis a magyarországi KRÉTA-rendszerrel.
 
 _Az alkalmazást nem az eKréta Informatikai Zrt. fejlesztette, ezért az esetleges problémákkal, kérdésekkel kapcsolatban ne az ő ügyfélszolgálatukat keresd!_
 
-#### Miben különbözik ez az alkalmazás a hivatalostól?
+#### Miben különbözik ez az alkalmazás a Kréta sajátjától?
 
 Az elsődleges cél, hogy gyorsabb, megbízhatóbb, használhatóbb legyen.
 
@@ -27,6 +27,9 @@ A főbb funkciók:
     -   Értékelés témájának, módjának megadása
     -   Beépített átlagszámítás
 -   Nem naplózott órák listája
+-   Üzenetek
+    -   Olvasás, küldés
+    -   Mellékletek fogadása és küldése fájlból vagy kamerával
 -   Beállítások
     -   Világos és sötét színséma
     -   Alapértelmezett értékelési mód
