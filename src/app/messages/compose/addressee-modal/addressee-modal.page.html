@@ -38,12 +38,12 @@
             class="slide-top"
             *ngIf="showSearchbar"
             animated
-            showCancelButton="250"
             [placeholder]="'messages.addressee-modal.search-placeholder' | translate"
             [(ngModel)]="filter"
             (ionInput)="doFilter($event)"
             [debounce]="250"
             [disabled]="loadingInProgress"
+            color="light"
         >
         </ion-searchbar>
 
@@ -101,7 +101,7 @@
     </ion-virtual-scroll>
 
     <ion-fab vertical="bottom" horizontal="end" slot="fixed" edge>
-        <ion-fab-button (click)="closeModal()">
+        <ion-fab-button (click)="closeModal()" color="success">
             <ion-icon name="checkmark"></ion-icon>
         </ion-fab-button>
     </ion-fab>

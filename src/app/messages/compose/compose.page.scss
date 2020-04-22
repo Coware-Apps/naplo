@@ -9,12 +9,10 @@
     user-select: text;
 }
 
-.recipient-label {
+.label-for-multiline {
     margin-right: 15px;
-}
-
-ion-item-divider {
-    min-height: 10px;
+    flex-shrink: 0;
+    align-self: flex-start;
 }
 
 .attachment-container {
