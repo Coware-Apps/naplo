@@ -44,6 +44,11 @@ const routes: Routes = [
             ),
         canActivate: [LoginGuard],
     },
+    {
+        path: "messages",
+        loadChildren: () => import("./messages/messages.module").then(m => m.MessagesPageModule),
+        canActivate: [LoginGuard],
+    },
 ];
 
 @NgModule({

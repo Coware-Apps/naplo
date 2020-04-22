@@ -1,137 +1,82 @@
 import { Injectable } from "@angular/core";
 import { CacheService, CacheValueFactory } from "ionic-cache";
-import { HTTP, HTTPResponse } from "@ionic-native/http/ngx";
 import { Observable, from } from "rxjs";
-import { ErrorHelper } from "../_helpers/error-helper";
-import { environment } from "src/environments/environment";
-import { AppVersion } from "@ionic-native/app-version/ngx";
-import { stringify } from "flatted/esm";
-import { FirebaseService } from "./firebase.service";
-import { TranslateService } from "@ngx-translate/core";
+import { HttpHeaders, HttpClient, HttpParams } from "@angular/common/http";
+import { catchError, tap } from "rxjs/operators";
+import { StorageCacheItem } from "ionic-cache/dist/cache-storage";
 
 @Injectable({
     providedIn: "root",
 })
 export class DataService {
-    constructor(
-        private cache: CacheService,
-        private http: HTTP,
-        private errorHelper: ErrorHelper,
-        private firebase: FirebaseService,
-        private translate: TranslateService
-    ) {}
+    constructor(private cache: CacheService, private http: HttpClient) {}
 
     private longtermStorageExpiry = 72 * 30 * 24 * 60 * 60;
 
-    private async getUserAgent(): Promise<string> {
-        let remoteUA = await this.firebase.getConfigValue("user_agent");
-        console.log("REMOTE UA: ", remoteUA);
-        if (!remoteUA)
-            remoteUA =
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36";
+    public getUrl<T>(url: string, parameters?: any, headers?: HttpHeaders): Observable<T> {
+        console.debug("SZERVERHÍVÁS:", url);
 
-        return remoteUA;
-    }
-
-    public async getUrl(url: string, parameters?: any, headers?: any): Promise<HTTPResponse> {
-        console.debug("SZERVERHÍVÁS: " + url);
-
-        if (headers) headers["User-Agent"] = await this.getUserAgent();
-        else
-            headers = {
-                "User-Agent": await this.getUserAgent(),
-            };
-
-        const response = this.http.get(url, parameters, headers).catch(async err => {
-            this.firebase.logError("getUrl(" + url + ") HTTP error: " + stringify(err));
-            await this.errorHelper.presentToast(
-                await this.translate.get("common.comm-error").toPromise(),
-                10000
-            );
-            throw new Error("[HTTP] response: " + err.error);
+        return this.http.get<T>(url, {
+            params: parameters,
+            headers: headers,
         });
-
-        return response;
     }
 
-    private fetchAndCacheUrl(
+    private fetchAndCacheUrl<T>(
         url: string,
         parameters?: any,
-        headers?: any,
+        headers?: HttpHeaders,
         ttlInSec?: number
-    ): Observable<HTTPResponse> {
+    ): Observable<T> {
         let ttl = ttlInSec || 60 * 60;
-        let obs = this.cache.loadFromDelayedObservable<HTTPResponse>(
+        let obs = this.cache.loadFromDelayedObservable<T>(
             url,
-            from(this.getUrl(url, parameters, headers)),
-            null,
+            this.getUrl<T>(url, parameters, headers),
+            "urlCache",
             ttl,
             "all"
         );
-        console.debug("Cache miss: ", url, obs);
+        console.debug("Cache miss: ", url);
 
         return obs;
     }
 
-    public async getUrlWithCache(
+    public getUrlWithCache<T>(
         url: string,
         parameters?: any,
-        headers?: any,
+        headers?: HttpHeaders,
         ttlInSec: number = 60 * 60,
         forceRefresh: boolean = false
-    ): Promise<Observable<HTTPResponse>> {
+    ): Observable<T> {
         if (forceRefresh) {
-            return this.fetchAndCacheUrl(url, parameters, headers, ttlInSec);
+            return this.fetchAndCacheUrl<T>(url, parameters, headers, ttlInSec);
         } else {
-            let obs: Observable<HTTPResponse>;
-            let c = await this.getItem(url).catch(() => {
-                obs = this.fetchAndCacheUrl(url, parameters, headers, ttlInSec);
-            });
-
-            return obs ? obs : from([<HTTPResponse>c]);
+            return from(this.getItem<T>(url)).pipe(
+                tap(x => console.log("FROM CACHE: ", url, x)),
+                catchError(err => this.fetchAndCacheUrl<T>(url, parameters, headers, ttlInSec))
+            );
         }
     }
 
-    public async postUrl(
+    public postUrl<T>(
         url: string,
         body?: any,
-        headers?: any,
-        dataSerializer: "json" | "urlencoded" | "utf8" | "multipart" = "urlencoded"
-    ): Promise<HTTPResponse> {
-        console.log("SZERVERHÍVÁS: " + url);
+        headers?: HttpHeaders,
+        params?: HttpParams
+    ): Observable<T> {
+        return this.http.post<T>(url, body, { params: params, headers: headers });
+    }
 
-        if (headers) headers["User-Agent"] = await this.getUserAgent();
-        else
-            headers = {
-                "User-Agent": await this.getUserAgent(),
-            };
-
-        this.http.setDataSerializer(dataSerializer);
-        await this.firebase.startTrace("http_post_call_time");
-        const response = this.http.post(url, body, headers).catch(async err => {
-            try {
-                const e = JSON.parse(err.error);
-                if (
-                    e &&
-                    e.error_description &&
-                    e.error_description != "invalid_username_or_password"
-                ) {
-                    this.firebase.logError("postUrl(" + url + ") HTTP error: " + stringify(err));
-                    await this.errorHelper.presentToast(
-                        await this.translate.get("common.comm-error").toPromise(),
-                        10000
-                    );
-                }
-            } catch (ex) {}
-
-            throw err;
-        });
-        this.firebase.stopTrace("http_post_call_time");
-        return response;
+    public deleteUrl<T>(url: string, headers?: HttpHeaders, params?: HttpParams): Observable<T> {
+        return this.http.delete<T>(url, { params: params, headers: headers });
     }
 
     public getItem<T>(key: string): Promise<T> {
         return this.cache.getItem<T>(key);
+    }
+
+    public getRawItem(key: string): Promise<StorageCacheItem> {
+        return this.cache.getRawItem(key);
     }
 
     public saveItem(key: string, data: any, groupKey?: string, ttl?: number): Promise<any> {
@@ -163,8 +108,16 @@ export class DataService {
         return this.cache.removeItem(key);
     }
 
+    public removeItems(pattern: string): Promise<any> {
+        return this.cache.removeItems(pattern);
+    }
+
     public clearExpired(ignoreOnlineStatus?: boolean): Promise<any> {
         return this.cache.clearExpired(ignoreOnlineStatus);
+    }
+
+    public clearUrlCache(): Promise<any> {
+        return this.cache.clearGroup("urlCache");
     }
 
     public clearAll(): Promise<any> {

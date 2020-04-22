@@ -23,20 +23,25 @@
     ></app-offline-warning-bar>
 
     <ion-toolbar color="secondary" class="ion-text-center">
-        {{tanitottCsoport?.OsztalyCsoportNev}}<br />
-        {{tanitottCsoport?.TantargyNev}}
+        {{studentGroup?.OsztalyCsoportNev}}<br />
+        {{studentGroup?.TantargyNev}}
     </ion-toolbar>
+    <ion-progress-bar
+        type="indeterminate"
+        color="warning"
+        *ngIf="loadingInProgress"
+    ></ion-progress-bar>
 </ion-header>
 
 <ion-content>
-    <app-ertekeles
-        [lesson]="tanitottCsoport"
-        [osztalyTanuloi]="osztalyTanuloi"
+    <app-evaluation
+        [lesson]="studentGroup"
+        [studentsOfGroup]="studentsOfGroup"
         (onSelectionChange)="makeItDirty()"
-    ></app-ertekeles>
+        *ngIf="pageState == 'LOADED'"
+    ></app-evaluation>
 
-    <div *ngIf="!osztalyTanuloi">
-        <ion-progress-bar type="indeterminate" color="warning"></ion-progress-bar>
+    <ng-container *ngIf="pageState == 'LOADING'">
         <ion-list
             *ngFor="let i of [].constructor(5)"
             class="ion-no-padding ion-no-margin"
@@ -44,10 +49,17 @@
         >
             <ion-item>
                 <ion-label>
-                    <ion-skeleton-text style="width: 50%; height: 14px"></ion-skeleton-text>
-                    <ion-skeleton-text style="width: 100%; height: 27px"></ion-skeleton-text>
+                    <ion-skeleton-text style="width: 50%; height: 14px;"></ion-skeleton-text>
+                    <ion-skeleton-text style="width: 100%; height: 27px;"></ion-skeleton-text>
                 </ion-label>
             </ion-item>
         </ion-list>
-    </div>
+    </ng-container>
+
+    <app-page-state-display
+        *ngIf="pageState == 'ERROR'"
+        [exception]="exception"
+        buttonTextKey="common.retry"
+        (onButtonClicked)="ionViewWillEnter()"
+    ></app-page-state-display>
 </ion-content>

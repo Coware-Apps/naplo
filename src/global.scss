@@ -42,6 +42,15 @@ ion-list-header.ios {
     margin-left: -10px;
 }
 
+ion-header ion-progress-bar {
+    position: absolute;
+    padding-top: 5px;
+}
+
+ion-toolbar .sc-ion-searchbar-ios-h {
+    padding-bottom: 0;
+}
+
 /* tablet modal magasságok */
 @media only screen and (min-height: 600px) and (min-width: 768px) and (orientation: landscape) {
     .sc-ion-modal-md-h {

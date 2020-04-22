@@ -5,6 +5,8 @@
         "done": "Done",
         "save": "Save",
         "error": "Error",
+        "details": "Details",
+        "retry": "Retry",
         "ok": "OK",
         "comm-error": "Communication error",
         "yes": "Yes",
@@ -20,10 +22,11 @@
         "percentage": "Percentage",
         "textual": "Textual"
     },
-    "presence-states": {
-        "present": "Present",
-        "late": "Late",
-        "absent": "Absent"
+    "attendance-states": {
+        "jelenlet": "Present",
+        "keses": "Late",
+        "hianyzas": "Absent",
+        "ures": "Empty"
     },
     "themes": {
         "dark": "Dark",
@@ -42,15 +45,23 @@
         "logging-in": "Logging in...",
         "pp-and-tos": "Privacy policy and terms of service",
         "bad-credentials": "Wrong username or password",
-        "permission-needed": "Permission needed",
-        "teacher-role-needed": "You need to have 'Teacher' role to be able to log in.<br>For students and their parents, we recommend the Arisztokreta app. Do you want to open it in the store?",
-        "no-internet-institute-list": "The institute list can't be loaded, because there's no internet connection."
+        "forgot-password": "If you forgot your credentials, contact your institution's KRETA administrator.",
+        "permission-needed": "Permission denied",
+        "teacher-role-needed": "Only teachers can log in to this app.<br><br>For students and their parents, we recommend the Arisztokreta app. Do you want to open it in the store?",
+        "no-internet-institute-list": "The institute list can't be loaded, because there's no connection to the internet."
+    },
+    "password-confirm": {
+        "header": "Log in again",
+        "message": "Since this function was not yet available when you logged in to the app, you'll have to enter your password again.",
+        "password-required": "Please enter your password!"
     },
     "institute-selector": {
-        "filter": "Filter institutions..."
+        "filter": "Filter institutions...",
+        "list-empty": "We couldn't download the list of the institutions. KRETA is probably under maintenance."
     },
     "timetable": {
         "title": "Timetable",
+        "list-empty": "The list is empty",
         "no-lesson-today": "You don't have any lessons on this day",
         "error-offline": "There's no internet, therefore the lesson can't be logged right now.",
         "error-in-future": "Future lessons can't be logged.",
@@ -74,6 +85,7 @@
         "required-topic": "Please enter the topic of the lesson",
         "required-homework-desc": "You must provide a description for the homework",
         "saving": "Saving...",
+        "couldnt-save": "The server responded with the following error:",
         "cancelled-alert-title": "Are you sure?",
         "cancelled-alert-desc": "The evaluations, memos, and homeworks you entered will not be saved if you continue."
     },
@@ -94,6 +106,7 @@
         "textual-placeholder": "Enter your evaluation here...",
         "date-required": "Please select an evaluation date!",
         "mode-required": "Please select a method!",
+        "saved-successfully": "Evaluation saved successfully",
         "error-saving": "An error occurred during saving",
         "error-no-connection": "There's no internet, therefore the group cannot be evaluated right now."
     },
@@ -101,7 +114,81 @@
         "title": "Not logged lessons",
         "info-days-limit": "Due to technical reasons this list only includes the non-logged lessons of the last {{value}} days.",
         "list-empty": "The list is empty",
-        "info-days-limit-empty": "Due to technical reasons, we can only check the last {{value}} days lessons."
+        "info-days-limit-empty": "Due to technical reasons, we can only check the last {{value}} days lessons.",
+        "error-offline": "There's no internet, therefore the lesson can't be logged right now."
+    },
+    "messages": {
+        "title": "Messages",
+        "not-enabled": {
+            "header": "Messaging is disabled in your institution",
+            "message": "Please contact your school's KRETA administrator, if you'd like to use it"
+        },
+        "folder": {
+            "tab": {
+                "inbox": "Inbox",
+                "outbox": "Sent",
+                "deleted": "Trash"
+            },
+            "title": {
+                "inbox": "Incoming messages",
+                "outbox": "Sent messages",
+                "deleted": "Deleted messages"
+            },
+            "selected-message": "{{value}} selected message",
+            "search": "Search",
+            "and-more-recipient": "and {{value}} more recipient",
+            "load-more": "Load more messages",
+            "messages-recycled": "The messages were moved to the trash",
+            "messages-restored": "The messages were restored",
+            "delete-permanently": "Delete permanently",
+            "delete-permanently-desc": "You're about to delete a message that is in the trash. This is a permanent operation you cannot undo!",
+            "delete": "Delete",
+            "set-as-unread": "The messages were set as unread",
+            "set-as-read": "The messages were set as read"
+        },
+        "read": {
+            "delivery-status": "Delivery state",
+            "to": "to",
+            "loading-attachments": "Loading attachments...",
+            "reply": "Reply",
+            "forward": "Forward",
+            "me": "me",
+            "not-delivered": "The message was not delivered",
+            "message-recycled": "Message recyled",
+            "message-restored": "Message restored",
+            "delete-permanently": "Delete permanently",
+            "delete-permanently-desc": "You're about to delete a message that is in the trash. This is a permanent operation you cannot undo!",
+            "delete": "Delete",
+            "set-as-unread": "The message was set as unread"
+        },
+        "compose": {
+            "title": "New message",
+            "label-to": "To",
+            "add": "Add",
+            "label-subject": "Subject",
+            "reply-prefix": "Reply",
+            "forward-prefix": "Fwd",
+            "from": "From",
+            "sent-at": "Sent",
+            "message-placeholder": "Type your message here...",
+            "all-fields-required": "Please fill all fields!",
+            "sending-message": "Sending message...",
+            "message-sent": "Message sent",
+            "offline-warning": "The message cannot be sent without internet",
+            "attachment.file": "File",
+            "attachment.gallery": "Gallery",
+            "attachment.camera": "Camera"
+        },
+        "addressee-modal": {
+            "type-select-placeholder": "Select category...",
+            "search-placeholder": "Search users...",
+            "classes": "Classes",
+            "groups": "Groups",
+            "list-empty": "The list is empty",
+            "choose-subtype": "Please select a class or group!",
+            "no-matching-addressee": "No users matching the given criteria in the system.",
+            "num-selected": "{{value}} selected recipients"
+        }
     },
     "settings": {
         "title": "Settings",
@@ -117,7 +204,10 @@
         "error-reporting": "Error reporting",
         "error-reporting-desc": "Also helps us with the development",
         "header-danger-zone": "Danger zone",
+        "clear-cache": "Clear cache",
+        "clearing": "Cleaning...",
         "logout": "Log out",
+        "logging-out": "Logging out...",
         "header-about": "About",
         "version": "Version",
         "os-components": "Open source components",
@@ -126,8 +216,16 @@
     "os-components": {
         "title": "Open source components"
     },
-    "kreta": {
-        "api-error": "The KRETA server sent an invalid response. It's probably under maintenance.",
-        "login-unknown-error": "Unknown error occurred during login."
+    "exceptions": {
+        "error-occurred": "An error occurred",
+        "server-error": "Server-side error",
+        "network-error": "Network error",
+        "invalid-response.message": "The KRETA server sent an invalid response. It's probably under maintenance.",
+        "network-exception.message": "A network error occurred. Please check your internet connection!",
+        "server-side-error.message": "The server indicated, that it has an internal error. This usually occurs when the KRETA is under maintenance.",
+        "logged-out.title": "KRETA logged you out",
+        "logged-out.message": "The server ended your login session. Please log in again.",
+        "file-transfer.title": "File transfer error",
+        "file-transfer.message": "An error occurred during the file transfer. KRETA is probably under maintenance."
     }
 }

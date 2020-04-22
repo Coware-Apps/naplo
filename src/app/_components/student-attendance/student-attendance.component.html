@@ -1,0 +1,27 @@
+<div size="12" class="nev">
+    {{ student.Nev }}
+    <span class="javasolt-jelenlet-ok" *ngIf="suggestedAttendanceReason">
+        <ion-icon slot="start" name="warning"></ion-icon>
+        {{ suggestedAttendanceReason }}
+    </span>
+</div>
+<div class="jelenlet-row">
+    <ng-container *ngFor="let button of attendanceButtons">
+        <ion-button
+            *ngIf="button.MulasztasTipusAdatszotar.Nev != 'ures'"
+            (click)="selectAttendance(button.MulasztasTipusAdatszotar.Id)"
+            expand="block"
+            [fill]="
+                selectedAttendanceCode == button.MulasztasTipusAdatszotar.Id ? 'outline' : 'clear'
+            "
+            [disabled]="!button.IsEnabled"
+        >
+            {{ "attendance-states." + button.MulasztasTipusAdatszotar.Nev | translate }}
+            {{
+                button.MulasztasTipusAdatszotar.Nev == "keses" && lateMinutes > 0
+                    ? ("logging.lateness-min" | translate: { value: lateMinutes })
+                    : ""
+            }}
+        </ion-button>
+    </ng-container>
+</div>

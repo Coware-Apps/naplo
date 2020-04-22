@@ -10,7 +10,7 @@ export interface Jwt {
     name: string;
     "kreta:user_name": string;
     "kreta:institute_code": string;
-    "kreta:institute_user_id": string;
+    "kreta:institute_user_id": number;
     "kreta:institute_user_unique_id": string;
     "kreta:school_year_id": string;
     "kreta:school_year_unique_id": string;

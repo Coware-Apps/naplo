@@ -5,6 +5,8 @@
         "done": "Kész",
         "save": "Mentés",
         "error": "Hiba",
+        "details": "Részletek",
+        "retry": "Újra",
         "ok": "OK",
         "comm-error": "Kommunikációs hiba",
         "yes": "Igen",
@@ -20,10 +22,11 @@
         "percentage": "Százalék",
         "textual": "Szöveges"
     },
-    "presence-states": {
-        "present": "Jelenlét",
-        "late": "Késés",
-        "absent": "Hiányzás"
+    "attendance-states": {
+        "jelenlet": "Jelenlét",
+        "keses": "Késés",
+        "hianyzas": "Hiányzás",
+        "ures": "Üres"
     },
     "themes": {
         "dark": "Sötét",
@@ -42,16 +45,24 @@
         "logging-in": "Bejelentkezés...",
         "pp-and-tos": "Adatvédelmi nyilatkozat és felhasználási feltételek",
         "bad-credentials": "Hibás felhasználónév vagy jelszó.",
+        "forgot-password": "Ha elfelejtetted a jelszavad, fordulj az intézményi KRÉTA adminisztrátorhoz.",
         "permission-needed": "Jogosultság szükséges",
-        "teacher-role-needed": "A bejelentkezéshez 'Tanár' szerepkör szükséges.<br>Diákoknak és szülőknek az Arisztokréta alkalmazást ajánljuk. Megnyitod az áruházban?",
+        "teacher-role-needed": "Az appba csak tanárok jelentkezhetnek be.<br><br>Diákoknak és szülőknek az Arisztokréta alkalmazást ajánljuk. Megnyitod az áruházban?",
         "no-internet-institute-list": "Nincs internetkapcsolat, ezért az intézménylistát most nem lehet letölteni."
     },
+    "password-confirm": {
+        "header": "Bejelentkezés",
+        "message": "Mivel ez a funkció még nem létezett, amikor bejelentkeztél az alkalmazásba, most ismét meg kell adnod a jelszavad.",
+        "password-required": "A jelszó mező kitöltése kötelező!"
+    },
     "institute-selector": {
-        "filter": "Intézmények szűrése..."
+        "filter": "Intézmények szűrése...",
+        "list-empty": "Nem sikerült betölteni az iskolákat. A KRÉTA valószínűleg karbantartás alatt van."
     },
     "timetable": {
         "title": "Óra naplózása",
-        "no-lesson-today": "Ezen a napon nincs órád",
+        "list-empty": "A lista üres",
+        "no-lesson-today": "Nincs órád ezen a napon",
         "error-offline": "Nincs internetkapcsolat, ezért az óra most nem naplózható!",
         "error-in-future": "Jövőbeni óra nem naplózható!",
         "error-cancelled": "Az elmaradt órák nem adminisztrálhatók a mobilalkalmazásban.",
@@ -59,7 +70,6 @@
     },
     "logging": {
         "title": "Óra naplózása",
-        "save": "Mentés",
         "lesson-seqnum": "{{value}}. óra",
         "lesson-topic": "Az óra témája",
         "homework-deadline": "A házi feladat határideje",
@@ -75,6 +85,7 @@
         "required-topic": "Az óra témáját kötelező kitölteni!",
         "required-homework-desc": "A házi feladat leírását kötelező megadni, ha ki lett választva határidő!",
         "saving": "Mentés...",
+        "couldnt-save": "A szerver az alábbi hibát jelezte:",
         "cancelled-alert-title": "Elmaradtnak jelölöd az órát?",
         "cancelled-alert-desc": "A megadott értékelések, feljegyzések, házi feladatok nem kerülnek mentésre."
     },
@@ -95,6 +106,7 @@
         "textual-placeholder": "Ide írj szöveges értékelést...",
         "date-required": "Az értékelés dátumának kiválasztása kötelező!",
         "mode-required": "Az értékelés módjának kiválasztása kötelező!",
+        "saved-successfully": "Az értékelés sikeresen elmentve",
         "error-saving": "Hiba az értékelések mentésekor",
         "error-no-connection": "Nincs internetkapcsolat, ezért a csoport most nem értékelhető!"
     },
@@ -102,7 +114,81 @@
         "title": "Nem naplózott órák",
         "info-days-limit": "Ez a lista technikai okokból csak az elmúlt {{value}} nap nem naplózott óráit tartalmazza.",
         "list-empty": "A lista üres",
-        "info-days-limit-empty": "Technikai okokból csak az elmúlt {{value}} nap óráit tudjuk ellenőrizni."
+        "info-days-limit-empty": "Technikai okokból csak az elmúlt {{value}} nap óráit tudjuk ellenőrizni.",
+        "error-offline": "Nincs internetkapcsolat, ezért az óra most nem naplózható!"
+    },
+    "messages": {
+        "title": "Üzenetek",
+        "not-enabled": {
+            "header": "Az üzenetküldés ki van kapcsolva az intézményben",
+            "message": "Vedd fel a kapcsolatot az intézményi KRÉTA adminisztrátorral, ha használni szeretnéd."
+        },
+        "folder": {
+            "tab": {
+                "inbox": "Beérkezett",
+                "outbox": "Elküldött",
+                "deleted": "Törölt"
+            },
+            "title": {
+                "inbox": "Beérkezett üzenetek",
+                "outbox": "Elküldött üzenetek",
+                "deleted": "Törölt üzenetek"
+            },
+            "selected-message": "{{value}} kijelölt üzenet",
+            "search": "Keresés",
+            "and-more-recipient": "és {{value}} további címzett",
+            "load-more": "Több üzenet betöltése",
+            "messages-recycled": "Az üzeneteket a kukába helyeztük",
+            "messages-restored": "Az üzeneteket visszaállítottuk a kukából",
+            "delete-permanently": "Végleges törlés",
+            "delete-permanently-desc": "Egy kukában lévő üzenetet tervezel törölni. Ez végleges, és nem vonható vissza!",
+            "delete": "Törlés",
+            "set-as-unread": "Az üzeneteket olvasatlannak jelöltük",
+            "set-as-read": "Az üzeneteket olvasottnak jelöltük"
+        },
+        "read": {
+            "delivery-status": "Kiküldés állapota",
+            "to": "címzett",
+            "loading-attachments": "Csatolmányok betöltése...",
+            "reply": "Válasz",
+            "forward": "Továbbítás",
+            "me": "én",
+            "not-delivered": "Az üzenet nem lett kézbesítve",
+            "message-recycled": "Az üzenetet töröltük",
+            "message-restored": "Az üzenetet visszaállítottuk",
+            "delete-permanently": "Végleges törlés",
+            "delete-permanently-desc": "Egy kukában lévő üzenetet tervezel törölni. Ez végleges, és nem vonható vissza!",
+            "delete": "Törlés",
+            "set-as-unread": "Az üzenetet olvasatlannak jelöltük"
+        },
+        "compose": {
+            "title": "Új üzenet",
+            "label-to": "Címzett",
+            "add": "Hozzáadás",
+            "label-subject": "Tárgy",
+            "reply-prefix": "Válasz",
+            "forward-prefix": "Továbbítva",
+            "from": "Feladó",
+            "sent-at": "Elküldve",
+            "message-placeholder": "Ide írd az üzeneted...",
+            "all-fields-required": "Minden mező kitöltése kötelező",
+            "sending-message": "Az üzenet elküldése...",
+            "message-sent": "Az üzenet elküldve",
+            "offline-warning": "Az üzenet nem küldhető el amíg nincs internet",
+            "attachment.file": "Fájl",
+            "attachment.gallery": "Galéria",
+            "attachment.camera": "Kamera"
+        },
+        "addressee-modal": {
+            "type-select-placeholder": "Válassz kategóriát...",
+            "search-placeholder": "Címzettek keresése...",
+            "classes": "Osztályok",
+            "groups": "Csoportok",
+            "list-empty": "A lista üres",
+            "choose-subtype": "Válassz osztályt vagy csoportot!",
+            "no-matching-addressee": "Nincs a feltételeknek megfelelő felhasználó a rendszerben.",
+            "num-selected": "{{value}} kiválasztott címzett"
+        }
     },
     "settings": {
         "title": "Beállítások",
@@ -118,7 +204,10 @@
         "error-reporting": "Hibejelentések küldése",
         "error-reporting-desc": "Névtelen információk továbbítása hibák esetén",
         "header-danger-zone": "Veszélyzóna",
+        "clear-cache": "Gyorsítótár törlése",
+        "clearing": "Törlés folyamatban...",
         "logout": "Kijelentkezés",
+        "logging-out": "Kijelentkezés...",
         "header-about": "Információk",
         "version": "Verzió",
         "os-components": "Nyílt forráskódú komponensek",
@@ -127,8 +216,16 @@
     "os-components": {
         "title": "Felhasznált komponensek"
     },
-    "kreta": {
-        "api-error": "A KRÉTA-szerver érvénytelen választ küldött. Valószínűleg karbantartás alatt van.",
-        "login-unknown-error": "Ismeretlen hiba a bejelentkezés megújítása során."
+    "exceptions": {
+        "error-occurred": "Hiba történt",
+        "server-error": "Szerverhiba",
+        "network-error": "Hálózati hiba",
+        "invalid-response.message": "A KRÉTA-szerver érvénytelen választ küldött. Valószínűleg karbantartás alatt van.",
+        "network-exception.message": "Hálózati hiba történt. Ellenőrizd az internetkapcsolatod!",
+        "server-side-error.message": "Szerveroldali hiba történt. Elképzelhető, hogy a KRÉTA éppen karbantartás alatt van.",
+        "logged-out.title": "A KRÉTA kijelentkeztetett",
+        "logged-out.message": "A szerver kijelentkeztetett. Kérjük, jelentkezz be újra.",
+        "file-transfer.title": "Fájlátviteli hiba",
+        "file-transfer.message": "Hiba történt a fájlátvitel során. Elképzelhető, hogy a KRÉTA karbantartás alatt van."
     }
 }

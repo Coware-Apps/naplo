@@ -20,7 +20,7 @@
         <ion-button fill="outline" class="date-titleline" (click)="showDatePicker()">
             <ion-icon slot="start" name="calendar-outline"></ion-icon>
             <ion-label>
-                {{ datum.toLocaleDateString(config.locale, {month: 'short', day: 'numeric', weekday:
+                {{ date.toLocaleDateString(config.locale, {month: 'short', day: 'numeric', weekday:
                 'long'}) }}
             </ion-label>
         </ion-button>
@@ -30,36 +30,35 @@
             (click)="changeDate('forward')"
         ></ion-icon>
     </ion-toolbar>
+
+    <ion-progress-bar
+        type="indeterminate"
+        color="warning"
+        *ngIf="loadingInProgress"
+    ></ion-progress-bar>
 </ion-header>
 
 <ion-content>
     <ion-refresher
         slot="fixed"
-        (ionRefresh)="doRefresh($event)"
+        (ionRefresh)="loadTimetable(true, false, $event)"
         pullFactor="0.8"
         pullMin="60"
         pullMax="120"
-        [disabled]="loading"
+        [disabled]="loadingInProgress"
     >
         <ion-refresher-content></ion-refresher-content>
     </ion-refresher>
 
-    <ng-container *ngIf="!loading">
-        <div *ngIf="orarend?.length == 0" class="ion-text-center list-empty-placeholder">
-            <ion-icon slot="icon-only" name="sunny-outline" style="font-size: 128px;"></ion-icon>
-            <p translate="timetable.no-lesson-today"></p>
-        </div>
+    <ion-list id="ion-list-orarend" *ngIf="pageState == 'LOADED'">
+        <app-timetable-lesson
+            *ngFor="let l of timetable"
+            [lesson]="l"
+            (click)="lessonClick(l)"
+        ></app-timetable-lesson>
+    </ion-list>
 
-        <ion-list id="ion-list-orarend" *ngIf="orarend">
-            <ng-container *ngFor="let l of orarend">
-                <app-orarendi-ora [lesson]="l" (click)="lessonClick(l)"></app-orarendi-ora>
-            </ng-container>
-        </ion-list>
-    </ng-container>
-
-    <ng-container *ngIf="!orarend || loading">
-        <ion-progress-bar type="indeterminate" color="warning"></ion-progress-bar>
-
+    <ng-container *ngIf="pageState == 'LOADING'">
         <ion-list>
             <ion-item>
                 <ion-avatar slot="start" class="oraszamContainer">
@@ -103,4 +102,18 @@
             </ion-item>
         </ion-list>
     </ng-container>
+
+    <app-page-state-display
+        *ngIf="pageState == 'ERROR'"
+        [exception]="exception"
+        buttonTextKey="common.retry"
+        (onButtonClicked)="ionViewWillLeave(); ionViewWillEnter()"
+    ></app-page-state-display>
+
+    <app-page-state-display
+        *ngIf="pageState == 'EMPTY'"
+        iconName="sunny-outline"
+        [header]="'timetable.list-empty'|translate"
+        [message]="'timetable.no-lesson-today'|translate"
+    ></app-page-state-display>
 </ion-content>

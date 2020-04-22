@@ -30,26 +30,30 @@ export class NetworkStatusService {
     }
 
     public initializeNetworkEvents() {
-        this.network.onDisconnect().subscribe(() => {
-            if (this.status.getValue() === ConnectionStatus.Online) {
-                this.firebase.logEvent("connection_status_changed", { newStatus: "offline" });
-                console.log("WE ARE OFFLINE");
-                this.status.next(ConnectionStatus.Offline);
+        this.network.onDisconnect().subscribe({
+            next: () => {
+                if (this.status.getValue() === ConnectionStatus.Online) {
+                    this.firebase.logEvent("connection_status_changed", { newStatus: "offline" });
+                    console.log("WE ARE OFFLINE");
+                    this.status.next(ConnectionStatus.Offline);
 
-                this.change.next(ConnectionStatus.Offline);
-                this.change.next(null);
-            }
+                    this.change.next(ConnectionStatus.Offline);
+                    this.change.next(null);
+                }
+            },
         });
 
-        this.network.onConnect().subscribe(() => {
-            if (this.status.getValue() === ConnectionStatus.Offline) {
-                this.firebase.logEvent("connection_status_changed", { newStatus: "online" });
-                console.log("WE ARE ONLINE");
-                this.status.next(ConnectionStatus.Online);
+        this.network.onConnect().subscribe({
+            next: () => {
+                if (this.status.getValue() === ConnectionStatus.Offline) {
+                    this.firebase.logEvent("connection_status_changed", { newStatus: "online" });
+                    console.log("WE ARE ONLINE");
+                    this.status.next(ConnectionStatus.Online);
 
-                this.change.next(ConnectionStatus.Online);
-                this.change.next(null);
-            }
+                    this.change.next(ConnectionStatus.Online);
+                    this.change.next(null);
+                }
+            },
         });
     }
 

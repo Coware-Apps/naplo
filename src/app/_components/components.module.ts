@@ -1,32 +1,39 @@
 import { NgModule } from "@angular/core";
 import { IonicModule } from "@ionic/angular";
-import { TanuloJelenletComponent } from "./tanulo-jelenlet/tanulo-jelenlet.component";
-import { TanuloFeljegyzesComponent } from "./tanulo-feljegyzes/tanulo-feljegyzes.component";
-import { TanuloErtekelesComponent } from "./tanulo-ertekeles/tanulo-ertekeles.component";
 import { CommonModule } from "@angular/common";
-import { ErtekelesComponent } from "./ertekeles/ertekeles.component";
 import { FormsModule } from "@angular/forms";
-import { OrarendiOraComponent } from "./orarendi-ora/orarendi-ora.component";
-import { OfflineWarningBarComponent } from "./offline-warning-bar/offline-warning-bar.component";
-import { PipesModule } from "../_pipes/pipes.module";
 import { TranslateModule } from "@ngx-translate/core";
+import { PipesModule } from "../_pipes/pipes.module";
+
+import { StudentAttendanceComponent } from "./student-attendance/student-attendance.component";
+import { StudentMemoComponent } from "./student-memo/student-memo.component";
+import { StudentEvaluationComponent } from "./student-evaluation/student-evaluation.component";
+import { EvaluationComponent } from "./evaluation/evaluation.component";
+import { TimetableLessonComponent } from "./timetable-lesson/timetable-lesson.component";
+import { OfflineWarningBarComponent } from "./offline-warning-bar/offline-warning-bar.component";
+import { PasswordConfirmRequiredComponent } from "./password-confirm-required/password-confirm-required.component";
+import { PageStateDisplayComponent } from "./page-state-display/page-state-display.component";
 
 @NgModule({
     declarations: [
-        TanuloJelenletComponent,
-        TanuloFeljegyzesComponent,
-        TanuloErtekelesComponent,
-        ErtekelesComponent,
-        OrarendiOraComponent,
+        StudentAttendanceComponent,
+        StudentMemoComponent,
+        StudentEvaluationComponent,
+        EvaluationComponent,
+        TimetableLessonComponent,
         OfflineWarningBarComponent,
+        PasswordConfirmRequiredComponent,
+        PageStateDisplayComponent,
     ],
     exports: [
-        TanuloJelenletComponent,
-        TanuloFeljegyzesComponent,
-        TanuloErtekelesComponent,
-        ErtekelesComponent,
-        OrarendiOraComponent,
+        StudentAttendanceComponent,
+        StudentMemoComponent,
+        StudentEvaluationComponent,
+        EvaluationComponent,
+        TimetableLessonComponent,
         OfflineWarningBarComponent,
+        PasswordConfirmRequiredComponent,
+        PageStateDisplayComponent,
     ],
     imports: [CommonModule, IonicModule, FormsModule, PipesModule, TranslateModule],
 })

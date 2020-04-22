@@ -1,0 +1,64 @@
+<ion-item>
+    <ion-label position="stacked" translate="eval.field-date"></ion-label>
+    <ion-datetime
+        displayFormat="YYYY. MM. DD."
+        [min]="this.dateHelper.getMonthFromToday(-3)"
+        [max]="this.dateHelper.getTodayString()"
+        [(ngModel)]="evaluationDate"
+        cancelText="{{ 'common.cancel' | translate }}"
+        doneText="{{ 'common.done' | translate }}"
+        (ionFocus)="onSelectionChange.emit($event)"
+    >
+    </ion-datetime>
+</ion-item>
+
+<ion-item>
+    <ion-label position="stacked" translate="eval.field-topic"></ion-label>
+    <ion-input
+        type="text"
+        [(ngModel)]="evaluationTopic"
+        (ionInput)="onSelectionChange.emit($event)"
+    ></ion-input>
+</ion-item>
+
+<ion-item>
+    <ion-label position="stacked" translate="eval.field-mode"></ion-label>
+    <ion-input
+        type="text"
+        [value]="evaluationMode?.Nev"
+        (click)="presentErtekelesModPicker()"
+        (ionInput)="onSelectionChange.emit($event)"
+        readonly
+    ></ion-input>
+</ion-item>
+
+<ion-item class="tipusSegmentItem">
+    <ion-segment (ionChange)="changeEvaluationType($event)" [value]="evaluationType">
+        <ion-segment-button value="MARK">
+            <ion-label translate="evaluation-types.mark"></ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="TEXTUAL">
+            <ion-label translate="evaluation-types.textual"></ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="PERCENTAGE">
+            <ion-label translate="evaluation-types.percentage"></ion-label>
+        </ion-segment-button>
+    </ion-segment>
+</ion-item>
+
+<ion-list *ngIf="studentsOfGroup" class="ion-no-padding ion-no-margin" lines="full">
+    <ion-item *ngFor="let t of studentsOfGroup?.TanuloLista">
+        <app-student-evaluation
+            [student]="t"
+            (click)="updateAverage()"
+            [evaluationType]="evaluationType"
+            [markCodes]="markCodes"
+            (onSelectionChange)="onSelectionChange.emit()"
+        ></app-student-evaluation>
+    </ion-item>
+</ion-list>
+
+<ion-item *ngIf="evaluationType != 'TEXTUAL'">
+    <ion-label translate="eval.average-of"></ion-label>
+    <ion-note slot="end">{{ average ? (average | localNumber) : "--" }}</ion-note>
+</ion-item>

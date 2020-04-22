@@ -1,15 +1,15 @@
 <ion-header>
     <ion-toolbar color="primary">
-        <ion-buttons slot="start" *ngIf="platform.is('android')">
-            <ion-button (click)="dismiss()">
-                <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
-            </ion-button>
-        </ion-buttons>
-
         <ion-searchbar
+            animated
+            inputmode="search"
+            type="search"
             [placeholder]="'institute-selector.filter'|translate"
-            (ionInput)="doFilter($event)"
-            [disabled]="!institutes"
+            (ionChange)="doFilter($event)"
+            [debounce]="250"
+            [showCancelButton]="platform.is('ios') ? 'never' : 'always'"
+            (ionCancel)="dismiss()"
+            color="light"
         ></ion-searchbar>
 
         <ion-buttons slot="end" *ngIf="platform.is('ios')">
@@ -21,18 +21,19 @@
 <ion-content>
     <ion-virtual-scroll
         [items]="filteredInstitutes"
-        *ngIf="filteredInstitutes"
+        *ngIf="pageState == 'LOADED'"
         approxItemHeight="63"
     >
         <ion-item *virtualItem="let i" (click)="onSelectionChange(i.InstituteCode)">
             <ion-label>
                 <h3>{{i.Name}}</h3>
+                <p class="ion-float-right">{{i.InstituteCode}}</p>
                 <p>{{i.City}}</p>
             </ion-label>
         </ion-item>
     </ion-virtual-scroll>
 
-    <ion-list *ngIf="!filteredInstitutes">
+    <ion-list *ngIf="pageState == 'LOADING'">
         <ion-progress-bar type="indeterminate" color="warning"></ion-progress-bar>
 
         <ion-item>
@@ -60,4 +61,19 @@
             <ion-label><ion-skeleton-text width="40%" animated></ion-skeleton-text></ion-label>
         </ion-item>
     </ion-list>
+
+    <app-page-state-display
+        *ngIf="pageState == 'ERROR'"
+        [exception]="exception"
+        buttonTextKey="common.retry"
+        (onButtonClicked)="ionViewWillEnter()"
+    ></app-page-state-display>
+
+    <app-page-state-display
+        *ngIf="pageState == 'EMPTY'"
+        buttonTextKey="common.retry"
+        iconName="business-outline"
+        [message]="'institute-selector.list-empty'|translate"
+        (onButtonClicked)="ionViewWillEnter()"
+    ></app-page-state-display>
 </ion-content>

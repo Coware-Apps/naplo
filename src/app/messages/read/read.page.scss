@@ -1,0 +1,63 @@
+ion-content {
+    --padding-start: calc(var(--ion-safe-area-left) + var(--ion-padding, 10px));
+    --padding-end: calc(var(--ion-safe-area-right) + var(--ion-padding, 10px));
+}
+
+.subject {
+    font-weight: normal;
+    margin-top: 8px;
+}
+
+.peopleInfo {
+    margin: 26px 0;
+    color: var(--ion-color-dark-tint);
+    display: flex;
+    flex: 1;
+
+    h2 {
+        font-weight: bold;
+
+        small {
+            font-weight: lighter;
+        }
+    }
+
+    ion-icon {
+        font-size: 29pt;
+        margin-right: 10px;
+    }
+}
+
+.message-text {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+    padding: 0 5px;
+}
+
+.attachment-container {
+    margin-top: 30px;
+
+    ion-chip ion-progress-bar {
+        position: absolute;
+        bottom: -2px;
+    }
+}
+
+#list {
+    padding: 0;
+}
+
+#buttons {
+    padding-top: 1em;
+}
+
+.bottomBtns {
+    width: 40%;
+    --ion-color-base: #a7a7a7 !important;
+}
+
+.show-prevmsg-button {
+    margin-left: calc(-1 * var(--padding-left, 10px));
+}

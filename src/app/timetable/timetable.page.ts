@@ -5,16 +5,22 @@ import {
     NetworkStatusService,
     ConnectionStatus,
     FirebaseService,
+    HwButtonService,
 } from "../_services";
-import { Lesson } from "../_models";
+import { Lesson, PageState } from "../_models";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ErrorHelper, DateHelper } from "../_helpers";
 import { DatePicker } from "@ionic-native/date-picker/ngx";
 import { ModalController } from "@ionic/angular";
-import { stringify } from "flatted/esm";
 import { TranslateService } from "@ngx-translate/core";
 import { Location } from "@angular/common";
-import { Subscription } from "rxjs";
+import { Subject } from "rxjs";
+import { takeUntil, switchMap, tap, finalize } from "rxjs/operators";
+
+interface loadDataOptions {
+    date: Date;
+    forceRefresh: boolean;
+}
 
 @Component({
     selector: "app-timetable",
@@ -35,111 +41,135 @@ export class TimetablePage implements OnInit {
         private firebase: FirebaseService,
         private translate: TranslateService,
         private router: Router,
-        private location: Location
+        private location: Location,
+        private hwButton: HwButtonService
     ) {}
 
-    public orarend: Lesson[];
-    public datum: Date;
-    public loading: boolean;
+    public timetable: Lesson[];
+    public date: Date;
 
-    private subs: Subscription[] = [];
+    public pageState: PageState = PageState.Loading;
+    public exception: Error;
+    public loadingInProgress: boolean;
+
+    private loadData$: Subject<loadDataOptions>;
+    private unsubscribe$: Subject<void>;
 
     // debug - live reload miatt van csak param
     public ngOnInit() {
         const paramDate = this.route.snapshot.queryParamMap.get("date");
-        this.datum = paramDate ? new Date(paramDate) : new Date();
-        this.datum.setUTCHours(0, 0, 0, 0);
+        this.date = paramDate ? new Date(paramDate) : new Date();
+        this.date.setUTCHours(0, 0, 0, 0);
     }
 
     public ionViewWillEnter() {
+        this.loadData$ = new Subject<loadDataOptions>();
+        this.unsubscribe$ = new Subject<void>();
         this.firebase.setScreenName("timetable");
+
+        this.loadData$
+            .pipe(
+                switchMap(options => {
+                    this.firebase.startTrace("timetable_day_load_time");
+                    this.loadingInProgress = true;
+                    return this.kreta.getOraLista(options.date, options.forceRefresh).pipe(
+                        finalize(() => {
+                            this.loadingInProgress = false;
+                            this.firebase.stopTrace("timetable_day_load_time");
+                        })
+                    );
+                }),
+                takeUntil(this.unsubscribe$)
+            )
+            .subscribe({
+                next: x => {
+                    this.pageState = x.length == 0 ? PageState.Empty : PageState.Loaded;
+                    this.timetable = x;
+
+                    this.cd.detectChanges();
+                },
+                error: error => {
+                    if (!this.timetable) {
+                        this.pageState = PageState.Error;
+                        this.exception = error;
+                        error.handled = true;
+                    }
+
+                    this.loadingInProgress = false;
+                    throw error;
+                },
+            });
+
         this.loadTimetable();
 
-        this.subs.push(
-            this.networkStatus.onNetworkChangeOnly().subscribe(x => {
-                if (x === ConnectionStatus.Online) this.loadTimetable();
-            })
-        );
+        this.networkStatus
+            .onNetworkChangeOnly()
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe({
+                next: x => {
+                    if (x === ConnectionStatus.Online) this.loadTimetable(true, true);
+                },
+            });
+
+        this.hwButton.registerHwBackButton(this.unsubscribe$, true);
     }
 
     public ionViewWillLeave() {
-        this.orarend = undefined;
-        this.subs.forEach((s, index, object) => {
-            s.unsubscribe();
-            object.splice(index, 1);
-        });
+        this.loadData$.complete();
+        this.unsubscribe$.next();
+        this.unsubscribe$.complete();
     }
 
-    async changeDate(direction: string) {
+    public changeDate(direction: string) {
         this.firebase.logEvent("timetable_date_changed", { direction: direction });
-        if (direction == "forward") this.datum.setDate(this.datum.getDate() + 1);
-        else this.datum.setDate(this.datum.getDate() - 1);
+        if (direction == "forward") this.date.setDate(this.date.getDate() + 1);
+        else this.date.setDate(this.date.getDate() - 1);
 
-        this.loadTimetable();
+        this.loadTimetable(false, true);
 
         this.location.go(
             this.router
                 .createUrlTree([], {
-                    queryParams: { date: this.datum.toISOString() },
+                    queryParams: { date: this.date.toISOString() },
                     relativeTo: this.route,
                 })
                 .toString()
         );
     }
 
-    async loadTimetable(showLoading: boolean = true, forceRefresh: boolean = false) {
-        if (showLoading) this.loading = true;
+    public loadTimetable(forceRefresh: boolean = false, resetDisplay: boolean = false, $event?) {
+        if (resetDisplay || !this.timetable) {
+            this.timetable = undefined;
+            this.pageState = PageState.Loading;
+        }
 
-        this.orarend = undefined;
+        // recovery after error (loadData$ completes on error)
+        if (this.loadData$.observers.length == 0) {
+            this.ionViewWillLeave();
+            this.ionViewWillEnter();
+        }
+        this.loadData$.next({ date: this.date, forceRefresh: forceRefresh });
 
-        await this.firebase.startTrace("timetable_day_load_time");
-        this.subs.push(
-            (await this.kreta.getTimetable(this.datum, forceRefresh)).subscribe(
-                x => {
-                    this.orarend = x;
-                    this.loading = false;
-                    this.cd.detectChanges();
-                    this.firebase.stopTrace("timetable_day_load_time");
-                },
-                e => {
-                    if (this.config.debugging) this.error.presentAlert(e);
-
-                    this.loading = false;
-                }
-            )
-        );
-    }
-
-    public async doRefresh($event?) {
-        await this.loadTimetable(false, true);
         if ($event) {
-            this.firebase.logEvent("timetable_pull2refresh", {});
+            this.firebase.logEvent("timetable_pull2refresh");
             $event.target.complete();
         }
     }
 
-    public async lessonClick(l: Lesson) {
-        this.firebase.logEvent("timetable_lesson_clicked", {});
+    public lessonClick(l: Lesson) {
+        this.firebase.logEvent("timetable_lesson_clicked");
 
         if (this.networkStatus.getCurrentNetworkStatus() === ConnectionStatus.Offline)
-            return await this.error.presentToast(
-                await this.translate.get("timetable.error-offline").toPromise()
-            );
+            return this.error.presentToast(this.translate.instant("timetable.error-offline"));
         if (this.dateHelper.isInFuture(l.KezdeteUtc))
-            return await this.error.presentToast(
-                await this.translate.get("timetable.error-in-future").toPromise()
-            );
+            return this.error.presentToast(this.translate.instant("timetable.error-in-future"));
         if (l.IsElmaradt)
-            return await this.error.presentToast(
-                await this.translate.get("timetable.error-cancelled").toPromise()
-            );
+            return this.error.presentToast(this.translate.instant("timetable.error-cancelled"));
         if (
             l.HelyettesitoId &&
             l.HelyettesitoId != this.kreta.currentUser["kreta:institute_user_id"]
         )
-            return await this.error.presentToast(
-                await this.translate.get("timetable.error-substituted").toPromise()
-            );
+            return this.error.presentToast(this.translate.instant("timetable.error-substituted"));
 
         this.router.navigate(["/logging-form"], {
             state: {
@@ -148,21 +178,21 @@ export class TimetablePage implements OnInit {
         });
     }
 
-    public async showDatePicker() {
+    public showDatePicker() {
         this.firebase.logEvent("timetable_datepicker_shown", {});
 
         this.datePicker
             .show({
-                date: this.datum,
+                date: this.date,
                 mode: "date",
                 locale: this.config.locale,
 
                 // android
-                okText: await this.translate.get("common.done").toPromise(),
-                cancelText: await this.translate.get("common.cancel").toPromise(),
+                okText: this.translate.instant("common.done"),
+                cancelText: this.translate.instant("common.cancel"),
                 // ios
-                doneButtonLabel: await this.translate.get("common.done").toPromise(),
-                cancelButtonLabel: await this.translate.get("common.cancel").toPromise(),
+                doneButtonLabel: this.translate.instant("common.done"),
+                cancelButtonLabel: this.translate.instant("common.cancel"),
 
                 androidTheme: this.datePicker.ANDROID_THEMES.THEME_DEVICE_DEFAULT_DARK,
             })
@@ -170,13 +200,12 @@ export class TimetablePage implements OnInit {
                 date => {
                     if (!date) return;
                     date = this.dateHelper.createDateAsUTC(date);
-                    this.datum = date;
+                    this.date = date;
                     this.loadTimetable();
                 },
                 err => {
                     if (err != "cancel") {
-                        console.log("Error occurred while getting date: ", err);
-                        this.firebase.logError("timetable datepicker error: " + stringify(err));
+                        throw err;
                     }
                 }
             );

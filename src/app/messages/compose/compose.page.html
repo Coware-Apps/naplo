@@ -1,0 +1,144 @@
+<ion-header>
+    <ion-toolbar color="primary">
+        <ion-buttons slot="start">
+            <ion-back-button
+                defaultHref="messages"
+                [text]="config.getBackButtonText()"
+            ></ion-back-button>
+        </ion-buttons>
+        <ion-title translate="messages.compose.title"></ion-title>
+        <ion-buttons slot="end">
+            <ion-button
+                (click)="chooseAttachmentSource($event)"
+                [disabled]="loadingInProgress || currentlyOffline"
+            >
+                <ion-icon slot="icon-only" name="attach"></ion-icon>
+            </ion-button>
+            <ion-button (click)="sendMsg()" [disabled]="loadingInProgress || currentlyOffline">
+                <ion-icon slot="icon-only" name="send-outline"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+
+    <app-offline-warning-bar
+        [warningMessage]="'messages.compose.offline-warning'|translate"
+    ></app-offline-warning-bar>
+    <ion-progress-bar
+        type="indeterminate"
+        *ngIf="loadingInProgress"
+        color="warning"
+    ></ion-progress-bar>
+</ion-header>
+
+<ion-content>
+    <ion-list>
+        <ion-item class="item-input">
+            <ion-label
+                translate="messages.compose.label-to"
+                class="label-for-multiline"
+            ></ion-label>
+            <div class="ion-text-wrap">
+                <ion-chip outline="true" *ngFor="let a of addresseeList">
+                    <ion-label>{{ getName(a) }}</ion-label>
+                    <ion-icon
+                        name="close-circle"
+                        (click)="removeAddressee(a)"
+                        *ngIf="!prevMsgId"
+                        color="dark"
+                    ></ion-icon>
+                </ion-chip>
+                <ion-chip
+                    color="primary"
+                    outline="true"
+                    (click)="selectAddressees()"
+                    *ngIf="!prevMsgId"
+                >
+                    <ion-icon name="add-circle"></ion-icon>
+                    <ion-label translate="messages.compose.add"></ion-label>
+                </ion-chip>
+            </div>
+        </ion-item>
+        <ion-item>
+            <ion-label translate="messages.compose.label-subject"></ion-label>
+            <ion-input
+                required
+                [(ngModel)]="subject"
+                type="text"
+                (ionInput)="makeItDirty()"
+            ></ion-input>
+        </ion-item>
+        <ion-item lines="none">
+            <ion-textarea
+                required
+                [placeholder]="'messages.compose.message-placeholder' | translate"
+                class="message-text"
+                autoGrow="true"
+                [(ngModel)]="text"
+                (ionInput)="makeItDirty()"
+            >
+            </ion-textarea>
+        </ion-item>
+
+        <ion-item lines="none" *ngIf="!prevMsgShown && prevMsgText">
+            <ion-button (click)="prevMsgShown = true" fill="clear" color="dark">
+                <ion-icon name="ellipsis-horizontal-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+        </ion-item>
+
+        <ion-item
+            class="attachment-container"
+            lines="none"
+            *ngIf="(attachmentList && attachmentList.length) > 0 || currentlyUploading"
+        >
+            <div class="ion-text-wrap">
+                <ion-chip *ngFor="let f of attachmentList" color="dark">
+                    <ion-icon name="document-attach-outline"></ion-icon>
+                    <ion-label>{{f.fajlNev}}</ion-label>
+                    <ion-icon
+                        name="close-circle"
+                        (click)="deleteAttachment(f)"
+                        color="dark"
+                    ></ion-icon>
+                </ion-chip>
+
+                <ion-chip
+                    *ngIf="currentlyUploading"
+                    outline
+                    [color]="currentlyUploading.isFailedUpload ? 'danger' : 'primary'"
+                >
+                    <ion-icon
+                        [name]="currentlyUploading.isFailedUpload ? 'alert-circle' : 'document-attach-outline'"
+                        color="dark"
+                    ></ion-icon>
+
+                    <ion-label>
+                        {{currentlyUploading.fajlNev}}
+                        <ng-container *ngIf="!currentlyUploading.isFailedUpload">
+                            &ndash; {{currentlyUploading.uploadProgressPercent * 100 |
+                            number:'1.0-0'}}%
+                        </ng-container>
+                    </ion-label>
+                    <ion-progress-bar
+                        type="determinate"
+                        [value]="currentlyUploading.uploadProgressPercent"
+                        color="primary"
+                        *ngIf="!currentlyUploading.isFailedUpload"
+                    ></ion-progress-bar>
+                    <ion-icon
+                        name="close-circle"
+                        (click)="resetCurrentlyUploading()"
+                        *ngIf="currentlyUploading.isFailedUpload"
+                        color="dark"
+                    ></ion-icon>
+                </ion-chip>
+            </div>
+        </ion-item>
+
+        <ion-item
+            *ngIf="prevMsgText && prevMsgShown"
+            class="prev-message"
+            lines="none"
+            [innerHTML]="prevMsgText"
+        ></ion-item>
+    </ion-list>
+</ion-content>

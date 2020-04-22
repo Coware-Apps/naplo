@@ -1,15 +1,17 @@
 import { Component, ChangeDetectorRef } from "@angular/core";
-import { Lesson } from "../_models";
+import { Lesson, PageState } from "../_models";
 import { DateHelper, ErrorHelper } from "../_helpers";
 import {
     KretaService,
     NetworkStatusService,
     ConnectionStatus,
-    ConfigService,
     FirebaseService,
+    HwButtonService,
 } from "../_services";
-import { Subscription } from "rxjs";
+import { Subject, from } from "rxjs";
 import { Router } from "@angular/router";
+import { TranslateService } from "@ngx-translate/core";
+import { takeUntil, flatMap } from "rxjs/operators";
 
 @Component({
     selector: "app-notlogged",
@@ -17,11 +19,14 @@ import { Router } from "@angular/router";
     styleUrls: ["./notlogged.page.scss"],
 })
 export class NotloggedPage {
-    public loading: boolean;
-    public orak: Lesson[] = [];
+    public lessons: Lesson[];
 
-    public napToCheck = 10;
-    private subs: Subscription[] = [];
+    public daysToCheck = 10;
+
+    public pageState: PageState = PageState.Loading;
+    public exception: Error;
+    public loadingInProgress: boolean;
+    private unsubscribe$: Subject<void>;
 
     constructor(
         private dateHelper: DateHelper,
@@ -29,75 +34,94 @@ export class NotloggedPage {
         private errorHelper: ErrorHelper,
         private networkStatus: NetworkStatusService,
         private cd: ChangeDetectorRef,
-        private config: ConfigService,
         private firebase: FirebaseService,
-        private router: Router
+        private router: Router,
+        private translate: TranslateService,
+        private hwButton: HwButtonService
     ) {}
 
     async ionViewWillEnter() {
+        this.unsubscribe$ = new Subject<void>();
         this.firebase.setScreenName("not_logged_lessons");
+        this.loadNotLoggedLessons();
 
-        this.loading = true;
-        this.loadHianyzoOrak();
+        this.networkStatus
+            .onNetworkChangeOnly()
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe({
+                next: x => {
+                    if (x === ConnectionStatus.Online) this.loadNotLoggedLessons();
+                },
+            });
 
-        this.subs.push(
-            this.networkStatus.onNetworkChangeOnly().subscribe(x => {
-                if (x === ConnectionStatus.Online) this.loadHianyzoOrak();
-            })
-        );
+        this.hwButton.registerHwBackButton(this.unsubscribe$);
     }
 
     ionViewWillLeave() {
-        this.subs.forEach((s, index, object) => {
-            s.unsubscribe();
-            object.splice(index, 1);
-        });
+        this.unsubscribe$.next();
+        this.unsubscribe$.complete();
     }
 
-    async loadHianyzoOrak(forceRefresh: boolean = false, $event?) {
-        await this.firebase.startTrace("not_logged_lessons_load_time");
+    loadNotLoggedLessons(forceRefresh: boolean = false, $event?) {
+        this.firebase.startTrace("not_logged_lessons_load_time");
 
-        this.orak = [];
-        let map = new Map();
-        for (let i = 0; i < this.napToCheck; i++) {
-            let d = new Date(this.dateHelper.getDayFromToday(-i));
-            this.subs.push(
-                (await this.kreta.getTimetable(d, forceRefresh)).subscribe(
-                    x => {
-                        x.forEach(ora => {
-                            if (
-                                ora.Allapot.Nev == "Nem_naplozott" &&
-                                !ora.IsElmaradt &&
-                                !map.has(ora.OrarendiOraId)
-                            ) {
-                                map.set(ora.OrarendiOraId, true);
-                                this.orak.push(ora);
-                            }
-                        });
-
-                        if (i == this.napToCheck - 1) {
-                            this.loading = false;
-                            this.cd.detectChanges();
-                            this.firebase.stopTrace("not_logged_lessons_load_time");
-
-                            if ($event) $event.target.complete();
-                        }
-                    },
-                    e => {
-                        if (this.config.debugging) this.errorHelper.presentAlert(e);
-                    }
-                )
-            );
+        if (!this.lessons) {
+            this.pageState = PageState.Loading;
         }
+
+        this.loadingInProgress = true;
+        let map = new Map();
+
+        from([...new Array(this.daysToCheck).keys()])
+            .pipe(
+                flatMap(x => {
+                    const d = new Date(this.dateHelper.getDayFromToday(-x));
+                    return this.kreta.getOraLista(d, forceRefresh);
+                }),
+                takeUntil(this.unsubscribe$)
+            )
+            .subscribe({
+                next: x => {
+                    x.forEach(lesson => {
+                        if (
+                            lesson.Allapot.Nev == "Nem_naplozott" &&
+                            !lesson.IsElmaradt &&
+                            !map.has(lesson.OrarendiOraId)
+                        ) {
+                            map.set(lesson.OrarendiOraId, lesson);
+                        }
+                    });
+                },
+                error: error => {
+                    if (!this.lessons) {
+                        this.pageState = PageState.Error;
+                        this.exception = error;
+                        error.handled = true;
+                    }
+
+                    this.loadingInProgress = false;
+                    if ($event) $event.target.complete();
+                    this.firebase.stopTrace("not_logged_lessons_load_time");
+
+                    throw error;
+                },
+                complete: () => {
+                    this.lessons = [...map.values()];
+                    this.loadingInProgress = false;
+                    this.cd.detectChanges();
+                    this.pageState = this.lessons.length == 0 ? PageState.Empty : PageState.Loaded;
+                    this.firebase.stopTrace("not_logged_lessons_load_time");
+
+                    if ($event) $event.target.complete();
+                },
+            });
     }
 
-    async onLessonClick(l: Lesson) {
-        this.firebase.logEvent("notlogged_lesson_clicked", {});
+    onLessonClick(l: Lesson) {
+        this.firebase.logEvent("notlogged_lesson_clicked");
 
         if (this.networkStatus.getCurrentNetworkStatus() === ConnectionStatus.Offline)
-            return await this.errorHelper.presentToast(
-                "Nincs internetkapcsolat, ezért az óra most nem naplózható!"
-            );
+            return this.errorHelper.presentToast(this.translate.instant("notlogged.error-offline"));
 
         this.router.navigate(["/logging-form"], { state: { lesson: l } });
     }

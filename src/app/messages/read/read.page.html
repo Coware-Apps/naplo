@@ -1,0 +1,157 @@
+<ion-header>
+    <ion-toolbar color="primary">
+        <ion-buttons slot="start">
+            <ion-buttons slot="start">
+                <ion-back-button
+                    defaultHref="messages"
+                    [text]="config.getBackButtonText()"
+                ></ion-back-button>
+            </ion-buttons>
+        </ion-buttons>
+
+        <ion-buttons slot="end" *ngIf="pageState == 'LOADED'">
+            <ion-button *ngIf="!this.message.isToroltElem" (click)="replyToMsg()">
+                <ion-icon slot="icon-only" name="arrow-undo-outline"></ion-icon>
+            </ion-button>
+            <ion-button *ngIf="!this.message.isToroltElem" (click)="forwardMsg()">
+                <ion-icon slot="icon-only" name="arrow-redo-outline"></ion-icon>
+            </ion-button>
+            <ion-button *ngIf="!this.message.isToroltElem" (click)="binMsg('put')">
+                <ion-icon slot="icon-only" name="trash-bin-outline"></ion-icon>
+            </ion-button>
+            <ion-button *ngIf="this.message.isToroltElem" (click)="binMsg('remove')">
+                <ion-icon slot="icon-only" name="arrow-undo-circle-outline"></ion-icon>
+            </ion-button>
+            <ion-button *ngIf="this.message.isToroltElem" (click)="deleteMsg()">
+                <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+            </ion-button>
+            <!-- Only an option if the message isn't set (2) -->
+            <ion-button *ngIf="this.message.tipus.azonosito != 2" (click)="setAsUnread()">
+                <ion-icon slot="icon-only" name="mail-unread-outline"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+
+    <app-offline-warning-bar></app-offline-warning-bar>
+    <ion-progress-bar
+        type="indeterminate"
+        color="warning"
+        *ngIf="loadingInProgress"
+    ></ion-progress-bar>
+</ion-header>
+
+<ion-content class="ion-padding">
+    <ng-container *ngIf="this.pageState == 'LOADED'">
+        <ion-list
+            lines="none"
+            *ngIf="this.message.uzenet.statusz && this.message.uzenet.statusz.azonosito != 2"
+        >
+            <ion-item button (click)="showStatusInfo()" color="danger">
+                <ion-icon name="warning" slot="start"></ion-icon>
+                <ion-label>
+                    {{ 'messages.read.delivery-status' | translate }}:
+                    {{this.message.uzenet.statusz.rovidNev}}
+                </ion-label>
+            </ion-item>
+        </ion-list>
+
+        <h3 class="subject">{{message.uzenet.targy}}</h3>
+
+        <div class="peopleInfo">
+            <ion-icon slot="start" name="person-circle-outline"></ion-icon>
+            <ion-label>
+                <h2>
+                    {{message.uzenet.feladoNev}}
+                    <small>
+                        {{ sentDate.toLocaleString(config.locale, { year: 'numeric', month: 'short',
+                        day: 'numeric', hour: 'numeric', minute: 'numeric' }) }}
+                    </small>
+                </h2>
+                <ion-note>
+                    {{ 'messages.read.to' | translate }}: {{addresseeList}}
+                </ion-note>
+            </ion-label>
+        </div>
+
+        <div class="message-text" [innerHTML]="message.uzenet.szoveg"></div>
+        <ion-button
+            (click)="prevMsgShown = true"
+            *ngIf="!prevMsgShown && prevMsg"
+            class="show-prevmsg-button"
+            fill="clear"
+            color="dark"
+        >
+            <ion-icon name="ellipsis-horizontal-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+        <div class="message-text" [innerHTML]="prevMsg" *ngIf="prevMsgShown"></div>
+
+        <div class="attachment-container" *ngIf="this.message.uzenet.csatolmanyok.length > 0">
+            <ion-chip *ngIf="!attachmentsEnabled">
+                <ion-icon name="document-attach-outline"></ion-icon>
+                <ion-label>
+                    {{ 'messages.read.loading-attachments' | translate }}
+                    <ion-spinner name="lines-small"></ion-spinner>
+                </ion-label>
+            </ion-chip>
+
+            <ng-container *ngIf="attachmentsEnabled">
+                <ion-chip
+                    (click)="getFile(f.azonosito, f.fajlNev)"
+                    *ngFor="let f of message.uzenet.csatolmanyok"
+                    [color]="f.isDownloadFailed ? 'danger': ''"
+                >
+                    <ion-icon
+                        [name]="f.isDownloadFailed ? 'alert-circle' : 'document-attach-outline'"
+                        color="dark"
+                    ></ion-icon>
+                    <ion-label>{{f.fajlNev}}</ion-label>
+                    <ion-progress-bar
+                        type="determinate"
+                        [value]="f.downloadProgressPercent"
+                        color="primary"
+                        *ngIf="!f.isDownloadFailed && f.downloadProgressPercent"
+                    ></ion-progress-bar>
+                </ion-chip>
+            </ng-container>
+        </div>
+
+        <div id="buttons" class="ion-text-center ion-align-self-baseline">
+            <ion-button (click)="this.replyToMsg()" class="bottomBtns" color="dark" fill="outline">
+                <ion-icon slot="start" name="return-up-back"></ion-icon>
+                {{ 'messages.read.reply' | translate }}
+            </ion-button>
+            <ion-button (click)="this.forwardMsg()" class="bottomBtns" color="dark" fill="outline">
+                <ion-icon slot="start" name="return-up-forward"></ion-icon>
+                {{ 'messages.read.forward' | translate }}
+            </ion-button>
+        </div>
+    </ng-container>
+
+    <ng-container *ngIf="this.pageState == 'LOADING'">
+        <ion-skeleton-text animated style="width: 80%;"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 80%;"></ion-skeleton-text>
+
+        <ion-list id="list" lines="none">
+            <ion-item id="peopleInfo">
+                <ion-icon slot="start" name="person-circle-outline"></ion-icon>
+                <ion-label>
+                    <ion-skeleton-text animated style="width: 80%;"></ion-skeleton-text>
+                    <ion-skeleton-text animated style="width: 70%;"></ion-skeleton-text>
+                </ion-label>
+            </ion-item>
+        </ion-list>
+
+        <div class="extra-padding">
+            <ion-skeleton-text animated style="width: 80;"></ion-skeleton-text>
+            <ion-skeleton-text animated style="width: 80;"></ion-skeleton-text>
+            <ion-skeleton-text animated style="width: 80;"></ion-skeleton-text>
+        </div>
+    </ng-container>
+
+    <app-page-state-display
+        *ngIf="pageState == 'ERROR'"
+        [exception]="exception"
+        buttonTextKey="common.retry"
+        (onButtonClicked)="ionViewWillEnter()"
+    ></app-page-state-display>
+</ion-content>

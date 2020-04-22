@@ -1,0 +1,29 @@
+.message-text {
+    height: 100%;
+}
+
+.prev-message {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+}
+
+.label-for-multiline {
+    margin-right: 15px;
+    flex-shrink: 0;
+    align-self: flex-start;
+}
+
+.attachment-container {
+    margin-top: 20px;
+}
+
+ion-chip ion-progress-bar {
+    position: absolute;
+    bottom: -2px;
+}
+
+.show-prevmsg-button {
+    margin-left: calc(-1 * var(--padding-left, 10px));
+}

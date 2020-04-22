@@ -1,0 +1,45 @@
+ion-thumbnail {
+    border-left: 6px solid transparent;
+    text-align: center;
+    position: relative;
+
+    .lesson-number {
+        font-weight: bold;
+        font-size: 18pt;
+        margin-top: 14px;
+        margin-left: 10px;
+    }
+
+    .date {
+        font-weight: bold;
+        margin-left: 10px;
+        font-size: 1.26rem;
+        position: absolute;
+        top: 50%;
+        -ms-transform: translateY(-50%);
+        transform: translateY(-50%);
+    }
+}
+
+.logged ion-thumbnail {
+    border-color: green;
+}
+.non-logged ion-thumbnail {
+    border-color: red;
+}
+.in-future ion-thumbnail {
+    border-color: grey;
+}
+.cancelled,
+.substituted {
+    ion-thumbnail {
+        border-color: grey;
+    }
+    .subject-name {
+        text-decoration: line-through;
+    }
+}
+
+ion-icon {
+    vertical-align: text-top;
+}

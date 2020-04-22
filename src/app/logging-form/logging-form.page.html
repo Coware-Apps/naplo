@@ -21,66 +21,27 @@
         [warningMessage]="'offline.cant-save'|translate"
     ></app-offline-warning-bar>
 
+    <ion-toolbar color="secondary" class="ion-text-center">
+        {{ startDate?.toLocaleDateString(config.locale, {month: 'short', day: 'numeric', weekday:
+        'short'}) }} &ndash; {{lesson?.TantargyNev}}<br />
+        {{lesson?.OsztalyCsoportNev}} &ndash;
+        <span
+            translate="logging.lesson-seqnum"
+            [translateParams]="{value: yearlyLessonCount}"
+        ></span>
+    </ion-toolbar>
+
     <ion-progress-bar
         type="indeterminate"
         color="warning"
         *ngIf="loading?.length > 0"
     ></ion-progress-bar>
-
-    <ion-toolbar color="secondary" class="ion-text-center">
-        <div>
-            {{ kezdete?.toLocaleDateString(config.locale, {month: 'short', day: 'numeric', weekday:
-            'short'}) }} &ndash; {{lesson?.TantargyNev}}<br />
-            {{lesson?.OsztalyCsoportNev}} &ndash;
-            <span
-                translate="logging.lesson-seqnum"
-                [translateParams]="{value: evesOraSorszam}"
-            ></span>
-        </div>
-    </ion-toolbar>
 </ion-header>
 
 <ion-content>
     <ion-slides (ionSlideWillChange)="onSlideChange()">
         <ion-slide>
-            <ion-item id="oratemaja">
-                <ion-label position="stacked" translate="logging.lesson-topic"></ion-label>
-                <ion-textarea
-                    [(ngModel)]="tema"
-                    required
-                    wrap="soft"
-                    (ionInput)="makeItDirty()"
-                ></ion-textarea>
-                <ion-button
-                    (click)="openTopicOptionsPopover($event)"
-                    size="large"
-                    fill="none"
-                    slot="end"
-                >
-                    <ion-icon
-                        slot="icon-only"
-                        name="ellipsis-vertical-outline"
-                        color="primary"
-                    ></ion-icon>
-                </ion-button>
-            </ion-item>
-
-            <ion-list
-                *ngIf="osztalyTanuloi && loading.length == 0"
-                class="ion-no-padding ion-no-margin"
-                lines="full"
-            >
-                <ion-item *ngFor="let t of osztalyTanuloi?.TanuloLista">
-                    <app-tanulo-jelenlet
-                        [tanulo]="t"
-                        [mulasztasok]="mulasztasok"
-                        [javasoltJelenlet]="javasoltJelenlet"
-                        (onSelectionChange)="makeItDirty()"
-                    ></app-tanulo-jelenlet>
-                </ion-item>
-            </ion-list>
-
-            <div *ngIf="loading?.length > 0">
+            <ng-container *ngIf="pageState == 'LOADING'">
                 <ion-list
                     *ngFor="let i of [].constructor(5)"
                     class="ion-no-padding ion-no-margin"
@@ -88,24 +49,89 @@
                 >
                     <ion-item>
                         <ion-label>
-                            <ion-skeleton-text style="width: 50%; height: 14px"></ion-skeleton-text>
                             <ion-skeleton-text
-                                style="width: 100%; height: 27px"
+                                style="width: 50%; height: 14px;"
+                            ></ion-skeleton-text>
+                            <ion-skeleton-text
+                                style="width: 100%; height: 27px;"
                             ></ion-skeleton-text>
                         </ion-label>
                     </ion-item>
                 </ion-list>
-            </div>
+            </ng-container>
+
+            <ng-container *ngIf="pageState == 'LOADED'">
+                <ion-item id="lesson-topic">
+                    <ion-label position="stacked" translate="logging.lesson-topic"></ion-label>
+                    <ion-textarea
+                        [(ngModel)]="topic"
+                        required
+                        wrap="soft"
+                        (ionInput)="makeItDirty()"
+                    ></ion-textarea>
+                    <ion-button
+                        (click)="openTopicOptionsPopover($event)"
+                        size="large"
+                        fill="none"
+                        slot="end"
+                    >
+                        <ion-icon
+                            slot="icon-only"
+                            name="ellipsis-vertical-outline"
+                            color="primary"
+                        ></ion-icon>
+                    </ion-button>
+                </ion-item>
+
+                <ion-item lines="none" class="mass-operations">
+                    <ion-icon name="people-outline" slot="end"></ion-icon>
+                    <span slot="end">
+                        <ion-button
+                            (click)="massSetAttendance('Jelenlét')"
+                            fill="outline"
+                            size="default"
+                            translate="attendance-states.jelenlet"
+                        >
+                        </ion-button>
+                        <ion-button
+                            (click)="massSetAttendance('Üres')"
+                            fill="outline"
+                            size="default"
+                            translate="attendance-states.ures"
+                        >
+                        </ion-button>
+                    </span>
+                </ion-item>
+
+                <ion-list
+                    *ngIf="studentsOfGroup && loading.length == 0"
+                    class="ion-no-padding ion-no-margin"
+                    lines="full"
+                >
+                    <ion-item *ngFor="let t of studentsOfGroup?.TanuloLista">
+                        <app-student-attendance
+                            [student]="t"
+                            [absences]="absences"
+                            [suggestedAttendanceTemplates]="suggestedAttendanceTemplates"
+                            [suggestedAttendanceState]="suggestedAttendanceState"
+                            [attendanceCodes]="attendanceCodes"
+                            [attendanceMassSet$]="attendanceMassSet$"
+                            (onSelectionChange)="makeItDirty()"
+                        ></app-student-attendance>
+                    </ion-item>
+                </ion-list>
+            </ng-container>
         </ion-slide>
 
         <ion-slide>
-            <ion-list *ngIf="osztalyTanuloi" class="ion-no-padding ion-no-margin" lines="full">
-                <ion-item *ngFor="let t of osztalyTanuloi?.TanuloLista">
-                    <app-tanulo-feljegyzes
-                        [tanulo]="t"
-                        [allapot]="feljegyzesek"
+            <ion-list *ngIf="studentsOfGroup" class="ion-no-padding ion-no-margin" lines="full">
+                <ion-item *ngFor="let t of studentsOfGroup?.TanuloLista">
+                    <app-student-memo
+                        [student]="t"
+                        [state]="memos"
+                        [memoCodes]="memoCodes"
                         (onSelectionChange)="makeItDirty()"
-                    ></app-tanulo-feljegyzes>
+                    ></app-student-memo>
                 </ion-item>
             </ion-list>
         </ion-slide>
@@ -117,7 +143,7 @@
                     displayFormat="YYYY. MM. DD."
                     [min]="this.dateHelper.getTodayString()"
                     [max]="this.dateHelper.getMonthFromToday(3)"
-                    [(ngModel)]="hfHatarido"
+                    [(ngModel)]="homeworkDeadline"
                     cancelText="{{ 'common.cancel' | translate }}"
                     doneText="{{ 'common.done' | translate }}"
                     (ionFocus)="makeItDirty()"
@@ -128,7 +154,7 @@
             <ion-item>
                 <ion-label position="stacked" translate="logging.homework-desc"></ion-label>
                 <ion-textarea
-                    [(ngModel)]="hfSzoveg"
+                    [(ngModel)]="homeworkDescription"
                     id="hfSzoveg"
                     rows="10"
                     (ionInput)="makeItDirty()"
@@ -137,16 +163,23 @@
         </ion-slide>
 
         <ion-slide>
-            <app-ertekeles
+            <app-evaluation
                 [lesson]="lesson"
-                [osztalyTanuloi]="osztalyTanuloi"
+                [studentsOfGroup]="studentsOfGroup"
                 (onSelectionChange)="makeItDirty()"
-            ></app-ertekeles>
+            ></app-evaluation>
         </ion-slide>
     </ion-slides>
+
+    <app-page-state-display
+        *ngIf="pageState == 'ERROR'"
+        [exception]="exception"
+        buttonTextKey="common.retry"
+        (onButtonClicked)="ionViewWillEnter()"
+    ></app-page-state-display>
 </ion-content>
 
-<ion-tab-bar slot="bottom">
+<ion-tab-bar slot="bottom" *ngIf="pageState == 'LOADED'">
     <ion-tab-button (click)="slideToTab(0)" [selected]="activeTabIndex == 0">
         <ion-icon name="man-outline"></ion-icon>
         <ion-label translate="logging.tab-presence"></ion-label>

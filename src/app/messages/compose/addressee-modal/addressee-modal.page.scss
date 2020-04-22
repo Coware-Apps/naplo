@@ -1,0 +1,32 @@
+ion-toolbar ion-checkbox {
+    --size: 24px;
+}
+.type-select {
+    font-size: 130%;
+}
+.subtype-select {
+    --placeholder-opacity: 1;
+}
+
+.slide-top {
+    animation: 0.1s ease-out 0s 1 slideInFromTop;
+}
+.slide-bottom {
+    animation: 0.1s ease-out 0s 1 slideInFromBottom;
+}
+@keyframes slideInFromTop {
+    0% {
+        transform: translateY(-100%);
+    }
+    100% {
+        transform: translateY(0);
+    }
+}
+@keyframes slideInFromBottom {
+    0% {
+        transform: translateY(100%);
+    }
+    100% {
+        transform: translateY(0);
+    }
+}

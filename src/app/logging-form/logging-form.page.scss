@@ -1,10 +1,10 @@
-app-tanulo-jelenlet,
-app-tanulo-feljegyzes {
+app-student-attendance,
+app-student-memo {
     width: 100%;
     margin: 6px 0;
 }
 
-#oratemaja {
+#lesson-topic {
     margin-bottom: 10px;
 
     ion-button {
@@ -15,4 +15,10 @@ app-tanulo-feljegyzes {
 
 ion-slide {
     display: block;
+}
+
+ion-item.mass-operations {
+    span {
+        margin-left: 10px;
+    }
 }

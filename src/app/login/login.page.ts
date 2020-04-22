@@ -5,6 +5,8 @@ import {
     NetworkStatusService,
     ConnectionStatus,
     FirebaseService,
+    HwButtonService,
+    KretaEUgyService,
 } from "../_services";
 import { ActivatedRoute, Router } from "@angular/router";
 import {
@@ -19,12 +21,10 @@ import { SafariViewController } from "@ionic-native/safari-view-controller/ngx";
 import { StatusBar } from "@ionic-native/status-bar/ngx";
 import { InAppBrowser } from "@ionic-native/in-app-browser/ngx";
 import { Market } from "@ionic-native/market/ngx";
-import {
-    KretaMissingRoleException,
-    KretaInvalidPasswordException,
-} from "../_models/kreta-exceptions";
+import { KretaMissingRoleException, KretaInvalidPasswordException } from "../_exceptions";
 import { TranslateService } from "@ngx-translate/core";
-import { Subscription } from "rxjs";
+import { Subject } from "rxjs";
+import { takeUntil } from "rxjs/operators";
 
 @Component({
     selector: "app-login",
@@ -38,16 +38,17 @@ export class LoginPage {
     private returnUrl: string;
     public loading: boolean;
 
-    private subs: Subscription[] = [];
+    private unsubscribe$: Subject<void>;
 
     constructor(
         private kreta: KretaService,
+        private eugy: KretaEUgyService,
         private router: Router,
         private route: ActivatedRoute,
         private loadingController: LoadingController,
         private menuController: MenuController,
         private modalController: ModalController,
-        private error: ErrorHelper,
+        private errorHelper: ErrorHelper,
         private safariViewController: SafariViewController,
         private statusBar: StatusBar,
         private config: ConfigService,
@@ -56,10 +57,12 @@ export class LoginPage {
         private iab: InAppBrowser,
         private market: Market,
         private alertController: AlertController,
-        private translate: TranslateService
+        private translate: TranslateService,
+        private hwButton: HwButtonService
     ) {}
 
     async ionViewWillEnter() {
+        this.unsubscribe$ = new Subject<void>();
         this.config.applyTheme("light", false);
         this.statusBar.styleDefault();
         this.statusBar.backgroundColorByHexString("#FDEC5D"); // sárga
@@ -73,91 +76,83 @@ export class LoginPage {
             await this.router.navigate(["/timetable"]);
             return;
         }
+
+        this.hwButton.registerHwBackButton(this.unsubscribe$, true);
     }
 
     ionViewWillLeave() {
-        this.subs.forEach((s, index, object) => {
-            s.unsubscribe();
-            object.splice(index, 1);
-        });
+        this.unsubscribe$.next();
+        this.unsubscribe$.complete();
     }
 
     async doLogin() {
-        await this.firebase.startTrace("login_time");
+        this.firebase.startTrace("login_time");
         this.loading = true;
         const loading = await this.loadingController.create({
-            message: await this.translate.get("login.logging-in").toPromise(),
+            message: this.translate.instant("login.logging-in"),
         });
         await loading.present();
 
         try {
-            const response = await this.kreta.loginWithUsername(this.username, this.password);
+            await this.kreta.loginWithUsername(this.username, this.password);
+            this.eugy.getToken(this.username, this.password, this.kreta.institute);
 
-            if (response && response.status == 200) {
-                console.log("Sikeres bejelentkezés, átirányítás: ", this.returnUrl);
+            console.log("Sikeres bejelentkezés, átirányítás: ", this.returnUrl);
 
-                this.kreta.deleteInstituteListFromStorage();
-                this.firebase.logEvent("login", { method: "kreta" });
+            this.kreta.deleteInstituteListFromStorage();
+            this.firebase.logEvent("login", { method: "kreta" });
 
-                await Promise.all([
-                    this.menuController.enable(true),
-                    loading.dismiss(),
-                    this.config.applyTheme("light"),
-                ]);
+            await Promise.all([
+                this.menuController.enable(true),
+                loading.dismiss(),
+                this.config.applyTheme("light"),
+            ]);
 
-                this.loading = false;
-                this.firebase.stopTrace("login_time");
-                await this.router.navigate([this.returnUrl], { replaceUrl: true });
-            }
+            this.router.navigate([this.returnUrl], { replaceUrl: true });
         } catch (e) {
-            console.log("Hiba a felhasználóneves bejelentkezés során: ", e.message);
+            console.log("Hiba a felhasználóneves bejelentkezés során: ", e);
 
             if (e instanceof KretaInvalidPasswordException) {
-                this.firebase.logEvent("login_bad_credentials", {});
-                return await this.error.presentAlert(
-                    await this.translate.get("login.bad-credentials").toPromise()
-                );
+                this.firebase.logEvent("login_bad_credentials");
+                return await this.errorHelper.presentAlertFromError(e);
             } else if (e instanceof KretaMissingRoleException) {
-                this.firebase.logEvent("login_missing_role", {});
+                this.firebase.logEvent("login_missing_role");
                 const alert = await this.alertController.create({
-                    header: await this.translate.get("login.permission-needed").toPromise(),
-                    message: await this.translate.get("login.teacher-role-needed").toPromise(),
+                    header: this.translate.instant("login.permission-needed"),
+                    message: this.translate.instant("login.teacher-role-needed"),
                     buttons: [
                         {
-                            text: await this.translate.get("common.no").toPromise(),
+                            text: this.translate.instant("common.no"),
                             role: "cancel",
                         },
                         {
-                            text: await this.translate.get("common.yes").toPromise(),
-                            handler: async () => {
-                                await this.firebase.logEvent("login_ariszto_opened");
-                                await this.market.open("hu.coware.ellenorzo");
+                            text: this.translate.instant("common.yes"),
+                            handler: () => {
+                                this.firebase.logEvent("login_ariszto_opened");
+                                this.market.open("hu.coware.ellenorzo");
                             },
                         },
                     ],
                 });
 
-                await alert.present();
-            } else if (e.error) {
-                this.firebase.logError("login error with msg: " + e.error);
-                const data = JSON.parse(e.error);
-                await this.error.presentAlert(data.error_description, data.error);
-            } else {
-                this.firebase.logError("login error with invalid msg: " + e);
-                await this.error.presentAlert(
-                    (await this.translate.get("kreta.api-error").toPromise()) + " (" + e + ")"
-                );
+                return await alert.present();
             }
+
+            await this.errorHelper.presentAlertFromError(e);
+            e.handled = true;
+
+            throw e;
         } finally {
             loading.dismiss();
             this.loading = false;
+            this.firebase.stopTrace("login_time");
         }
     }
 
     async showInstituteModal() {
         if (this.networkStatus.getCurrentNetworkStatus() === ConnectionStatus.Offline)
-            return await this.error.presentAlert(
-                await this.translate.get("login.no-internet-institute-list").toPromise()
+            return await this.errorHelper.presentAlert(
+                this.translate.instant("login.no-internet-institute-list")
             );
 
         const modal = await this.modalController.create({
@@ -169,33 +164,32 @@ export class LoginPage {
     }
 
     openPrivacy() {
-        this.firebase.logEvent("login_privacypolicy_opened", {});
+        this.firebase.logEvent("login_privacypolicy_opened");
         this.safariViewController.isAvailable().then(async (available: boolean) => {
             if (available) {
-                this.subs.push(
-                    this.safariViewController
-                        .show({
-                            url: "https://coware-apps.github.io/naplo/privacy",
-                            barColor: "#3880ff",
-                            toolbarColor: "#3880ff",
-                            controlTintColor: "#ffffff",
-                        })
-                        .subscribe(
-                            (result: any) => {},
-                            (error: any) => {
-                                console.error(error);
-                                this.firebase.logError(
-                                    "login privacypolicy subscription error: " + error
-                                );
-                            }
-                        )
-                );
+                this.safariViewController
+                    .show({
+                        url: "https://coware-apps.github.io/naplo/privacy",
+                        barColor: "#3880ff",
+                        toolbarColor: "#3880ff",
+                        controlTintColor: "#ffffff",
+                    })
+                    .pipe(takeUntil(this.unsubscribe$))
+                    .subscribe({
+                        next: (result: any) => {},
+                        error: (error: any) => {
+                            console.error(error);
+                            this.firebase.logError(
+                                "login privacypolicy subscription error: " + error
+                            );
+                        },
+                    });
             } else {
                 console.log("browser tab not supported");
 
                 this.iab.create("https://coware-apps.github.io/naplo/privacy", "_blank", {
                     location: "yes",
-                    closebuttoncaption: await this.translate.get("common.back").toPromise(),
+                    closebuttoncaption: this.translate.instant("common.back"),
                     closebuttoncolor: "#ffffff",
                     toolbarcolor: "#3880ff",
                     zoom: "no",

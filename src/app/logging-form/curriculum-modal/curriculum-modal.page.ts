@@ -1,5 +1,5 @@
 import { Component, Input } from "@angular/core";
-import { Lesson, Tanmenet, TanmenetElem } from "../../_models";
+import { Lesson, Tanmenet, TanmenetElem, PageState } from "../../_models";
 import { ModalController, Platform } from "@ionic/angular";
 import {
     NetworkStatusService,
@@ -7,7 +7,8 @@ import {
     KretaService,
     ConfigService,
 } from "../../_services";
-import { Subscription } from "rxjs";
+import { Subject } from "rxjs";
+import { takeUntil } from "rxjs/operators";
 
 @Component({
     selector: "app-curriculum-modal",
@@ -17,10 +18,13 @@ import { Subscription } from "rxjs";
 export class CurriculumModalPage {
     @Input() public lesson: Lesson;
     public currentlyOffline: boolean;
-    public tanmenet: Tanmenet;
-    public evesOraSorszam: number = 0;
+    public curriculum: Tanmenet;
+    public yearlyLessonCount: number = 0;
 
-    private subs: Subscription[] = [];
+    public pageState: PageState = PageState.Loading;
+    public exception: Error;
+    public loadingInProgress: boolean;
+    private unsubscribe$: Subject<void>;
 
     constructor(
         public config: ConfigService,
@@ -31,24 +35,50 @@ export class CurriculumModalPage {
     ) {}
 
     async ionViewWillEnter() {
-        this.evesOraSorszam =
+        this.unsubscribe$ = new Subject<void>();
+
+        this.yearlyLessonCount =
             this.lesson.Allapot.Nev == "Naplozott"
                 ? this.lesson.EvesOraszam
                 : this.lesson.EvesOraszam + 1;
 
-        (await this.kreta.getTanmenet(this.lesson)).subscribe(x => (this.tanmenet = x));
+        this.loadData();
 
-        this.subs.push(
-            this.networkStatus.onNetworkChange().subscribe(status => {
-                this.currentlyOffline = status === ConnectionStatus.Offline;
-            })
-        );
+        this.networkStatus
+            .onNetworkChange()
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe({
+                next: status => {
+                    this.currentlyOffline = status === ConnectionStatus.Offline;
+                },
+            });
     }
 
     ionViewWillLeave() {
-        this.subs.forEach((s, index, object) => {
-            s.unsubscribe();
-            object.splice(index, 1);
+        this.unsubscribe$.next();
+        this.unsubscribe$.complete();
+    }
+
+    public loadData(forceRefresh: boolean = false) {
+        this.pageState = PageState.Loading;
+        this.loadingInProgress = true;
+
+        this.kreta.getTanmenet(this.lesson, forceRefresh).subscribe({
+            next: x => {
+                this.pageState = x.Items.length == 0 ? PageState.Empty : PageState.Loaded;
+                this.curriculum = x;
+            },
+            error: error => {
+                if (!this.curriculum) {
+                    this.pageState = PageState.Error;
+                    this.exception = error;
+                    error.handled = true;
+                }
+
+                this.loadingInProgress = false;
+                throw error;
+            },
+            complete: () => (this.loadingInProgress = false),
         });
     }
 

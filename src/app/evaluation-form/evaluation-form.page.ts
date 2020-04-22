@@ -1,7 +1,7 @@
 import { Component, ViewChild, ChangeDetectorRef } from "@angular/core";
-import { TanitottCsoport, OsztalyTanuloi, IDirty } from "../_models";
-import { ErtekelesComponent } from "../_components";
-import { Subscription } from "rxjs";
+import { TanitottCsoport, OsztalyTanuloi, IDirty, PageState } from "../_models";
+import { EvaluationComponent } from "../_components";
+import { Subject } from "rxjs";
 import {
     KretaService,
     NetworkStatusService,
@@ -12,7 +12,8 @@ import {
 import { LoadingController, MenuController } from "@ionic/angular";
 import { Location } from "@angular/common";
 import { ActivatedRoute } from "@angular/router";
-import { map } from "rxjs/operators";
+import { map, takeUntil } from "rxjs/operators";
+import { TranslateService } from "@ngx-translate/core";
 
 @Component({
     selector: "app-evaluation-form",
@@ -20,14 +21,17 @@ import { map } from "rxjs/operators";
     styleUrls: ["./evaluation-form.page.scss"],
 })
 export class EvaluationFormPage implements IDirty {
-    @ViewChild(ErtekelesComponent, { static: true })
-    private ertekeles: ErtekelesComponent;
+    @ViewChild(EvaluationComponent, { static: true })
+    private evaluationComponent: EvaluationComponent;
 
-    public tanitottCsoport: TanitottCsoport;
-    public osztalyTanuloi: OsztalyTanuloi;
+    public studentGroup: TanitottCsoport;
+    public studentsOfGroup: OsztalyTanuloi;
     public currentlyOffline: boolean;
 
-    private subs: Subscription[] = [];
+    public pageState: PageState = PageState.Loading;
+    public exception: Error;
+    public loadingInProgress: boolean;
+    private unsubscribe$: Subject<void>;
     private _isDirty: boolean;
 
     constructor(
@@ -39,41 +43,66 @@ export class EvaluationFormPage implements IDirty {
         private cd: ChangeDetectorRef,
         private firebase: FirebaseService,
         private location: Location,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
+        private translate: TranslateService
     ) {}
 
     async ionViewWillEnter() {
+        this.unsubscribe$ = new Subject<void>();
         this.firebase.setScreenName("evaluation_modal");
         this.menuController.swipeGesture(false);
 
-        this.subs.push(
-            this.route.paramMap.pipe(map(() => window.history.state)).subscribe(async state => {
-                this.tanitottCsoport = state.tanitottCsoport;
-                this._isDirty = false;
+        this.route.paramMap
+            .pipe(map(() => window.history.state))
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe({
+                next: state => {
+                    this.studentGroup = state.tanitottCsoport;
+                    this._isDirty = false;
 
-                await this.firebase.startTrace("evaluation_modal_load_time");
-                this.subs.push(
-                    (
-                        await this.kreta.getOsztalyTanuloi(this.tanitottCsoport.OsztalyCsoportId)
-                    ).subscribe(x => (this.osztalyTanuloi = x))
-                );
-                this.firebase.stopTrace("evaluation_modal_load_time");
-            })
-        );
+                    this.firebase.startTrace("evaluation_modal_load_time");
+                    this.kreta
+                        .getOsztalyTanuloi(this.studentGroup.OsztalyCsoportId)
+                        .pipe(takeUntil(this.unsubscribe$))
+                        .subscribe({
+                            next: x => {
+                                this.studentsOfGroup = x;
+                                this.pageState = PageState.Loaded;
+                            },
+                            error: error => {
+                                if (!this.studentsOfGroup) {
+                                    this.pageState = PageState.Error;
+                                    this.exception = error;
+                                    error.handled = true;
+                                }
 
-        this.subs.push(
-            this.networkStatus.onNetworkChange().subscribe(status => {
-                this.currentlyOffline = status === ConnectionStatus.Offline;
-                this.cd.detectChanges();
-            })
-        );
+                                this.loadingInProgress = false;
+                                this.firebase.stopTrace("evaluation_modal_load_time");
+
+                                throw error;
+                            },
+                            complete: () => {
+                                this.loadingInProgress = false;
+                                this.firebase.stopTrace("evaluation_modal_load_time");
+                            },
+                        });
+                },
+            });
+
+        this.networkStatus
+            .onNetworkChange()
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe({
+                next: status => {
+                    this.currentlyOffline = status === ConnectionStatus.Offline;
+                    this.cd.detectChanges();
+                },
+            });
     }
 
     ionViewWillLeave() {
-        this.subs.forEach((s, index, object) => {
-            s.unsubscribe();
-            object.splice(index, 1);
-        });
+        this.unsubscribe$.next();
+        this.unsubscribe$.complete();
         this.config.swipeGestureEnabled = true;
         this.menuController.swipeGesture(true);
     }
@@ -88,12 +117,14 @@ export class EvaluationFormPage implements IDirty {
     }
 
     public async save() {
-        if (!(await this.ertekeles.isValid())) return;
+        if (!(await this.evaluationComponent.isValid())) return;
 
-        const loading = await this.loadingController.create({ message: "Mentés..." });
+        const loading = await this.loadingController.create({
+            message: this.translate.instant("logging.saving"),
+        });
         await loading.present();
         await this.firebase.startTrace("evaluation_modal_post_time");
-        const ertekelesSaveResult = await this.ertekeles.save();
+        const ertekelesSaveResult = await this.evaluationComponent.save();
         this.firebase.stopTrace("evaluation_modal_post_time");
         await loading.dismiss();
 
