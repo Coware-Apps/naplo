@@ -11,6 +11,8 @@ ion-content {
 .peopleInfo {
     margin: 26px 0;
     color: var(--ion-color-dark-tint);
+    display: flex;
+    flex: 1;
 
     h2 {
         font-weight: bold;
@@ -23,7 +25,6 @@ ion-content {
     ion-icon {
         font-size: 29pt;
         margin-right: 10px;
-        float: left;
     }
 }
 
