@@ -1,17 +1,17 @@
-![Build](https://github.com/Coware-Apps/naplo/workflows/Build%20and%20sign%20Android/badge.svg)
+![Build and publish](https://github.com/Coware-Apps/naplo/workflows/Build%20and%20publish/badge.svg)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/f98abce0a81e44b69c0458ddfd03790e)](https://www.codacy.com/gh/Coware-Apps/naplo?utm_source=github.com&utm_medium=referral&utm_content=Coware-Apps/naplo&utm_campaign=Badge_Grade)
 
 <p align="center">
     <img class="center" src="https://coware-apps.github.io/naplo/naplo_logo.png" width="200"/><br>
-    <a href='https://play.google.com/store/apps/details?id=hu.coware.naplo&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Szerezd meg: Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/hu_badge_web_generic.png' width="200" /></a>
-    <a href="https://apps.apple.com/hu/app/napl%C3%B3/id1502625866?mt=8"><img src="https://linkmaker.itunes.apple.com/en-us/badge-lrg.svg?releaseDate=2020-03-23&kind=iossoftware&bubble=ios_apps" width="170" /></a>
+    <a href='https://play.google.com/store/apps/details?id=hu.coware.naplo&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Szerezd meg: Google Play' src='https://coware-apps.github.io/naplo/assets/badges/playstore.png' height="80" /></a>
+    <a href="https://apps.apple.com/hu/app/napl%C3%B3/id1502625866?mt=8"><img src="https://coware-apps.github.io/naplo/assets/badges/appstore.png" width="80" /></a>
 </p>
 
-Ez egy nem hivatalos **tanári** napló alkalmazás, ami kompatibilis a magyarországi KRÉTA-rendszerrel.
+Egy független **tanári** napló alkalmazás, ami kompatibilis a magyarországi KRÉTA-rendszerrel.
 
 _Az alkalmazást nem az eKréta Informatikai Zrt. fejlesztette, ezért az esetleges problémákkal, kérdésekkel kapcsolatban ne az ő ügyfélszolgálatukat keresd!_
 
-#### Miben különbözik ez az alkalmazás a hivatalostól?
+#### Miben különbözik ez az alkalmazás a Kréta sajátjától?
 
 Az elsődleges cél, hogy gyorsabb, megbízhatóbb, használhatóbb legyen.
 
@@ -28,6 +28,9 @@ A főbb funkciók:
     -   Értékelés témájának, módjának megadása
     -   Beépített átlagszámítás
 -   Nem naplózott órák listája
+-   Üzenetek
+    -   Olvasás, küldés
+    -   Mellékletek fogadása és küldése fájlból vagy kamerával
 -   Beállítások
     -   Világos és sötét színséma
     -   Alapértelmezett értékelési mód
