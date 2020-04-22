@@ -23,3 +23,7 @@ ion-chip ion-progress-bar {
     position: absolute;
     bottom: -2px;
 }
+
+.show-prevmsg-button {
+    margin-left: calc(-1 * var(--padding-left, 10px));
+}

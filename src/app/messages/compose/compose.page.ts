@@ -57,6 +57,8 @@ export class ComposePage implements IDirty {
     //replies and forwarding
     public prevMsgId: number;
     public prevMsgText: string = "";
+    public prevMsgShown: boolean;
+
     constructor(
         public config: ConfigService,
         private router: Router,

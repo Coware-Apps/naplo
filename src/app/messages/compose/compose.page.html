@@ -78,6 +78,12 @@
             </ion-textarea>
         </ion-item>
 
+        <ion-item lines="none" *ngIf="!prevMsgShown && prevMsgText">
+            <ion-button (click)="prevMsgShown = true" fill="clear" color="dark">
+                <ion-icon name="ellipsis-horizontal-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+        </ion-item>
+
         <ion-item
             class="attachment-container"
             lines="none"
@@ -122,7 +128,7 @@
         </ion-item>
 
         <ion-item
-            *ngIf="prevMsgText"
+            *ngIf="prevMsgText && prevMsgShown"
             class="prev-message"
             lines="none"
             [innerHTML]="prevMsgText"
