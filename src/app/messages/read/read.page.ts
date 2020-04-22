@@ -24,6 +24,8 @@ export class ReadPage implements OnInit {
     public sentDate: Date;
     public addresseeList: string;
     public attachmentsEnabled: boolean;
+    public prevMsg: string;
+    public prevMsgShown: boolean;
 
     public pageState: PageState = PageState.Loading;
     public loadingInProgress: boolean;
@@ -59,6 +61,15 @@ export class ReadPage implements OnInit {
             .subscribe({
                 next: message => {
                     this.message = message;
+
+                    // split current message and previous one
+                    const prevMsgStartsAt = message.uzenet.szoveg.indexOf("----");
+                    if (prevMsgStartsAt != -1) {
+                        const currentMsg = message.uzenet.szoveg.substring(0, prevMsgStartsAt);
+                        this.prevMsg = message.uzenet.szoveg.substring(prevMsgStartsAt);
+                        this.message.uzenet.szoveg = currentMsg;
+                    }
+
                     this.sentDate = new Date(message.uzenet.kuldesDatum);
                     this.addresseeList = message.uzenet.cimzettLista
                         .map(x =>

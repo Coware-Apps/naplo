@@ -7,6 +7,12 @@
         </ion-buttons>
 
         <ion-buttons slot="end" *ngIf="pageState == 'LOADED'">
+            <ion-button *ngIf="!this.message.isToroltElem" (click)="replyToMsg()">
+                <ion-icon slot="icon-only" name="arrow-undo-outline"></ion-icon>
+            </ion-button>
+            <ion-button *ngIf="!this.message.isToroltElem" (click)="forwardMsg()">
+                <ion-icon slot="icon-only" name="arrow-redo-outline"></ion-icon>
+            </ion-button>
             <ion-button *ngIf="!this.message.isToroltElem" (click)="binMsg('put')">
                 <ion-icon slot="icon-only" name="trash-bin-outline"></ion-icon>
             </ion-button>
@@ -65,6 +71,16 @@
         </div>
 
         <div class="message-text" [innerHTML]="message.uzenet.szoveg"></div>
+        <ion-button
+            (click)="prevMsgShown = true"
+            *ngIf="!prevMsgShown && prevMsg"
+            class="show-prevmsg-button"
+            fill="clear"
+            color="dark"
+        >
+            <ion-icon name="ellipsis-horizontal-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+        <div class="message-text" [innerHTML]="prevMsg" *ngIf="prevMsgShown"></div>
 
         <div class="attachment-container" *ngIf="this.message.uzenet.csatolmanyok.length > 0">
             <ion-chip *ngIf="!attachmentsEnabled">

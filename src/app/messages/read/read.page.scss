@@ -49,10 +49,14 @@ ion-content {
 }
 
 #buttons {
-    padding-top: 10%;
+    padding-top: 1em;
 }
 
 .bottomBtns {
     width: 40%;
     --ion-color-base: #a7a7a7 !important;
+}
+
+.show-prevmsg-button {
+    margin-left: calc(-1 * var(--padding-left, 10px));
 }
