@@ -1,8 +1,8 @@
 <p align="center" class="header">
     <img class="center" src="https://coware-apps.github.io/naplo/naplo_logo.png" width="200"/><br>
     <span class="badges">
-      <a id="badge-android" href='https://play.google.com/store/apps/details?id=hu.coware.naplo&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Szerezd meg: Google Play' src='/assets/badges/playstore.png' height="80" /></a>
-      <a id="badge-ios" href="https://apps.apple.com/hu/app/napl%C3%B3/id1502625866?mt=8"><img src="/assets/badges/appstore.png" height="80" /></a>
+      <a id="badge-android" href='https://play.google.com/store/apps/details?id=hu.coware.naplo&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Szerezd meg: Google Play' src='assets/badges/playstore.png' height="80" /></a>
+      <a id="badge-ios" href="https://apps.apple.com/hu/app/napl%C3%B3/id1502625866?mt=8"><img src="assets/badges/appstore.png" height="80" /></a>
   </span>
 </p>
 
