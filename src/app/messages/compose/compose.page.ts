@@ -114,9 +114,15 @@ export class ComposePage implements IDirty {
 
                         if (state.replyToMsg) {
                             this.prevMsgId = prevMsg.uzenet.azonosito;
-                            this.subject =
-                                `${this.translator.instant("messages.compose.reply-prefix")}: ` +
-                                prevMsg.uzenet.targy;
+
+                            const prefix =
+                                prevMsg.uzenet.targy.indexOf("Válasz:") == 0 ||
+                                prevMsg.uzenet.targy.indexOf("Reply:") == 0
+                                    ? ""
+                                    : this.translator.instant("messages.compose.reply-prefix") +
+                                      ": ";
+
+                            this.subject = prefix + prevMsg.uzenet.targy;
 
                             this.addresseeList.push({
                                 isAlairo: null,
@@ -129,9 +135,15 @@ export class ComposePage implements IDirty {
                             });
                         } else if (state.forwardedMsg) {
                             let prevMsg: Message = state.forwardedMsg;
-                            this.subject =
-                                `${this.translator.instant("messages.compose.forward-prefix")}: ` +
-                                prevMsg.uzenet.targy;
+
+                            const prefix =
+                                prevMsg.uzenet.targy.indexOf("Továbbítva:") == 0 ||
+                                prevMsg.uzenet.targy.indexOf("Fwd:") == 0
+                                    ? ""
+                                    : this.translator.instant("messages.compose.forward-prefix") +
+                                      ": ";
+
+                            this.subject = prefix + prevMsg.uzenet.targy;
 
                             prevMsg.uzenet.csatolmanyok.forEach(a => {
                                 this.attachmentList.push({
