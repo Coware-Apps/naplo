@@ -2,7 +2,10 @@
     <ion-toolbar color="primary">
         <ion-buttons slot="start">
             <ion-buttons slot="start">
-                <ion-back-button defaultHref="messages"></ion-back-button>
+                <ion-back-button
+                    defaultHref="messages"
+                    [text]="config.getBackButtonText()"
+                ></ion-back-button>
             </ion-buttons>
         </ion-buttons>
 
