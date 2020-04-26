@@ -373,7 +373,7 @@ export class KretaService {
 
     removeDayFromCache(day: Date): Promise<any> {
         let date = new Date(day);
-        date.setUTCHours(0, 0, 0, 0);
+        date.setUTCHours(20, 0, 0, 0);
         return this.data.removeItem(
             this.institute.Url + "/Naplo/v2/Orarend/OraLista?datumUtc=" + date.toISOString()
         );
