@@ -19,7 +19,7 @@ export class NaploException implements Error {
         iconName?: string,
         innerException?: Error
     ) {
-        this.name = this.constructor.name || name || "NaploException";
+        this.name = name || "NaploException";
         this.nameTranslationKey = nameTranslationKey;
         this.message = message;
         this.messageTranslationKey = messageTranslationKey;
@@ -39,7 +39,7 @@ export class NaploException implements Error {
 
         if (this.innerException instanceof HttpErrorResponse) {
             output.push(`\n----- Inner Exception -----`);
-            output.push(`Name: ${this.innerException.constructor.name}`);
+            output.push(`Name: ${this.innerException.name}`);
             output.push(`Status: ${this.innerException.status} ${this.innerException.statusText}`);
             output.push(`Error: ${this.innerException.error}`);
         }
