@@ -15,7 +15,7 @@ import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { Location } from "@angular/common";
 import { Subject } from "rxjs";
-import { takeUntil, switchMap, tap, finalize } from "rxjs/operators";
+import { takeUntil, switchMap, finalize } from "rxjs/operators";
 
 interface loadDataOptions {
     date: Date;
@@ -59,7 +59,7 @@ export class TimetablePage implements OnInit {
     public ngOnInit() {
         const paramDate = this.route.snapshot.queryParamMap.get("date");
         this.date = paramDate ? new Date(paramDate) : new Date();
-        this.date.setUTCHours(0, 0, 0, 0);
+        this.date.setUTCHours(20, 0, 0, 0);
     }
 
     public ionViewWillEnter() {
