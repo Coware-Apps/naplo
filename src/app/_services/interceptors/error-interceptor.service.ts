@@ -27,7 +27,7 @@ export class ErrorInterceptorService implements HttpInterceptor {
         return next.handle(req).pipe(
             retry(1),
             catchError((error: HttpErrorResponse) => {
-                console.debug("RAW ERROR", error);
+                // console.debug("RAW ERROR", error);
 
                 // Status < 0 means network errors
                 if (error.status < 0) return throwError(new NaploNetworkException(error));
@@ -64,7 +64,10 @@ export class ErrorInterceptorService implements HttpInterceptor {
                     return throwError(new NaploHttpInvalidResponseException(req, error));
 
                 // default
-                return throwError(new NaploHttpException(req, error));
+                if (error instanceof HttpErrorResponse)
+                    return throwError(new NaploHttpException(req, error));
+
+                return throwError(error);
             })
         );
     }

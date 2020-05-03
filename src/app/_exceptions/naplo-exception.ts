@@ -34,6 +34,7 @@ export class NaploException implements Error {
 
         output.push(`Name: ${this.name}`);
         output.push(`Date: ${new Date().toISOString()}`);
+        output.push(`Page URL: ${window.location.href}`);
         output.push(`Message: ${this.message}`);
         output.push(`InnerException: ${this.innerException}`);
 
