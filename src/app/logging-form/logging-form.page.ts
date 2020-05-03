@@ -345,7 +345,11 @@ export class LoggingFormPage implements IDirty {
             await this.errorHelper.presentAlert(this.translate.instant("logging.required-topic"));
             return;
         }
-        if (this.homeworkDeadline && this.homeworkDescription.trim().length <= 0) {
+        if (
+            this.homeworkDeadline &&
+            this.homeworkDescription &&
+            this.homeworkDescription.trim().length <= 0
+        ) {
             await this.errorHelper.presentAlert(
                 this.translate.instant("logging.required-homework-desc")
             );
@@ -365,7 +369,7 @@ export class LoggingFormPage implements IDirty {
                 OraVegDatumaUtc: this.lesson.VegeUtc,
                 IsElmaradt: false,
                 Tema: this.topic,
-                Hazifeladat: this.homeworkDescription ? this.homeworkDescription : null,
+                Hazifeladat: this.homeworkDescription ? this.homeworkDescription : "",
                 HazifeladatId: this.lesson.HazifeladatId ? this.lesson.HazifeladatId : null,
                 HazifeladatHataridoUtc: this.homeworkDeadline
                     ? new Date(this.homeworkDeadline).toISOString()
