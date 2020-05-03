@@ -159,7 +159,8 @@
             "delete-permanently": "Delete permanently",
             "delete-permanently-desc": "You're about to delete a message that is in the trash. This is a permanent operation you cannot undo!",
             "delete": "Delete",
-            "set-as-unread": "The message was set as unread"
+            "set-as-unread": "The message was set as unread",
+            "no-associated-app": "None of the installed apps can open this attachment."
         },
         "compose": {
             "title": "New message",
