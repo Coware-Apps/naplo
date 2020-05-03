@@ -386,13 +386,28 @@ export class LoggingFormPage implements IDirty {
             const result = await this.kreta.postLesson(request).toPromise();
 
             // form validation errors - we do not log these
-            if (result && result[0] && result[0].Exception) {
+            if (
+                result &&
+                result[0] &&
+                result[0].Exception &&
+                result[0].Exception.Message &&
+                result[0].Exception.ValidationItems.length > 0
+            ) {
+                let errors = "";
+                result[0].Exception.ValidationItems.forEach(
+                    x => (errors += x.Id + ": " + x.Message + "<br>")
+                );
+
                 await this.errorHelper.presentAlert(
+                    errors,
                     result[0].Exception.Message,
                     this.translate.instant("logging.couldnt-save")
                 );
 
                 console.error("Form validation error:", result[0].Exception.Message, result);
+                this.firebase.logEvent("logging-form_validation_error", {
+                    message: result[0].Exception.Message,
+                });
                 return;
             }
 
@@ -475,7 +490,7 @@ export class LoggingFormPage implements IDirty {
                 return;
             }
 
-            this.firebase.logEvent("lesson_logged");
+            this.firebase.logEvent("cancelled_lesson_logged");
 
             // successful logging
             await this.kreta.removeDayFromCache(this.lesson.KezdeteUtc);
