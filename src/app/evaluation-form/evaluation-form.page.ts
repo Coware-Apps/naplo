@@ -21,7 +21,7 @@ import { TranslateService } from "@ngx-translate/core";
     styleUrls: ["./evaluation-form.page.scss"],
 })
 export class EvaluationFormPage implements IDirty {
-    @ViewChild(EvaluationComponent, { static: true })
+    @ViewChild(EvaluationComponent, { static: false })
     private evaluationComponent: EvaluationComponent;
 
     public studentGroup: TanitottCsoport;

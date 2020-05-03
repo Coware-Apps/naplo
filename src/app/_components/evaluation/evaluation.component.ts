@@ -172,7 +172,8 @@ export class EvaluationComponent implements OnInit, OnChanges {
                     evaluationResponse &&
                     evaluationResponse[0] &&
                     evaluationResponse[0].Exception &&
-                    evaluationResponse[0].Exception.Message
+                    evaluationResponse[0].Exception.Message &&
+                    evaluationResponse[0].Exception.ValidationItems.length > 0
                 ) {
                     let errors = "";
                     evaluationResponse[0].Exception.ValidationItems.forEach(

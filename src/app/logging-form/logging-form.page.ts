@@ -345,7 +345,11 @@ export class LoggingFormPage implements IDirty {
             await this.errorHelper.presentAlert(this.translate.instant("logging.required-topic"));
             return;
         }
-        if (this.homeworkDeadline && this.homeworkDescription.trim().length <= 0) {
+        if (
+            this.homeworkDeadline &&
+            this.homeworkDescription &&
+            this.homeworkDescription.trim().length <= 0
+        ) {
             await this.errorHelper.presentAlert(
                 this.translate.instant("logging.required-homework-desc")
             );
@@ -365,7 +369,7 @@ export class LoggingFormPage implements IDirty {
                 OraVegDatumaUtc: this.lesson.VegeUtc,
                 IsElmaradt: false,
                 Tema: this.topic,
-                Hazifeladat: this.homeworkDescription ? this.homeworkDescription : null,
+                Hazifeladat: this.homeworkDescription ? this.homeworkDescription : "",
                 HazifeladatId: this.lesson.HazifeladatId ? this.lesson.HazifeladatId : null,
                 HazifeladatHataridoUtc: this.homeworkDeadline
                     ? new Date(this.homeworkDeadline).toISOString()
@@ -386,13 +390,28 @@ export class LoggingFormPage implements IDirty {
             const result = await this.kreta.postLesson(request).toPromise();
 
             // form validation errors - we do not log these
-            if (result && result[0] && result[0].Exception) {
+            if (
+                result &&
+                result[0] &&
+                result[0].Exception &&
+                result[0].Exception.Message &&
+                result[0].Exception.ValidationItems.length > 0
+            ) {
+                let errors = "";
+                result[0].Exception.ValidationItems.forEach(
+                    x => (errors += x.Id + ": " + x.Message + "<br>")
+                );
+
                 await this.errorHelper.presentAlert(
+                    errors,
                     result[0].Exception.Message,
                     this.translate.instant("logging.couldnt-save")
                 );
 
                 console.error("Form validation error:", result[0].Exception.Message, result);
+                this.firebase.logEvent("logging-form_validation_error", {
+                    message: result[0].Exception.Message,
+                });
                 return;
             }
 
@@ -450,8 +469,20 @@ export class LoggingFormPage implements IDirty {
             const result = await this.kreta.postLesson(request).toPromise();
 
             // form validation errors - we do not log these
-            if (result && result[0] && result[0].Exception) {
+            if (
+                result &&
+                result[0] &&
+                result[0].Exception &&
+                result[0].Exception.Message &&
+                result[0].Exception.ValidationItems.length > 0
+            ) {
+                let errors = "";
+                result[0].Exception.ValidationItems.forEach(
+                    x => (errors += x.Id + ": " + x.Message + "<br>")
+                );
+
                 await this.errorHelper.presentAlert(
+                    errors,
                     result[0].Exception.Message,
                     this.translate.instant("logging.couldnt-save")
                 );
@@ -463,7 +494,7 @@ export class LoggingFormPage implements IDirty {
                 return;
             }
 
-            this.firebase.logEvent("lesson_logged");
+            this.firebase.logEvent("cancelled_lesson_logged");
 
             // successful logging
             await this.kreta.removeDayFromCache(this.lesson.KezdeteUtc);
