@@ -159,7 +159,8 @@
             "delete-permanently": "Végleges törlés",
             "delete-permanently-desc": "Egy kukában lévő üzenetet tervezel törölni. Ez végleges, és nem vonható vissza!",
             "delete": "Törlés",
-            "set-as-unread": "Az üzenetet olvasatlannak jelöltük"
+            "set-as-unread": "Az üzenetet olvasatlannak jelöltük",
+            "no-associated-app": "Nincs telepítve olyan alkalmazás, ami meg tudja nyitni ezt a mellékletet."
         },
         "compose": {
             "title": "Új üzenet",

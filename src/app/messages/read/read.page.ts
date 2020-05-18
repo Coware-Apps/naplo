@@ -195,7 +195,12 @@ export class ReadPage implements OnInit {
 
             this.firebase.logEvent("messages_read_attachment_opened");
             fileEntry.file(file => {
-                this.fileOpener.open(fileEntry.nativeURL, file.type);
+                this.fileOpener.open(fileEntry.nativeURL, file.type).catch(error => {
+                    if (error.status == 9)
+                        this.errorHelper.presentToast(
+                            this.translate.instant("messages.read.no-associated-app")
+                        );
+                });
             });
             attachment.isDownloadFailed = false;
         } catch (error) {

@@ -82,6 +82,9 @@ export interface MessageAttachmentToSend {
     fajlNev: string;
     fajl: {
         ideiglenesFajlAzonosito: string;
+        utvonal?: string;
+        fileHandler?: string;
+        azonosito?: string;
     };
     iktatoszam?: any;
     /**
