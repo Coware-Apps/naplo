@@ -59,12 +59,12 @@
             </div>
         </ion-item>
         <ion-item>
-            <ion-label translate="messages.compose.label-subject"></ion-label>
             <ion-input
                 required
                 [(ngModel)]="subject"
                 type="text"
                 (ionInput)="makeItDirty()"
+                [placeholder]="'messages.compose.label-subject'|translate"
             ></ion-input>
         </ion-item>
         <ion-item lines="none">
