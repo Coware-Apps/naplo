@@ -509,18 +509,29 @@ export class KretaEUgyService {
             );
         }
 
-        if (response && response.response.length != 36)
+        try {
+            const parsedResponse = JSON.parse(response.response);
+
+            if (
+                !response ||
+                !parsedResponse.fajlAzonosito ||
+                parsedResponse.fajlAzonosito.length != 36
+            )
+                throw new Error();
+
+            return <MessageAttachmentToSend>{
+                fajlNev: fileName,
+                fajl: {
+                    ideiglenesFajlAzonosito: parsedResponse.fajlAzonosito,
+                    utvonal: "",
+                    azonosito: null,
+                    fileHandler: "Local",
+                },
+                iktatoszam: null,
+            };
+        } catch (error) {
             throw new KretaEUgyInvalidResponseException(response.response);
-
-        let returnVal: MessageAttachmentToSend = {
-            fajlNev: fileName,
-            fajl: {
-                ideiglenesFajlAzonosito: response.response,
-            },
-            iktatoszam: null,
-        };
-
-        return returnVal;
+        }
     }
 
     /**
@@ -528,9 +539,16 @@ export class KretaEUgyService {
      * @param attachmentId The id of the attachment to remove
      */
     public removeAttachment(attachmentId: string): Promise<any> {
+        const params = {
+            utvonal: "",
+            fajlAzonosito: attachmentId,
+        };
+
         return this.data
             .deleteUrl<any>(
-                this.host + this.endpoints.temporaryAttachmentStorage + `/${attachmentId}`
+                this.host + this.endpoints.temporaryAttachmentStorage,
+                undefined,
+                new HttpParams({ fromObject: params })
             )
             .toPromise();
     }
