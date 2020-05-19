@@ -38,7 +38,7 @@
     ></ion-progress-bar>
 </ion-header>
 
-<ion-content>
+<ion-content (swipe)="swipe($event)">
     <ion-refresher
         slot="fixed"
         (ionRefresh)="loadTimetable(true, false, $event)"
