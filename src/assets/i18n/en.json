@@ -144,7 +144,9 @@
             "delete-permanently-desc": "You're about to delete a message that is in the trash. This is a permanent operation you cannot undo!",
             "delete": "Delete",
             "set-as-unread": "The messages were set as unread",
-            "set-as-read": "The messages were set as read"
+            "set-as-read": "The messages were set as read",
+            "folder-empty": "There's nothing here",
+            "folder-empty-desc": "This folder is empty"
         },
         "read": {
             "delivery-status": "Delivery state",
