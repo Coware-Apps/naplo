@@ -121,7 +121,7 @@ export class TimetablePage implements OnInit {
         this.unsubscribe$.complete();
     }
 
-    public changeDate(direction: "forward" | "backward") {
+    public changeDate(direction: "forward" | "back") {
         this.firebase.logEvent("timetable_date_changed", { direction: direction });
         if (direction == "forward") this.date.setDate(this.date.getDate() + 1);
         else this.date.setDate(this.date.getDate() - 1);
@@ -219,7 +219,7 @@ export class TimetablePage implements OnInit {
             this.firebase.logEvent("timetable_swipe", { direction: "left" });
         } else {
             //swiped right, needs to load page to the left
-            this.changeDate("backward");
+            this.changeDate("back");
             this.firebase.logEvent("timetable_swipe", { direction: "right" });
         }
     }
