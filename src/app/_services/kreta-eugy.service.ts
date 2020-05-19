@@ -517,7 +517,7 @@ export class KretaEUgyService {
                 !parsedResponse.fajlAzonosito ||
                 parsedResponse.fajlAzonosito.length != 36
             )
-                throw new Error();
+                throw new KretaEUgyException("Invalid fajlAzonosito received after upload");
 
             return <MessageAttachmentToSend>{
                 fajlNev: fileName,

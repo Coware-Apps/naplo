@@ -1,5 +1,4 @@
 ![Build and publish](https://github.com/Coware-Apps/naplo/workflows/Build%20and%20publish/badge.svg)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/f98abce0a81e44b69c0458ddfd03790e)](https://www.codacy.com/gh/Coware-Apps/naplo?utm_source=github.com&utm_medium=referral&utm_content=Coware-Apps/naplo&utm_campaign=Badge_Grade)
 
 <p align="center">
     <img class="center" src="https://coware-apps.github.io/naplo/naplo_logo.png" width="200"/><br>
@@ -37,7 +36,7 @@ A főbb funkciók:
 
 #### Ötletem van, hova küldhetem?
 
-Minden ötletet szívesen fogadunk a cowareapps@gmail.com címen.
+Minden ötletet szívesen fogadunk a cowareapps+naplo@gmail.com címen.
 
 #### Biztonságban vannak az adataim?
 

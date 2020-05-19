@@ -16,6 +16,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { Location } from "@angular/common";
 import { Subject } from "rxjs";
 import { takeUntil, switchMap, finalize } from "rxjs/operators";
+import "hammerjs";
 
 interface loadDataOptions {
     date: Date;
@@ -120,7 +121,7 @@ export class TimetablePage implements OnInit {
         this.unsubscribe$.complete();
     }
 
-    public changeDate(direction: string) {
+    public changeDate(direction: "forward" | "back") {
         this.firebase.logEvent("timetable_date_changed", { direction: direction });
         if (direction == "forward") this.date.setDate(this.date.getDate() + 1);
         else this.date.setDate(this.date.getDate() - 1);
@@ -209,5 +210,17 @@ export class TimetablePage implements OnInit {
                     }
                 }
             );
+    }
+
+    public swipe(event) {
+        if (event.direction === 2) {
+            //swiped left, needs to load page to the right
+            this.changeDate("forward");
+            this.firebase.logEvent("timetable_swipe", { direction: "left" });
+        } else {
+            //swiped right, needs to load page to the left
+            this.changeDate("back");
+            this.firebase.logEvent("timetable_swipe", { direction: "right" });
+        }
     }
 }

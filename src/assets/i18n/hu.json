@@ -144,7 +144,9 @@
             "delete-permanently-desc": "Egy kukában lévő üzenetet tervezel törölni. Ez végleges, és nem vonható vissza!",
             "delete": "Törlés",
             "set-as-unread": "Az üzeneteket olvasatlannak jelöltük",
-            "set-as-read": "Az üzeneteket olvasottnak jelöltük"
+            "set-as-read": "Az üzeneteket olvasottnak jelöltük",
+            "folder-empty": "Itt nincs semmi",
+            "folder-empty-desc": "A mappa üres"
         },
         "read": {
             "delivery-status": "Kiküldés állapota",
