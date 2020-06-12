@@ -134,11 +134,8 @@
             </div>
         </ion-item>
 
-        <ion-item
-            *ngIf="prevMsgText && prevMsgShown"
-            class="prev-message"
-            lines="none"
-            [innerHTML]="prevMsgText"
-        ></ion-item>
+        <ion-item *ngIf="prevMsgText && prevMsgShown" class="prev-message" lines="none">
+            <div [innerHTML]="prevMsgText"></div>
+        </ion-item>
     </ion-list>
 </ion-content>
