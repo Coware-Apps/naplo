@@ -164,10 +164,11 @@ export class StudentAttendanceComponent implements OnInit, OnChanges, OnDestroy 
     }
 
     public getJsonOutput(): { Tipus: KretaEnum; Keses: number } {
+        const attendanceEntry = this.attendanceCodes.find(x => x.Id == this.selectedAttendanceCode);
         return {
             Tipus: {
                 Id: this.selectedAttendanceCode,
-                Nev: this.attendanceCodes.find(x => x.Id == this.selectedAttendanceCode).Nev,
+                Nev: attendanceEntry ? attendanceEntry.Nev : "",
             },
             Keses: this.lateMinutes ? this.lateMinutes : 0,
         };

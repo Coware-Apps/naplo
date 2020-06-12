@@ -287,6 +287,11 @@ export class KretaEUgyService {
         );
 
         return response.pipe(
+            tap({
+                next: item => {
+                    if (!item) throw new KretaEUgyInvalidResponseException(item);
+                },
+            }),
             map(item =>
                 item.map(x => {
                     x.uzenetKuldesDatum = new Date(x.uzenetKuldesDatum);
