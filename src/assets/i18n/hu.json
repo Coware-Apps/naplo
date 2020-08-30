@@ -96,9 +96,9 @@
     },
     "eval": {
         "title": "Értékelés",
-        "info-days-limit": "A lista technikai okokból csak azokat a csoportokat tartalmazza, akikkel az elmúlt {{value}} napban órád volt.<br />Az itt meg nem jelenő csoportokat az óra naplózása funkción keresztül értékelheted.",
+        "info-days-limit": "A lista technikai okokból csak azokat a csoportokat tartalmazza, akikkel az elmúlt {{value}} napban órád volt. Az itt meg nem jelenő csoportokat az óra naplózása funkción keresztül értékelheted.",
         "list-empty": "A lista üres",
-        "info-days-imit-empty": "Technikai okokból csak azokat a csoportok jelennek meg, akikkel az elmúlt {{napToCheck}} napban órád volt.<br />Az itt nem látható csoportokat az óra naplózása funkción keresztül értékelheted.",
+        "info-days-limit-empty": "Technikai okokból csak azokat a csoportok jelennek meg, akikkel az elmúlt {{napToCheck}} napban órád volt. Az itt nem látható csoportokat az óra naplózása funkción keresztül értékelheted.",
         "field-date": "Az értékelés dátuma",
         "field-topic": "Az értékelés témája",
         "field-mode": "Az értékelés módja",
