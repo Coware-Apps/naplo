@@ -17,6 +17,7 @@ import {
     NaploHttpUnauthorizedException,
     KretaInvalidPasswordException,
     KretaInvalidRefreshTokenException,
+    KretaNewSchoolYearException,
 } from "src/app/_exceptions";
 
 @Injectable()
@@ -55,6 +56,10 @@ export class ErrorInterceptorService implements HttpInterceptor {
                 // HTTP 400+, except 400 and 401
                 if (error.status > 401 && error.status < 500)
                     return throwError(new NaploHttpInvalidRequestException(req, error));
+
+                // HTTP 409 with specific exception
+                if (error.status == 409 && error.message.includes("IntezmenyMarTanevetValtott"))
+                    return throwError(new KretaNewSchoolYearException(error));
 
                 // HTTP 500+
                 if (error.status >= 500)

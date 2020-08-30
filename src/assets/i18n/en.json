@@ -96,9 +96,9 @@
     },
     "eval": {
         "title": "Evaluation",
-        "info-days-limit": "Due to technical reasons, the list only contains the groups you had lesson with in the last {{value}} days.<br />You can grade the rest through the logging menu option.",
+        "info-days-limit": "Due to technical reasons, the list only contains the groups you had lesson with in the last {{value}} days. You can grade the rest through the logging menu option.",
         "list-empty": "The list is empty",
-        "info-days-imit-empty": "Due to technical reasons, the list only contains the groups you had lesson with in the last {{value}} days.<br />You can grade the rest through the logging menu option.",
+        "info-days-limit-empty": "Due to technical reasons, the list only contains the groups you had lesson with in the last {{value}} days. You can grade the rest through the logging menu option.",
         "field-date": "Date of the evaluation",
         "field-topic": "Subject",
         "field-mode": "Method",
@@ -229,6 +229,8 @@
         "logged-out.title": "KRETA logged you out",
         "logged-out.message": "The server ended your login session. Please log in again.",
         "file-transfer.title": "File transfer error",
-        "file-transfer.message": "An error occurred during the file transfer. KRETA is probably under maintenance."
+        "file-transfer.message": "An error occurred during the file transfer. KRETA is probably under maintenance.",
+        "new-school-year.title": "School year changed",
+        "new-school-year.message": "Your institution changed the active school year. You'll need to log in again to use the app."
     }
 }

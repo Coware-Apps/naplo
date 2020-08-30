@@ -19,7 +19,7 @@ export class AppComponent {
             icon: "hourglass-outline",
         },
         { title: "eval.title", url: "/evaluation", icon: "trophy-outline" },
-        { title: "messages.title", url: "/messages", icon: "chatbubbles-outline" },
+        // { title: "messages.title", url: "/messages", icon: "chatbubbles-outline" },
         { title: "settings.title", url: "/settings", icon: "settings-outline" },
     ];
 

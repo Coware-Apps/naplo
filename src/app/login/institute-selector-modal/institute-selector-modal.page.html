@@ -24,11 +24,11 @@
         *ngIf="pageState == 'LOADED'"
         approxItemHeight="63"
     >
-        <ion-item *virtualItem="let i" (click)="onSelectionChange(i.InstituteCode)">
+        <ion-item *virtualItem="let i" (click)="onSelectionChange(i.instituteCode)">
             <ion-label>
-                <h3>{{i.Name}}</h3>
-                <p class="ion-float-right">{{i.InstituteCode}}</p>
-                <p>{{i.City}}</p>
+                <h3>{{i.name}}</h3>
+                <p class="ion-float-right">{{i.instituteCode}}</p>
+                <p>{{i.city}}</p>
             </ion-label>
         </ion-item>
     </ion-virtual-scroll>
