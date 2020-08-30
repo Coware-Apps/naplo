@@ -133,7 +133,7 @@ export class KretaEUgyService {
         const params = {
             userName: username,
             password: password,
-            institute_code: institute.InstituteCode,
+            institute_code: institute.instituteCode,
             grant_type: "password",
             client_id: "kozelkep-js-web",
         };
@@ -191,7 +191,7 @@ export class KretaEUgyService {
             const params = {
                 refresh_token: refresh_token,
                 grant_type: "refresh_token",
-                institute_code: institute.InstituteCode,
+                institute_code: institute.instituteCode,
                 client_id: "kozelkep-js-web",
             };
             console.log(`[EUGY->renewToken()] renewing tokens with refreshToken`, refresh_token);

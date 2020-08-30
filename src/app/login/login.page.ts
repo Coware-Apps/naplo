@@ -160,7 +160,7 @@ export class LoginPage {
         });
         await modal.present();
         const { data } = await modal.onWillDismiss();
-        if (data && data.selectedInstitute) this.instituteName = data.selectedInstitute.Name;
+        if (data && data.selectedInstitute) this.instituteName = data.selectedInstitute.name;
     }
 
     openPrivacy() {

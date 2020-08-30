@@ -23,7 +23,7 @@ export class BearerTokenInterceptorService implements HttpInterceptor {
         }
 
         // add token to kreta mobile api requests
-        if (this.kreta.institute && req.url.startsWith(this.kreta.institute.Url)) {
+        if (this.kreta.institute && req.url.startsWith(this.kreta.institute.url)) {
             return from(this.kreta.getValidAccessToken()).pipe(
                 mergeMap(token => {
                     req = req.clone({

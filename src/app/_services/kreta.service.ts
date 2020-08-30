@@ -92,11 +92,11 @@ export class KretaService {
     }
 
     async loginWithUsername(username: string, password: string): Promise<TokenResponse> {
-        if (!this.institute || !this.institute.Url)
+        if (!this.institute || !this.institute.url)
             throw new KretaException("Nincs intézmény kiválasztva! (loginWithUsername())");
 
         const body = new HttpParams()
-            .set("institute_code", this.institute.InstituteCode)
+            .set("institute_code", this.institute.instituteCode)
             .set("userName", username)
             .set("password", password)
             .set("grant_type", "password")
@@ -162,7 +162,7 @@ export class KretaService {
         this.loginInProgress = true;
 
         try {
-            if (!this.institute || !this.institute.Url)
+            if (!this.institute || !this.institute.url)
                 throw Error("Nincs intézmény kiválasztva! (getValidAccessToken())");
 
             await this.firebase.startTrace("token_refresh_time");
@@ -219,7 +219,7 @@ export class KretaService {
 
     getInstituteList(): Observable<Institute[]> {
         return this.data.getUrlWithCache<Institute[]>(
-            "https://kretaglobalmobileapi.ekreta.hu/api/v1/Institute",
+            "https://kretaglobalmobileapi2.ekreta.hu/api/v1/Institute",
             null,
             new HttpHeaders().set("apiKey", "7856d350-1fda-45f5-822d-e1a2f3f1acf0"),
             this.longtermStorageExpiry
@@ -227,7 +227,7 @@ export class KretaService {
     }
 
     deleteInstituteListFromStorage(): Promise<void> {
-        return this.data.removeItem("https://kretaglobalmobileapi.ekreta.hu/api/v1/Institute");
+        return this.data.removeItem("https://kretaglobalmobileapi2.ekreta.hu/api/v1/Institute");
     }
 
     getAuthenticatedAdatcsomag<T>(
@@ -237,7 +237,7 @@ export class KretaService {
     ): Observable<T> {
         return this.data
             .getUrlWithCache<{ Adatcsomag: T }>(
-                this.institute.Url + url,
+                this.institute.url + url,
                 null,
                 null,
                 cacheSecs,
@@ -294,7 +294,7 @@ export class KretaService {
         let url = "";
         if (lesson.OrarendiOraId)
             url =
-                this.institute.Url +
+                this.institute.url +
                 "/Naplo/v2/Ora/OrarendiOra/JavasoltJelenlet?key[0].OrarendiOraId=" +
                 lesson.OrarendiOraId +
                 "&key[0].OraKezdetDatumaUtc=" +
@@ -303,7 +303,7 @@ export class KretaService {
                 lesson.VegeUtc;
         else
             url =
-                this.institute.Url +
+                this.institute.url +
                 "/Naplo/v2/Ora/TanitasiOra/JavasoltJelenlet?key[0].TanitasiOraId=" +
                 lesson.TanitasiOraId;
 
@@ -327,7 +327,7 @@ export class KretaService {
     getTanmenet(lesson: Lesson, forceRefresh?: boolean): Observable<Tanmenet> {
         return this.data
             .getUrlWithCache<Tanmenet[]>(
-                this.institute.Url +
+                this.institute.url +
                     "/Naplo/v2/Tanmenet?key[0].OsztalycsoportId=" +
                     lesson.OsztalyCsoportId +
                     "&key[0].Tantargyid=" +
@@ -349,7 +349,7 @@ export class KretaService {
 
     postLesson(data: object): Observable<any> {
         const response = this.data.postUrl<any>(
-            this.institute.Url + "/Naplo/v2/Orarend/OraNaplozas",
+            this.institute.url + "/Naplo/v2/Orarend/OraNaplozas",
             data
         );
 
@@ -361,7 +361,7 @@ export class KretaService {
 
     postEvaluation(data: object): Observable<any> {
         const response = this.data.postUrl<any>(
-            this.institute.Url + "/Naplo/v2/Ertekeles/OsztalyCsoportErtekeles",
+            this.institute.url + "/Naplo/v2/Ertekeles/OsztalyCsoportErtekeles",
             data
         );
 
@@ -375,19 +375,19 @@ export class KretaService {
         let date = new Date(day);
         date.setUTCHours(20, 0, 0, 0);
         return this.data.removeItem(
-            this.institute.Url + "/Naplo/v2/Orarend/OraLista?datumUtc=" + date.toISOString()
+            this.institute.url + "/Naplo/v2/Orarend/OraLista?datumUtc=" + date.toISOString()
         );
     }
 
     removeMulasztasFromCache(tanoraid: number): Promise<any> {
         return this.data.removeItem(
-            this.institute.Url + "/Naplo/v2/Ora/Mulasztas?hash=&tanoraId=" + tanoraid
+            this.institute.url + "/Naplo/v2/Ora/Mulasztas?hash=&tanoraId=" + tanoraid
         );
     }
 
     removeFeljegyzesFromCache(tanoraid: number): Promise<any> {
         return this.data.removeItem(
-            this.institute.Url + "/Naplo/v2/Ora/Feljegyzes?hash=&tanoraId=" + tanoraid
+            this.institute.url + "/Naplo/v2/Ora/Feljegyzes?hash=&tanoraId=" + tanoraid
         );
     }
 }

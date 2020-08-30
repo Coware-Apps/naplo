@@ -71,17 +71,17 @@ export class InstituteSelectorModalPage {
             this.filteredInstitutes = this.institutes.filter(
                 x =>
                     this.diacriticsHelper
-                        .removeDiacritics(x.Name.toLocaleLowerCase())
+                        .removeDiacritics(x.name.toLocaleLowerCase())
                         .includes(search) ||
                     this.diacriticsHelper
-                        .removeDiacritics(x.City.toLocaleLowerCase())
+                        .removeDiacritics(x.city.toLocaleLowerCase())
                         .includes(search) ||
-                    x.InstituteCode.includes(search)
+                    x.instituteCode.includes(search)
             );
     }
 
     onSelectionChange(instituteCode: string) {
-        const selected = this.institutes.find(x => x.InstituteCode == instituteCode);
+        const selected = this.institutes.find(x => x.instituteCode == instituteCode);
         this.kreta.institute = selected;
         this.modalController.dismiss({ selectedInstitute: selected });
     }
