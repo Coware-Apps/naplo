@@ -3,7 +3,11 @@ import { TranslateService } from "@ngx-translate/core";
 import { FirebaseX } from "@ionic-native/firebase-x/ngx";
 import * as StackTrace from "stacktrace-js";
 
-import { NaploHttpUnauthorizedException, KretaInvalidRefreshTokenException } from "../_exceptions";
+import {
+    NaploHttpUnauthorizedException,
+    KretaInvalidRefreshTokenException,
+    KretaNewSchoolYearException,
+} from "../_exceptions";
 import { ErrorHelper } from "../_helpers";
 import { ConfigService } from "./config.service";
 import { KretaService } from "./kreta.service";
@@ -44,10 +48,12 @@ export class ErrorHandlerService extends ErrorHandler {
 
         // 400 - KretaInvalidRefreshTokenException comes from the IDP on wrong refresh token
         // 401 - NaploHttpUnauthorizedException comes from API endpoints with wrong access_token
+        // 409 - KretaNewSchoolYearException means the token is only valid for the previous school year
         // at this point we already retried the request with a new token
         if (
             error instanceof KretaInvalidRefreshTokenException ||
-            error instanceof NaploHttpUnauthorizedException
+            error instanceof NaploHttpUnauthorizedException ||
+            error instanceof KretaNewSchoolYearException
         ) {
             this.errorHelper.presentAlertFromError(error, () => {
                 this.kreta.logout();

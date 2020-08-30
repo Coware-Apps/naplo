@@ -43,6 +43,19 @@ export class KretaMissingRoleException extends KretaException {
     }
 }
 
+export class KretaNewSchoolYearException extends KretaException {
+    constructor(innerException?: Error) {
+        super(
+            "The institution changed the active school year.",
+            "NewSchoolYearException",
+            "exceptions.new-school-year.message",
+            "exceptions.new-school-year.title",
+            "refresh-outline",
+            innerException
+        );
+    }
+}
+
 export class KretaInvalidResponseException extends KretaException {
     public response: any;
 

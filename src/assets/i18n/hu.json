@@ -229,6 +229,8 @@
         "logged-out.title": "A KRÉTA kijelentkeztetett",
         "logged-out.message": "A szerver kijelentkeztetett. Kérjük, jelentkezz be újra.",
         "file-transfer.title": "Fájlátviteli hiba",
-        "file-transfer.message": "Hiba történt a fájlátvitel során. Elképzelhető, hogy a KRÉTA karbantartás alatt van."
+        "file-transfer.message": "Hiba történt a fájlátvitel során. Elképzelhető, hogy a KRÉTA karbantartás alatt van.",
+        "new-school-year.title": "A tanév megváltozott",
+        "new-school-year.message": "Az intézmény léptette az aktív tanévet, ezért a KRÉTA kijelentkeztetett. A napló használatához jelentkezz be újra!"
     }
 }

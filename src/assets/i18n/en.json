@@ -229,6 +229,8 @@
         "logged-out.title": "KRETA logged you out",
         "logged-out.message": "The server ended your login session. Please log in again.",
         "file-transfer.title": "File transfer error",
-        "file-transfer.message": "An error occurred during the file transfer. KRETA is probably under maintenance."
+        "file-transfer.message": "An error occurred during the file transfer. KRETA is probably under maintenance.",
+        "new-school-year.title": "School year changed",
+        "new-school-year.message": "Your institution changed the active school year. You'll need to log in again to use the app."
     }
 }
