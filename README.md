@@ -27,9 +27,9 @@ A főbb funkciók:
     -   Értékelés témájának, módjának megadása
     -   Beépített átlagszámítás
 -   Nem naplózott órák listája
--   Üzenetek
-    -   Olvasás, küldés
-    -   Mellékletek fogadása és küldése fájlból vagy kamerával
+-   ~~Üzenetek~~ (a KRÉTA blokkolása miatt átmenetileg nem működik)
+    -   ~~Olvasás, küldés~~
+    -   ~~Mellékletek fogadása és küldése fájlból vagy kamerával~~
 -   Beállítások
     -   Világos és sötét színséma
     -   Alapértelmezett értékelési mód

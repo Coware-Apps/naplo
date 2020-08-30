@@ -95,7 +95,8 @@ export class LoginPage {
 
         try {
             await this.kreta.loginWithUsername(this.username, this.password);
-            this.eugy.getToken(this.username, this.password, this.kreta.institute);
+            // disabled due to api changes
+            // this.eugy.getToken(this.username, this.password, this.kreta.institute);
 
             console.log("Sikeres bejelentkezés, átirányítás: ", this.returnUrl);
 
