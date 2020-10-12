@@ -74,11 +74,11 @@ export class LoggingFormPage implements IDirty {
     public homeworkDescription: string;
     public memos: Feljegyzes[];
 
-    @ViewChild(IonSlides, { static: false })
+    @ViewChild(IonSlides)
     private slides: IonSlides;
-    @ViewChild(EvaluationComponent, { static: false })
+    @ViewChild(EvaluationComponent)
     private evaluation: EvaluationComponent;
-    @ViewChild(IonContent, { static: false })
+    @ViewChild(IonContent)
     private content: IonContent;
     @ViewChildren(StudentAttendanceComponent)
     private presenceComponents: QueryList<StudentAttendanceComponent>;
