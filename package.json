@@ -15,12 +15,12 @@
     },
     "private": true,
     "dependencies": {
-        "@angular/common": "^9.1.12",
-        "@angular/core": "^9.1.12",
-        "@angular/forms": "^9.1.12",
-        "@angular/platform-browser": "^9.1.12",
-        "@angular/platform-browser-dynamic": "^9.1.12",
-        "@angular/router": "^9.1.12",
+        "@angular/common": "^10.1.5",
+        "@angular/core": "^10.1.5",
+        "@angular/forms": "^10.1.5",
+        "@angular/platform-browser": "^10.1.5",
+        "@angular/platform-browser-dynamic": "^10.1.5",
+        "@angular/router": "^10.1.5",
         "@ionic-native/app-version": "^5.28.0",
         "@ionic-native/camera": "^5.28.0",
         "@ionic-native/core": "^5.28.0",
@@ -76,13 +76,13 @@
     },
     "devDependencies": {
         "@angular-devkit/architect": "^0.803.29",
-        "@angular-devkit/build-angular": "^0.901.12",
-        "@angular-devkit/core": "^9.1.12",
-        "@angular-devkit/schematics": "^9.1.12",
-        "@angular/cli": "^9.1.12",
-        "@angular/compiler": "^9.1.12",
-        "@angular/compiler-cli": "^9.1.12",
-        "@angular/language-service": "^9.1.12",
+        "@angular-devkit/build-angular": "^0.1001.6",
+        "@angular-devkit/core": "^10.1.6",
+        "@angular-devkit/schematics": "^10.1.6",
+        "@angular/cli": "^10.1.6",
+        "@angular/compiler": "^10.1.5",
+        "@angular/compiler-cli": "^10.1.5",
+        "@angular/language-service": "^10.1.5",
         "@babel/compat-data": "7.8.0",
         "@ionic/angular-toolkit": "^2.3.3",
         "@ionic/app-scripts": "^3.2.4",
@@ -109,7 +109,7 @@
         "tslint": "~5.15.0",
         "tslint-config-prettier": "^1.18.0",
         "tslint-plugin-prettier": "^2.1.0",
-        "typescript": "~3.8.3"
+        "typescript": "~4.0.3"
     },
     "cordova": {
         "plugins": {
