@@ -16,7 +16,7 @@ jobs:
 
         steps:
             - uses: actions/checkout@v1
-            - uses: actions/setup-node@v1.1.0
+            - uses: actions/setup-node@v1.4.4
 
             - name: NPM install
               run: npm install
@@ -92,7 +92,7 @@ jobs:
 
         steps:
             - uses: actions/checkout@v1
-            - uses: actions/setup-node@v1.1.0
+            - uses: actions/setup-node@v1.4.4
 
             - name: Install @ionic/cli and Cordova
               run: sudo npm install -g @ionic/cli cordova
