@@ -13,6 +13,8 @@ jobs:
         name: Build for Android
         runs-on: ubuntu-latest
         if: "!contains(github.event.head_commit.message, '[skip-ci]')"
+        env:
+            ACTIONS_ALLOW_UNSECURE_COMMANDS: true
 
         steps:
             - uses: actions/checkout@v1
@@ -89,6 +91,7 @@ jobs:
             MATCH_PASSWORD: ${{ secrets.MATCH_PASSPHRASE }}
             MATCH_SECRETS_REPO_URL: ${{ secrets.MATCH_SECRETS_REPO_URL }}
             MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_SECRETS_REPO_TOKEN }}
+            ACTIONS_ALLOW_UNSECURE_COMMANDS: true
 
         steps:
             - uses: actions/checkout@v1
