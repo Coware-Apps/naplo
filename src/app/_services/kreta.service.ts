@@ -26,6 +26,7 @@ import {
 
 import { DataService } from "./data.service";
 import { FirebaseService } from "./firebase.service";
+import { environment } from "src/environments/environment";
 
 @Injectable({
     providedIn: "root",
@@ -52,11 +53,15 @@ export class KretaService {
     ) {}
 
     private idpUrl = "https://idp.e-kreta.hu";
+    private schoolListUrl: string;
     private longtermStorageExpiry = 72 * 30 * 24 * 60 * 60;
     private loginInProgress: boolean = false;
 
     public async onInit() {
         this._institute = await this.data.getSetting<Institute>("institute").catch(() => null);
+        this.schoolListUrl = await this.firebase
+            .getConfigValue("school_list_url")
+            .catch(() => environment.deviceDefaultConfig.school_list_url);
 
         if (await this.isAuthenticated()) {
             const token = await this.data.getRawItem("access_token").catch(() => null);
@@ -219,15 +224,15 @@ export class KretaService {
 
     getInstituteList(): Observable<Institute[]> {
         return this.data.getUrlWithCache<Institute[]>(
-            "https://kretaglobalmobileapi2.ekreta.hu/api/v1/Institute",
+            this.schoolListUrl,
             null,
-            new HttpHeaders().set("apiKey", "7856d350-1fda-45f5-822d-e1a2f3f1acf0"),
+            null,
             this.longtermStorageExpiry
         );
     }
 
     deleteInstituteListFromStorage(): Promise<void> {
-        return this.data.removeItem("https://kretaglobalmobileapi2.ekreta.hu/api/v1/Institute");
+        return this.data.removeItem(this.schoolListUrl);
     }
 
     getAuthenticatedAdatcsomag<T>(
