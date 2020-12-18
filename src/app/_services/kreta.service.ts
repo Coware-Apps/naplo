@@ -61,7 +61,7 @@ export class KretaService {
         this._institute = await this.data.getSetting<Institute>("institute").catch(() => null);
         this.schoolListUrl = await this.firebase
             .getConfigValue("school_list_url")
-            .catch(() => environment.deviceDefaultConfig.school_list_url);
+            .catch(() => null);
 
         if (await this.isAuthenticated()) {
             const token = await this.data.getRawItem("access_token").catch(() => null);
@@ -224,7 +224,7 @@ export class KretaService {
 
     getInstituteList(): Observable<Institute[]> {
         return this.data.getUrlWithCache<Institute[]>(
-            this.schoolListUrl,
+            this.schoolListUrl || environment.deviceDefaultConfig.school_list_url,
             null,
             null,
             this.longtermStorageExpiry
@@ -232,7 +232,9 @@ export class KretaService {
     }
 
     deleteInstituteListFromStorage(): Promise<void> {
-        return this.data.removeItem(this.schoolListUrl);
+        return this.data.removeItem(
+            this.schoolListUrl || environment.deviceDefaultConfig.school_list_url
+        );
     }
 
     getAuthenticatedAdatcsomag<T>(
