@@ -1,3 +1,11 @@
+## A projekt vége
+Az eKréta Zrt. szerzői jogi okokra hivatkozva eltávolíttatta az alkalmazást mindkét nagy áruházból. Ezzel ugyan nem értünk egyet, de tekintve, hogy ez egy hobbi projekt, jogi vitába sem szeretnénk keveredni. Az app fejlesztését befejezzük. Az alkalmazás jelenleg, 2021. januárjában működőképes, feltehetőleg az is marad, amíg a Kréta a szerverein jelentős változtatásokat nem tesz.
+
+Reméljük, örömötöket leltétek az alkalmazásban, és megkönnyítette a munkát. További jó egészséget és kitartás kívánunk!
+
+
+
+
 ![Build and publish](https://github.com/Coware-Apps/naplo/workflows/Build%20and%20publish/badge.svg)
 
 <p align="center">
